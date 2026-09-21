@@ -1,0 +1,287 @@
+from functools import wraps
+
+from django.contrib.auth.hashers import check_password, make_password
+import json
+
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
+
+from .auth_forms import LoginForm, SignupForm
+from .models import Member, WorkoutProgress, generate_friend_code
+from .recommendation_service import make_recommendations
+
+LOGIN_ERROR_MESSAGE = "아이디 또는 비밀번호 오류입니다."
+GUEST_SESSION_KEY = "guest_mode"
+
+
+def _current_member(request):
+    member_id = request.session.get("member_id")
+    if not member_id:
+        return None
+    member = Member.objects.filter(pk=member_id).first()
+    if member is None:
+        request.session.pop("member_id", None)
+        request.session.pop("member_nickname", None)
+    return member
+
+
+def _is_guest(request):
+    return bool(request.session.get(GUEST_SESSION_KEY)) and _current_member(request) is None
+
+
+def member_required(view_func):
+    @wraps(view_func)
+    def wrapped(request, *args, **kwargs):
+        member = _current_member(request)
+        if member is None:
+            return redirect("login")
+        request.usim_member = member
+        request.usim_guest = False
+        return view_func(request, *args, **kwargs)
+    return wrapped
+
+
+def app_access_required(view_func):
+    """회원 또는 오프닝에서 시작한 게스트에게 앱 전체 페이지 접근을 허용한다."""
+    @wraps(view_func)
+    def wrapped(request, *args, **kwargs):
+        member = _current_member(request)
+        is_guest = member is None and _is_guest(request)
+        if member is None and not is_guest:
+            return redirect("login")
+
+        if member is not None:
+            request.session.pop(GUEST_SESSION_KEY, None)
+
+        request.usim_member = member
+        request.usim_guest = is_guest
+        return view_func(request, *args, **kwargs)
+    return wrapped
+
+
+def _app_context(request, active_tab):
+    member = getattr(request, "usim_member", None) or _current_member(request)
+    is_guest = bool(getattr(request, "usim_guest", False)) or (member is None and _is_guest(request))
+    return {
+        "active_tab": active_tab,
+        "member": member,
+        "is_guest": is_guest,
+    }
+
+
+def welcome(request):
+    return render(request, "pages/welcome.html")
+
+
+@require_POST
+def guest_start(request):
+    """오프닝에서 로그인 없이 MY ROOM만 체험하도록 게스트 세션을 시작한다."""
+    member = _current_member(request)
+    if member is not None:
+        # 이미 로그인된 사용자는 자신의 방으로 바로 보낸다.
+        request.session.pop(GUEST_SESSION_KEY, None)
+        return redirect("home")
+
+    request.session.cycle_key()
+    request.session.pop("member_id", None)
+    request.session.pop("member_nickname", None)
+    request.session[GUEST_SESSION_KEY] = True
+    return redirect("home")
+
+
+@never_cache
+@require_http_methods(["GET", "POST"])
+def signup_page(request):
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            Member.objects.create(
+                name=form.cleaned_data["name"],
+                nickname=form.cleaned_data["nickname"],
+                password_hash=make_password(form.cleaned_data["password"]),
+                address=form.cleaned_data["address"],
+                friend_code=generate_friend_code(),
+            )
+            return redirect("login")
+    else:
+        form = SignupForm()
+    return render(request, "pages/signup.html", {"form": form})
+
+
+@never_cache
+@require_http_methods(["GET", "POST"])
+def login_page(request):
+    error = None
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            member = Member.objects.filter(nickname=form.cleaned_data["nickname"]).first()
+            valid = member is not None and check_password(
+                form.cleaned_data["password"], member.password_hash
+            )
+            if not valid:
+                error = LOGIN_ERROR_MESSAGE
+            else:
+                request.session.cycle_key()
+                request.session.pop(GUEST_SESSION_KEY, None)
+                request.session["member_id"] = member.pk
+                request.session["member_nickname"] = member.nickname
+                return redirect("login_loading")
+        else:
+            # 입력 형식 오류는 필드 오류로 표시하되 계정 존재 여부는 노출하지 않는다.
+            if request.POST.get("nickname") and request.POST.get("password"):
+                error = LOGIN_ERROR_MESSAGE
+    else:
+        form = LoginForm()
+
+    return render(request, "pages/login.html", {"form": form, "error": error})
+
+
+@never_cache
+@member_required
+def login_loading(request):
+    return render(request, "pages/login_loading.html")
+
+
+@never_cache
+@member_required
+@require_GET
+def prepare_login_home(request):
+    """로그인 전환 화면에서 메인 추천을 미리 계산해 다음 화면의 대기시간을 줄인다."""
+    member = request.usim_member
+    try:
+        available = 60
+        max_travel = 20
+        payload = make_recommendations(member.address, set(), available, max_travel, None)
+        request.session["preloaded_home_recommendations"] = payload.get("recommendations", [])
+        request.session.modified = True
+        return JsonResponse({"ready": True})
+    except Exception as exc:
+        return JsonResponse({"ready": False, "error": str(exc)}, status=503)
+
+
+@require_POST
+def logout_page(request):
+    request.session.flush()
+    return redirect("welcome")
+
+
+@never_cache
+@require_GET
+def check_member_nickname(request):
+    nickname = request.GET.get("nickname", "").strip()
+    available = bool(nickname) and not Member.objects.filter(nickname=nickname).exists()
+    return JsonResponse({"available": available})
+
+
+def _member_progress_payload(member):
+    if not member.friend_code:
+        member.friend_code = generate_friend_code()
+        member.save(update_fields=["friend_code", "updated_at"])
+    progress, _ = WorkoutProgress.objects.get_or_create(member=member)
+    total = max(0, int(progress.total_calories or 0))
+    return {
+        "friend_code": member.friend_code,
+        "total_calories": total,
+        "level": (total // 1500) + 1,
+        "entries": progress.entries if isinstance(progress.entries, list) else [],
+    }
+
+
+@never_cache
+@app_access_required
+@require_GET
+def account_state(request):
+    member = getattr(request, "usim_member", None)
+    if member is None:
+        return JsonResponse({"friend_code": "", "total_calories": 0, "level": 1, "entries": []})
+    return JsonResponse(_member_progress_payload(member))
+
+
+@never_cache
+@app_access_required
+@require_POST
+def add_workout_calories(request):
+    member = getattr(request, "usim_member", None)
+    if member is None:
+        return JsonResponse({"error": "회원 로그인 후 운동량을 저장할 수 있습니다."}, status=401)
+    try:
+        body = json.loads(request.body or "{}")
+        amount = int(body.get("calories", 0))
+    except (TypeError, ValueError, json.JSONDecodeError):
+        amount = 0
+    if amount <= 0:
+        return JsonResponse({"error": "칼로리는 1 이상이어야 합니다."}, status=400)
+    progress, _ = WorkoutProgress.objects.get_or_create(member=member)
+    entries = progress.entries if isinstance(progress.entries, list) else []
+    entries.insert(0, {"calories": amount, "created_at": timezone.now().isoformat()})
+    progress.total_calories = max(0, int(progress.total_calories or 0)) + amount
+    progress.entries = entries[:30]
+    progress.save(update_fields=["total_calories", "entries", "updated_at"])
+    return JsonResponse(_member_progress_payload(member))
+
+
+@never_cache
+def main_page(request):
+    """회원은 자신의 방, 게스트는 오프닝에서 시작한 체험 방에 접근한다."""
+    member = _current_member(request)
+    is_guest = member is None and _is_guest(request)
+    if member is None and not is_guest:
+        return redirect("login")
+
+    if member is not None:
+        request.session.pop(GUEST_SESSION_KEY, None)
+
+    request.usim_member = member
+    request.usim_guest = is_guest
+    context = _app_context(request, "home")
+    address = member.address if member is not None else "서울특별시 관악구"
+    try:
+        latitude = float(request.GET["latitude"]) if request.GET.get("latitude") else None
+        longitude = float(request.GET["longitude"]) if request.GET.get("longitude") else None
+        if latitude is not None and not -90 <= latitude <= 90:
+            latitude = longitude = None
+        if longitude is not None and not -180 <= longitude <= 180:
+            latitude = longitude = None
+        origin = (latitude, longitude) if latitude is not None and longitude is not None else None
+        available = max(1, int(request.GET.get("available_minutes", "60")))
+        max_travel = max(0, int(request.GET.get("max_travel_minutes", "20")))
+        preloaded = request.session.pop("preloaded_home_recommendations", None) if origin is None else None
+        payload = None
+        if preloaded is not None:
+            payload = {"recommendations": preloaded}
+        else:
+            payload = make_recommendations(address, set(), available, max_travel, origin)
+        context["initial_recommendations"] = payload.get("recommendations", [])
+        context["location_loaded"] = bool(origin)
+    except Exception:
+        context["initial_recommendations"] = []
+        context["location_loaded"] = False
+    return render(request, "frontend/home.html", context)
+
+
+@never_cache
+@app_access_required
+def recommend_page(request):
+    return render(request, "frontend/recommend.html", _app_context(request, "recommend"))
+
+
+@never_cache
+@app_access_required
+def friends_page(request):
+    return render(request, "frontend/friends.html", _app_context(request, "friends"))
+
+
+@never_cache
+@app_access_required
+def profile_page(request):
+    return render(request, "frontend/profile.html", _app_context(request, "profile"))
+
+
+@never_cache
+@app_access_required
+def diary_page(request):
+    return render(request, "frontend/diary.html", _app_context(request, "diary"))

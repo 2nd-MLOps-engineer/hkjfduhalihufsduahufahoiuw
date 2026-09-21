@@ -1,0 +1,891 @@
+/* =========================================================
+   USIMUNKKA CHARACTER THEME v10
+   Character-led warm sports-club visual system.
+========================================================= */
+:root{
+  --character-ink:#202a2f;
+  --character-green:#2f5947;
+  --character-green-2:#466f5a;
+  --character-green-dark:#244437;
+  --character-cream:#f7f0e4;
+  --character-paper:#fffaf2;
+  --character-paper-2:#f1e7d7;
+  --character-brick:#bd735a;
+  --character-coral:#ef9b7d;
+  --character-yellow:#e6bd62;
+  --character-blue:#7b9cac;
+  --character-line:#c8b79e;
+  --character-line-dark:#897866;
+  --character-soft-green:#dfe9dc;
+  --character-soft-coral:#f5ded4;
+  --character-shadow:0 14px 34px rgba(63,48,31,.11);
+  --character-shadow-soft:0 8px 20px rgba(63,48,31,.075);
+}
+
+body{
+  background:
+    radial-gradient(circle at 7% 3%,rgba(230,189,98,.12),transparent 23%),
+    radial-gradient(circle at 94% 4%,rgba(123,156,172,.10),transparent 22%),
+    linear-gradient(180deg,#f2ece2 0%,#ece5d9 100%);
+  color:var(--character-ink);
+}
+
+.character-theme-shell.mini-shell{
+  border:1px solid #b6a68f;
+  background:#ede5d8;
+  box-shadow:0 20px 55px rgba(58,45,31,.13);
+}
+
+.character-theme-shell .mini-topbar{
+  background:rgba(255,250,241,.98);
+  border-bottom:1px solid #c8b8a1;
+}
+
+.character-theme-shell .brand-lockup{
+  gap:10px;
+}
+
+.character-theme-shell .brand-mark{
+  position:relative;
+  overflow:hidden;
+  background:var(--character-green);
+  color:#fff7e9;
+  border:1px solid #244437;
+  border-radius:13px;
+  transform:rotate(-2deg);
+  box-shadow:3px 4px 0 rgba(36,68,55,.14);
+}
+
+.character-theme-shell .brand-mark::after{
+  content:"";
+  position:absolute;
+  right:-5px;
+  bottom:-6px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:rgba(239,155,125,.55);
+}
+
+.character-theme-shell .brand-lockup .brand{
+  color:#1e292d;
+  font-weight:950;
+  letter-spacing:-.055em;
+}
+
+.character-theme-shell .brand-lockup span{
+  color:#7c7062;
+  font-weight:750;
+}
+
+.character-theme-shell .topbar-tag{
+  border:1px solid #b9aa94;
+  background:#efe5d6;
+  color:#506657;
+  box-shadow:2px 3px 0 rgba(87,69,49,.06);
+}
+
+.character-theme-shell .profile-rail{
+  background:
+    radial-gradient(circle at 30% 18%,rgba(239,155,125,.08),transparent 28%),
+    linear-gradient(180deg,#faf4ea,#f3e9da);
+}
+
+.character-theme-shell .rail-caption{
+  color:#95634f;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+
+.character-photo-frame{
+  position:relative;
+  overflow:hidden;
+  min-height:190px;
+  border:1px solid #ac9a82!important;
+  border-radius:16px!important;
+  background:
+    linear-gradient(180deg,#f5e7d2 0%,#e3eadb 100%)!important;
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.34),var(--character-shadow-soft);
+}
+
+.character-photo-frame::after{
+  content:"";
+  position:absolute;
+  left:9px;
+  right:9px;
+  bottom:9px;
+  height:24px;
+  border-radius:10px;
+  background:linear-gradient(90deg,rgba(47,89,71,.07),rgba(189,115,90,.08));
+  border:1px dashed rgba(78,72,62,.18);
+}
+
+.character-photo-frame .profile-avatar{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  overflow:hidden!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+.profile-avatar-image{
+  width:100%;
+  height:100%;
+  min-height:190px;
+  display:block;
+  object-fit:cover;
+  object-position:50% 20%;
+  transform:scale(1.05);
+  transform-origin:center 18%;
+  filter:saturate(.96) contrast(1.01);
+}
+
+.profile-photo-tag{
+  position:absolute;
+  left:13px;
+  bottom:13px;
+  z-index:5;
+  padding:5px 8px;
+  border:1px solid #6d6254;
+  border-radius:999px;
+  background:#fff8eb;
+  color:#4c5f51;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+
+.profile-doodle{
+  position:absolute;
+  right:8px;
+  top:11px;
+  z-index:4;
+  max-width:66px;
+  padding:6px 7px;
+  border:1px solid #806f5d;
+  border-radius:50%;
+  background:#fff9ee;
+  color:#40594a;
+  font:900 8px/1.15 ui-rounded,system-ui,sans-serif;
+  text-align:center;
+  transform:rotate(5deg);
+  box-shadow:2px 3px 0 rgba(67,53,39,.07);
+}
+
+.character-theme-shell .profile-rail h2{
+  color:#24342d;
+  font-weight:950;
+  letter-spacing:-.04em;
+}
+
+.character-theme-shell .profile-message{
+  color:#74695d;
+}
+
+.character-theme-shell .profile-facts{
+  border-color:#d0c0aa;
+}
+
+.character-theme-shell .profile-facts dt{
+  color:#9b6953;
+}
+
+.character-theme-shell .small-outline-button{
+  border:1px solid #94836c;
+  background:#fff9ef;
+  color:#365542;
+  box-shadow:2px 3px 0 rgba(71,54,36,.05);
+}
+
+.character-theme-shell .small-outline-button:hover{
+  border-color:#2f5947;
+  background:#2f5947;
+  color:#fff8ec;
+}
+
+.character-theme-shell .friend-note-mini{
+  border-color:#d0bea7;
+  background:#fff9ef;
+}
+
+.character-theme-shell .mini-music-player{
+  border-color:#bba98f;
+  background:linear-gradient(180deg,#fbf4e9,#e9dfce);
+  box-shadow:var(--character-shadow-soft);
+}
+
+.character-theme-shell .music-badge,
+.character-theme-shell .music-play{
+  background:var(--character-green)!important;
+}
+
+.character-theme-shell .music-progress i{
+  background:linear-gradient(90deg,var(--character-brick),var(--character-yellow));
+}
+
+.character-theme-shell .page-paper{
+  position:relative;
+  background:
+    radial-gradient(circle at 94% 8%,rgba(239,155,125,.045),transparent 17%),
+    linear-gradient(180deg,#fffaf2 0%,#fbf6ed 100%);
+}
+
+.character-theme-shell .page-paper::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.23;
+  background-image:radial-gradient(rgba(77,67,55,.18) .5px,transparent .5px);
+  background-size:12px 12px;
+  mask-image:linear-gradient(180deg,rgba(0,0,0,.3),transparent 38%);
+}
+
+.character-theme-shell .bookmark{
+  border-color:#bba992;
+  background:#efe5d6;
+  color:#505950;
+}
+
+.character-theme-shell .bookmark:hover{
+  transform:translateX(-3px);
+  border-color:#7d6f5f;
+  background:#fff8ed;
+}
+
+.character-theme-shell .bookmark.is-active{
+  background:var(--character-green);
+  border-color:var(--character-green-dark);
+  color:#fff8e9;
+  box-shadow:4px 5px 0 rgba(44,67,55,.15);
+}
+
+.character-theme-shell .recommend-tab:not(.is-active){
+  background:#f3dfd3;
+  color:#915742;
+}
+
+/* ---------------------------------------------------------
+   Shared character-led page heading
+--------------------------------------------------------- */
+.character-theme-shell .content-page{
+  position:relative;
+  color:var(--character-ink);
+}
+
+.character-theme-shell .paper-heading{
+  position:relative;
+  min-height:150px;
+  overflow:hidden;
+  padding:22px 190px 22px 24px;
+  border:1px solid #c9b9a1;
+  border-radius:20px;
+  background:
+    linear-gradient(135deg,rgba(255,251,242,.98),rgba(240,232,217,.96));
+  box-shadow:var(--character-shadow-soft);
+}
+
+.character-theme-shell .paper-heading::after{
+  content:"";
+  position:absolute;
+  right:20px;
+  bottom:17px;
+  width:110px;
+  height:9px;
+  border-radius:99px;
+  background:repeating-linear-gradient(90deg,var(--character-green) 0 14px,transparent 14px 20px);
+  opacity:.22;
+  transform:rotate(-2deg);
+}
+
+.character-theme-shell .paper-heading h1{
+  margin-top:5px;
+  color:#202c2f;
+  font-weight:950;
+  letter-spacing:-.055em;
+}
+
+.character-theme-shell .paper-heading>div:first-child>p:last-child{
+  max-width:590px;
+  color:#746a5e;
+  line-height:1.65;
+}
+
+.character-theme-shell .section-kicker,
+.character-theme-shell .tiny-label{
+  color:#9b624c;
+  font-weight:950;
+  letter-spacing:.10em;
+}
+
+.character-theme-shell .mini-sticker{
+  position:absolute;
+  top:18px;
+  right:19px;
+  z-index:2;
+  border:1px solid #827462;
+  background:#fff6e7;
+  color:#40594b;
+  transform:rotate(2deg);
+  box-shadow:2px 3px 0 rgba(74,59,42,.07);
+}
+
+.character-theme-shell .mini-sticker.lime{
+  background:#e4ecd8;
+  color:#35513f;
+}
+
+.page-character-sticker{
+  position:absolute;
+  right:26px;
+  bottom:-24px;
+  z-index:1;
+  width:145px;
+  height:145px;
+  pointer-events:none;
+}
+
+.page-character-sticker img{
+  position:absolute;
+  left:20px;
+  bottom:0;
+  width:106px;
+  max-height:142px;
+  object-fit:contain;
+  filter:drop-shadow(4px 6px 0 rgba(61,48,35,.08));
+}
+
+.page-character-sticker span{
+  position:absolute;
+  right:0;
+  top:0;
+  z-index:2;
+  padding:7px 9px;
+  border:1px solid #7b6b59;
+  border-radius:50%;
+  background:#fff9ed;
+  color:#42604f;
+  font-size:8px;
+  font-weight:1000;
+  line-height:1.05;
+  text-align:center;
+  letter-spacing:.04em;
+  transform:rotate(6deg);
+  box-shadow:2px 3px 0 rgba(65,50,34,.07);
+}
+
+.friend-character-sticker img,
+.profile-character-sticker img{
+  width:112px;
+}
+
+/* ---------------------------------------------------------
+   Shared cards and panels
+--------------------------------------------------------- */
+.character-theme-shell .recommend-form,
+.character-theme-shell .recommend-result-panel,
+.character-theme-shell .friend-code-panel,
+.character-theme-shell .friend-list-panel,
+.character-theme-shell .guestbook-panel,
+.character-theme-shell .friend-code-box,
+.character-theme-shell .save-bar{
+  border:1px solid #c8b69f!important;
+  border-radius:18px!important;
+  background:#fffaf1!important;
+  box-shadow:var(--character-shadow-soft)!important;
+}
+
+.character-theme-shell .recommend-form,
+.character-theme-shell .friend-list-panel,
+.character-theme-shell .guestbook-panel{
+  background:
+    linear-gradient(180deg,#fffaf2,#fbf4e9)!important;
+}
+
+.character-theme-shell .profile-form-section{
+  position:relative;
+  margin-top:14px;
+  padding:20px 18px!important;
+  border:1px solid #d1c0aa!important;
+  border-radius:18px;
+  background:rgba(255,250,242,.86);
+  box-shadow:var(--character-shadow-soft);
+}
+
+.character-theme-shell .profile-form-section+.profile-form-section{
+  margin-top:12px;
+}
+
+.character-theme-shell .profile-form-section.important-section{
+  background:linear-gradient(180deg,#fffaf2,#f6f0e4);
+}
+
+.character-theme-shell .form-section-number,
+.character-theme-shell .form-block-head>span{
+  border:1px solid #2b4e3e;
+  background:var(--character-green)!important;
+  color:#fff8e9!important;
+  box-shadow:2px 3px 0 rgba(43,67,55,.13);
+}
+
+.character-theme-shell .form-section-body h2,
+.character-theme-shell .form-block-head b,
+.character-theme-shell .card-title-row h2,
+.character-theme-shell .result-panel-head h2{
+  color:#26332e;
+  font-weight:950;
+  letter-spacing:-.035em;
+}
+
+.character-theme-shell .section-description,
+.character-theme-shell .form-hint,
+.character-theme-shell .privacy-hint{
+  color:#7e7366;
+}
+
+/* ---------------------------------------------------------
+   Default profile character
+--------------------------------------------------------- */
+.character-theme-shell .profile-edit-avatar{
+  position:relative;
+  width:174px!important;
+  height:174px!important;
+  overflow:hidden;
+  margin:15px 0 20px!important;
+  border:1px solid #9b896f;
+  border-radius:24px!important;
+  background:linear-gradient(155deg,#f5e6d0,#dfe9da)!important;
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.35),var(--character-shadow-soft);
+}
+
+.profile-edit-avatar img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:50% 18%;
+  transform:scale(1.07);
+}
+
+.profile-edit-avatar-badge{
+  position:absolute;
+  left:12px;
+  bottom:10px;
+  z-index:3;
+  padding:5px 8px;
+  border:1px solid #6d6254;
+  border-radius:999px;
+  background:#fff9ed;
+  color:#3e5949;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+
+/* ---------------------------------------------------------
+   Form controls
+--------------------------------------------------------- */
+.character-theme-shell .ui-control-label{
+  color:#5d554c!important;
+}
+
+.character-theme-shell .ui-control-row,
+.character-theme-shell .ui-select-wrap{
+  border:1.5px solid #c8b59b!important;
+  background:linear-gradient(180deg,#fffdf8,#f5eadb)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 5px 14px rgba(68,52,35,.06)!important;
+}
+
+.character-theme-shell .ui-control:focus-within .ui-control-row,
+.character-theme-shell .ui-control:focus-within .ui-select-wrap{
+  border-color:#4d725d!important;
+  background:#fffdf8!important;
+  box-shadow:0 0 0 4px rgba(70,111,90,.14),0 8px 20px rgba(68,52,35,.08)!important;
+}
+
+.character-theme-shell .ui-control-icon{
+  border-right-color:#d0bda5!important;
+  background:#ede3d2!important;
+  color:#4b6c58!important;
+}
+
+.character-theme-shell .ui-input,
+.character-theme-shell .ui-select{
+  color:#25322d!important;
+}
+
+.character-theme-shell .ui-action{
+  border-radius:14px!important;
+}
+
+.character-theme-shell .ui-action-primary{
+  background:linear-gradient(145deg,#466f5a,#2d4f3f)!important;
+  border-color:#244437!important;
+  box-shadow:inset 0 -3px rgba(0,0,0,.10),3px 5px 0 rgba(47,89,71,.12)!important;
+}
+
+.character-theme-shell .ui-action-accent{
+  background:linear-gradient(145deg,#c77b60,#a45f49)!important;
+  border-color:#915340!important;
+  box-shadow:inset 0 -3px rgba(0,0,0,.10),3px 5px 0 rgba(164,95,73,.12)!important;
+}
+
+/* ---------------------------------------------------------
+   Recommendation page
+--------------------------------------------------------- */
+.character-theme-shell .recommend-layout{
+  gap:16px;
+}
+
+.character-theme-shell .profile-default-block{
+  border:1px dashed #aebca8!important;
+  background:#edf3e9!important;
+}
+
+.character-theme-shell .choice-row span{
+  min-height:46px;
+  border:1px solid #ccbba3!important;
+  border-radius:13px!important;
+  background:#fffaf1!important;
+  color:#4a4d47;
+  box-shadow:0 3px 9px rgba(62,47,30,.04);
+}
+
+.character-theme-shell .choice-row input:checked+span{
+  border-color:#2f5947!important;
+  background:#2f5947!important;
+  color:#fff8e9!important;
+  box-shadow:3px 4px 0 rgba(47,89,71,.12);
+}
+
+.character-theme-shell .sport-content{
+  border:1px solid #cbb9a1!important;
+  border-radius:15px!important;
+  background:#fffaf2!important;
+}
+
+.character-theme-shell .sport-option:hover .sport-content{
+  border-color:#869e8e!important;
+  background:#fffdf8!important;
+  box-shadow:0 9px 20px rgba(52,68,58,.08)!important;
+}
+
+.character-theme-shell .sport-option input:checked+.sport-content{
+  border-color:#3f6a54!important;
+  background:#edf3e9!important;
+  box-shadow:inset 0 0 0 2px rgba(63,106,84,.12)!important;
+}
+
+.character-theme-shell .sport-icon{
+  background:#e6ede2!important;
+  color:#355a47!important;
+}
+
+.character-theme-shell .sport-check{
+  border-color:#a5b5aa!important;
+}
+
+.character-theme-shell .sport-option input:checked+.sport-content .sport-check{
+  background:#2f5947!important;
+  border-color:#2f5947!important;
+  color:#fff!important;
+}
+
+.character-theme-shell .recommend-result-panel{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 94% 8%,rgba(239,155,125,.11),transparent 22%),
+    linear-gradient(180deg,#fffaf1,#f5eddf)!important;
+}
+
+.character-theme-shell .empty-result{
+  border-color:#d5c4ac!important;
+  background:rgba(255,250,241,.75)!important;
+}
+
+/* ---------------------------------------------------------
+   Friends page
+--------------------------------------------------------- */
+.character-theme-shell .friend-code-panel{
+  background:
+    linear-gradient(180deg,#eef3e9,#e4eadf)!important;
+}
+
+.character-theme-shell .friend-code-panel>strong{
+  color:#2f5947;
+  letter-spacing:.02em;
+}
+
+.character-theme-shell .count-chip{
+  border:1px solid #4f705d;
+  background:#e7eee3;
+  color:#2f5947;
+}
+
+.character-theme-shell .friend-card{
+  border:1px solid #d1c0a9!important;
+  border-radius:16px!important;
+  background:#fffaf1!important;
+  box-shadow:0 6px 14px rgba(67,51,34,.055);
+}
+
+.character-theme-shell .friend-card:hover{
+  transform:translateY(-2px);
+  border-color:#8ca08f!important;
+  box-shadow:0 10px 22px rgba(53,72,59,.09);
+}
+
+.character-theme-shell .friend-mini-avatar{
+  border:1px solid rgba(77,67,56,.18);
+  box-shadow:2px 3px 0 rgba(74,57,38,.08);
+}
+
+.character-theme-shell .guestbook-row{
+  border-bottom-color:#d6c7b4!important;
+}
+
+/* ---------------------------------------------------------
+   Home room cohesion
+--------------------------------------------------------- */
+.character-home .sports-room-panel,
+.character-home .today-move-panel,
+.character-home .friend-note-panel{
+  border-color:#bda98f!important;
+  box-shadow:var(--character-shadow-soft)!important;
+}
+
+.character-home .room-titlebar,
+.character-home .friend-note-head{
+  background:#fff7ea!important;
+}
+
+.character-home .room-edit-button,
+.character-home .primary-move-link{
+  background:#2f5947!important;
+  border-color:#244437!important;
+  color:#fff8e9!important;
+}
+
+.character-home .room-reset-button,
+.character-home #quickRecommendButton{
+  border-color:#a79378!important;
+  background:#fff9ef!important;
+  color:#40594b!important;
+}
+
+.character-piece img{
+  filter:drop-shadow(5px 8px 0 rgba(47,55,49,.11));
+}
+
+/* ---------------------------------------------------------
+   Responsive
+--------------------------------------------------------- */
+@media(max-width:1180px){
+  .character-theme-shell .paper-heading{
+    padding-right:150px;
+  }
+  .page-character-sticker{
+    right:10px;
+    width:120px;
+    height:132px;
+  }
+  .page-character-sticker img{
+    left:18px;
+    width:88px;
+    max-height:128px;
+  }
+}
+
+@media(max-width:980px){
+  .profile-doodle{display:none}
+  .character-photo-frame{min-height:160px}
+  .profile-avatar-image{min-height:160px}
+  .page-character-sticker{opacity:.85}
+}
+
+@media(max-width:760px){
+  .character-theme-shell .paper-heading{
+    min-height:0;
+    padding:18px;
+  }
+  .character-theme-shell .mini-sticker{
+    position:static;
+    display:inline-flex;
+    margin-top:12px;
+    transform:none;
+  }
+  .page-character-sticker{
+    display:none;
+  }
+  .character-theme-shell .profile-form-section{
+    padding:17px 14px!important;
+  }
+  .character-theme-shell .profile-edit-avatar{
+    width:145px!important;
+    height:145px!important;
+  }
+}
+
+/* =========================================================
+   v11 · FRIEND / HOME refinement
+========================================================= */
+.character-home .friend-note-panel{
+  background:linear-gradient(135deg,#edf2e8 0%,#f4f1e8 100%)!important;
+  border-color:#aeb9aa!important;
+}
+.character-home .friend-note-head{
+  background:transparent!important;
+}
+.character-home .talk-row{
+  border-color:#cbd4c7!important;
+  background:rgba(255,253,247,.88)!important;
+}
+.character-home .mini-talk-form input{
+  background:#fffdf8!important;
+  border-color:#abb8ad!important;
+}
+
+.character-theme-shell .friends-page .friend-page-grid{
+  grid-template-columns:minmax(360px,.85fr) minmax(0,1.45fr)!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .ui-inline-form{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 126px!important;
+  align-items:end!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .ui-control-code{
+  min-width:0!important;
+  width:100%!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .ui-action{
+  min-width:126px!important;
+  width:126px!important;
+}
+.character-theme-shell .friend-count-label{
+  min-width:auto!important;
+  height:auto!important;
+  padding:6px 10px!important;
+  border-radius:999px!important;
+  font-size:.66rem!important;
+  font-weight:900!important;
+  line-height:1!important;
+  white-space:nowrap;
+}
+.character-theme-shell .guestbook-list{
+  min-height:260px;
+}
+.character-theme-shell .guestbook-row{
+  min-height:50px;
+  align-items:center;
+}
+
+@media(max-width:1120px){
+  .character-theme-shell .friends-page .friend-page-grid{grid-template-columns:1fr!important}
+}
+@media(max-width:760px){
+  .character-theme-shell .friends-page .friend-code-panel .ui-inline-form{grid-template-columns:1fr!important}
+  .character-theme-shell .friends-page .friend-code-panel .ui-action{width:100%!important}
+}
+
+/* =========================================================
+   v12 · friend lookup button split
+========================================================= */
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form{
+  grid-template-columns:minmax(0,1fr) 92px 126px!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form .friend-lookup-button{
+  min-width:92px!important;
+  width:92px!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form #friendAddButton{
+  min-width:126px!important;
+  width:126px!important;
+}
+@media(max-width:760px){
+  .character-theme-shell .friends-page .friend-code-panel .friend-code-search-form{
+    grid-template-columns:1fr!important;
+  }
+  .character-theme-shell .friends-page .friend-code-panel .friend-code-search-form .friend-lookup-button,
+  .character-theme-shell .friends-page .friend-code-panel .friend-code-search-form #friendAddButton{
+    width:100%!important;
+    min-width:0!important;
+  }
+}
+
+/* =========================================================
+   v13 · friend lookup gets priority width
+========================================================= */
+.character-theme-shell .friends-page .friend-page-grid{
+  grid-template-columns:minmax(560px,1.45fr) minmax(320px,.85fr)!important;
+  gap:16px!important;
+}
+.character-theme-shell .friends-page .friend-code-panel{
+  min-width:0;
+}
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form{
+  grid-template-columns:minmax(360px,1fr) 108px 142px!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form .friend-lookup-button{
+  width:108px!important;
+  min-width:108px!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form #friendAddButton{
+  width:142px!important;
+  min-width:142px!important;
+}
+@media(max-width:1180px){
+  .character-theme-shell .friends-page .friend-page-grid{grid-template-columns:1fr!important}
+}
+@media(max-width:760px){
+  .character-theme-shell .friends-page .friend-code-panel .friend-code-search-form{grid-template-columns:1fr!important}
+  .character-theme-shell .friends-page .friend-code-panel .friend-code-search-form .friend-lookup-button,
+  .character-theme-shell .friends-page .friend-code-panel .friend-code-search-form #friendAddButton{
+    width:100%!important;
+    min-width:0!important;
+  }
+}
+
+/* =========================================================
+   v13.1 · FRIEND CODE row overflow fix
+   Keep the input flexible, and let both actions shrink inside
+   the left card instead of spilling into MY FRIENDS.
+========================================================= */
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  grid-template-columns:minmax(0,1fr) clamp(82px,7.2vw,104px) clamp(108px,9vw,132px)!important;
+  gap:8px!important;
+  align-items:end!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form > *{
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form .ui-control-code{
+  width:100%!important;
+  min-width:0!important;
+}
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form .friend-lookup-button,
+.character-theme-shell .friends-page .friend-code-panel .friend-code-search-form #friendAddButton{
+  width:100%!important;
+  min-width:0!important;
+  padding-left:10px!important;
+  padding-right:10px!important;
+  white-space:nowrap!important;
+}
+@media(max-width:680px){
+  .character-theme-shell .friends-page .friend-code-panel .friend-code-search-form{
+    grid-template-columns:minmax(0,1fr) 86px!important;
+  }
+  .character-theme-shell .friends-page .friend-code-panel .friend-code-search-form .ui-control-code{
+    grid-column:1/-1!important;
+  }
+  .character-theme-shell .friends-page .friend-code-panel .friend-code-search-form #friendAddButton{
+    grid-column:auto!important;
+  }
+}

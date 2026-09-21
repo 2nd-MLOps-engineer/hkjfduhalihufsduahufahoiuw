@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 760">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8fafc"/><stop offset=".35" stop-color="#7a8b9f"/><stop offset=".7" stop-color="#262e3b"/><stop offset="1" stop-color="#0c1119"/></linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#466dff"/><stop offset="1" stop-color="#152c8f"/></linearGradient>
+    <filter id="sh" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="28" stdDeviation="20" flood-color="#000" flood-opacity=".38"/></filter>
+  </defs>
+  <ellipse cx="260" cy="707" rx="146" ry="25" fill="#000" opacity=".23"/>
+  <g filter="url(#sh)">
+    <path d="M235 63c16-20 43-30 70-22 31 10 49 41 44 72-6 36-38 63-72 59-35-4-59-37-53-71 2-14 6-27 11-38z" fill="url(#chrome)"/>
+    <path d="M229 91c13-36 37-54 69-51 27 3 45 18 58 43-26-4-47-3-63 2-23 7-40 11-64 6z" fill="#0a0d12"/>
+    <path d="M301 85l48 8-4 71-42 22z" fill="#d9ff3f" opacity=".92"/>
+    <path d="M188 241c28-46 58-65 93-65 42 0 78 21 101 68l28 175-83 42h-97l-82-42z" fill="url(#chrome)"/>
+    <path d="M204 229l74 52 77-52-18 86-59 37-58-37z" fill="url(#blue)"/>
+    <path d="M248 274h61l-31 60z" fill="#d9ff3f"/>
+    <path d="M160 287l-44 52 20 155 52-10-2-119 42-43z" fill="url(#chrome)"/>
+    <path d="M393 287l43 52-21 155-52-10 2-119-42-43z" fill="url(#blue)"/>
+    <path d="M215 454l-38 211 79 8 22-162 28 162 80-8-42-211z" fill="#141a24"/>
+    <path d="M164 654h103v48H150c-16 0-22-19-8-30zM298 655h99l27 19c15 10 8 28-11 28H298z" fill="#f0f3f7"/>
+    <path d="M169 659h84l-10 17h-84zM313 659h72l27 17h-99z" fill="#2f5bff"/>
+    <path d="M232 123h26M292 123h26" stroke="#2f5bff" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(354 112) rotate(-7)"><rect width="130" height="40" rx="20" fill="#d9ff3f"/><text x="65" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="800" letter-spacing="2" fill="#0b0e13">FORM / 03</text></g>
+</svg>

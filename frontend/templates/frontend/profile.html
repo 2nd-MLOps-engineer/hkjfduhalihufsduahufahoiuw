@@ -1,0 +1,393 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% block title %}우심운까 · 프로필{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/forms.css' %}?v=20260918-150">
+<link rel="stylesheet" href="{% static 'assets/css/sport_picker.css' %}?v=20260918-150">
+{% endblock %}
+{% block content %}
+<div class="content-page profile-page">
+  <header class="paper-heading profile-paper-heading">
+    <div>
+      <p class="section-kicker">MY PROFILE</p>
+      <h1>나를 알려주세요.</h1>
+      <p>★ 표시는 HOME 자동 추천과 운동추천 기본값에 직접 사용되는 정보예요.</p>
+    </div>
+    <span class="mini-sticker">PROFILE DATA</span>
+    <div class="page-character-sticker profile-character-sticker" aria-hidden="true">
+      <img
+        id="profilePageCharacterImage"
+        src="{% static 'assets/images/character/player_tie.png' %}"
+        data-default-src="{% static 'assets/images/character/player_tie.png' %}"
+        data-female-src="{% static 'assets/images/character/female_tie.png' %}"
+        data-male-src="{% static 'assets/images/character/player_tie.png' %}"
+        alt=""
+      >
+      <span>MY STYLE<br>MY MOVE</span>
+    </div>
+  </header>
+
+  <form class="profile-edit-form" id="profileForm">
+    <section class="profile-form-section">
+      <div class="form-section-number">01</div>
+      <div class="form-section-body">
+        <p class="section-kicker">PROFILE</p>
+        <h2>나를 표현하는 정보</h2>
+        <div class="profile-identity-layout">
+          <div class="profile-avatar-column">
+            <div class="profile-edit-avatar" id="profileEditAvatar">
+              <img
+                id="profileEditAvatarImage"
+                src="{% static 'assets/images/character/player_main.png' %}"
+                data-default-src="{% static 'assets/images/character/player_main.png' %}"
+                data-female-src="{% static 'assets/images/character/female_main.png' %}"
+                data-male-src="{% static 'assets/images/character/player_main.png' %}"
+                alt="USIMUNKKA profile character"
+              >
+              <span class="profile-edit-avatar-badge">DEFAULT CHARACTER</span>
+            </div>
+            <small class="avatar-helper">성별에 맞는 우심이 캐릭터가 HOME과 프로필에 함께 적용돼요.</small>
+
+            <div class="avatar-gender-block">
+              <span class="ui-control-label">CHARACTER TYPE</span>
+              <div class="avatar-gender-picker" id="genderPicker" aria-label="캐릭터 성별 선택">
+                <label class="avatar-gender-option">
+                  <input type="radio" name="avatarGender" value="female">
+                  <span class="avatar-gender-card">
+                    <span class="avatar-gender-media"><img src="{% static 'assets/images/character/female_main.png' %}" alt="여성 우심이 캐릭터"></span>
+                    <span class="avatar-gender-copy"><small>FEMALE</small><strong>여성 캐릭터</strong></span>
+                    <b>SELECT</b>
+                  </span>
+                </label>
+                <label class="avatar-gender-option">
+                  <input type="radio" name="avatarGender" value="male">
+                  <span class="avatar-gender-card">
+                    <span class="avatar-gender-media"><img src="{% static 'assets/images/character/player_main.png' %}" alt="남성 우심이 캐릭터"></span>
+                    <span class="avatar-gender-copy"><small>MALE</small><strong>남성 캐릭터</strong></span>
+                    <b>SELECT</b>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-status-card profile-vibe-card">
+            <div class="profile-status-head vibe-head">
+              <div>
+                <span class="tiny-label">TODAY VIBE</span>
+                <strong>오늘의 나를 한 장면으로</strong>
+                <small>이모지 대신 캐릭터의 자세와 색감으로 지금 상태를 골라요.</small>
+              </div>
+              <div class="mood-preview vibe-preview">
+                <span id="moodPreviewCode">READY</span>
+                <b id="moodPreviewLabel">가볍게 시작</b>
+              </div>
+            </div>
+
+            <div class="mood-visual-grid" id="moodPicker" aria-label="오늘의 분위기 선택">
+              <label class="mood-visual-option mood-ready">
+                <input type="radio" name="profileMood" value="ready">
+                <span class="mood-visual-card">
+                  <span class="mood-visual-media">
+                    <img src="{% static 'assets/images/character/player_wave.png' %}" data-female-src="{% static 'assets/images/character/female_wave.png' %}" data-male-src="{% static 'assets/images/character/player_wave.png' %}" alt="가볍게 시작하는 캐릭터">
+                    <i class="mood-vibe-wash" aria-hidden="true"></i>
+                    <i class="mood-scan-line" aria-hidden="true"></i>
+                    <b>01</b>
+                  </span>
+                  <span class="mood-visual-copy"><small>READY</small><strong>가볍게 시작</strong><em>부담 없이 한 걸음</em></span>
+                  <span class="mood-selected-mark" aria-hidden="true">PICK</span>
+                </span>
+              </label>
+
+              <label class="mood-visual-option mood-energy">
+                <input type="radio" name="profileMood" value="energy">
+                <span class="mood-visual-card">
+                  <span class="mood-visual-media">
+                    <img src="{% static 'assets/images/character/player_run.png' %}" data-female-src="{% static 'assets/images/character/female_run.png' %}" data-male-src="{% static 'assets/images/character/player_run.png' %}" alt="에너지 있게 달리는 캐릭터">
+                    <i class="mood-vibe-wash" aria-hidden="true"></i>
+                    <i class="mood-scan-line" aria-hidden="true"></i>
+                    <b>02</b>
+                  </span>
+                  <span class="mood-visual-copy"><small>FULL POWER</small><strong>의욕 충전</strong><em>오늘은 제대로 움직이기</em></span>
+                  <span class="mood-selected-mark" aria-hidden="true">PICK</span>
+                </span>
+              </label>
+
+              <label class="mood-visual-option mood-happy">
+                <input type="radio" name="profileMood" value="happy">
+                <span class="mood-visual-card">
+                  <span class="mood-visual-media">
+                    <img src="{% static 'assets/images/character/player_thumb.png' %}" data-female-src="{% static 'assets/images/character/female_thumb.png' %}" data-male-src="{% static 'assets/images/character/player_thumb.png' %}" alt="기분 좋게 엄지를 든 캐릭터">
+                    <i class="mood-vibe-wash" aria-hidden="true"></i>
+                    <i class="mood-scan-line" aria-hidden="true"></i>
+                    <b>03</b>
+                  </span>
+                  <span class="mood-visual-copy"><small>GOOD DAY</small><strong>기분 좋음</strong><em>가볍고 산뜻한 하루</em></span>
+                  <span class="mood-selected-mark" aria-hidden="true">PICK</span>
+                </span>
+              </label>
+
+              <label class="mood-visual-option mood-calm">
+                <input type="radio" name="profileMood" value="calm">
+                <span class="mood-visual-card">
+                  <span class="mood-visual-media">
+                    <img src="{% static 'assets/images/character/player_tie.png' %}" data-female-src="{% static 'assets/images/character/female_tie.png' %}" data-male-src="{% static 'assets/images/character/player_tie.png' %}" alt="차분하게 준비하는 캐릭터">
+                    <i class="mood-vibe-wash" aria-hidden="true"></i>
+                    <i class="mood-scan-line" aria-hidden="true"></i>
+                    <b>04</b>
+                  </span>
+                  <span class="mood-visual-copy"><small>EASY PACE</small><strong>여유로움</strong><em>내 속도로 천천히</em></span>
+                  <span class="mood-selected-mark" aria-hidden="true">PICK</span>
+                </span>
+              </label>
+
+              <label class="mood-visual-option mood-tired">
+                <input type="radio" name="profileMood" value="tired">
+                <span class="mood-visual-card">
+                  <span class="mood-visual-media">
+                    <img src="{% static 'assets/images/character/player_main.png' %}" data-female-src="{% static 'assets/images/character/female_main.png' %}" data-male-src="{% static 'assets/images/character/player_main.png' %}" alt="조금 지친 캐릭터">
+                    <i class="mood-vibe-wash" aria-hidden="true"></i>
+                    <i class="mood-scan-line" aria-hidden="true"></i>
+                    <b>05</b>
+                  </span>
+                  <span class="mood-visual-copy"><small>LOW BATTERY</small><strong>조금 피곤</strong><em>오늘은 무리하지 않기</em></span>
+                  <span class="mood-selected-mark" aria-hidden="true">PICK</span>
+                </span>
+              </label>
+            </div>
+
+            <label class="ui-control mood-note-control" for="moodNoteInput">
+              <span class="ui-control-label">오늘의 상태 한마디</span>
+              <span class="ui-control-row">
+                <span class="ui-control-icon" aria-hidden="true">U</span>
+                <input id="moodNoteInput" class="ui-input" maxlength="40" placeholder="예: 가볍게라도 움직이고 싶어요">
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="two-field-row ui-field-grid identity-text-fields">
+          <label class="ui-control" for="nicknameInput">
+            <span class="ui-control-label">닉네임</span>
+            <span class="ui-control-row">
+              <span class="ui-control-icon" aria-hidden="true">U</span>
+              <input
+                id="nicknameInput"
+                class="ui-input"
+                maxlength="12"
+                placeholder="닉네임을 입력하세요"
+                required
+              >
+            </span>
+          </label>
+
+          <label class="ui-control" for="messageInput">
+            <span class="ui-control-label">한줄 소개</span>
+            <span class="ui-control-row">
+              <span class="ui-control-icon" aria-hidden="true">✎</span>
+              <input
+                id="messageInput"
+                class="ui-input"
+                maxlength="40"
+                placeholder="오늘의 한마디를 적어보세요"
+              >
+            </span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-form-section important-section">
+      <div class="form-section-number">02</div>
+      <div class="form-section-body">
+        <p class="section-kicker">MY HOME ★</p>
+        <h2>기본 운동 지역</h2>
+        <p class="section-description">실시간 GPS 대신, 웹에서는 이 지역을 HOME 추천의 기본 출발지로 사용합니다.</p>
+
+        <div class="two-field-row ui-field-grid">
+          <label class="ui-control" for="profileProvince">
+            <span class="ui-control-label">시·도 ★</span>
+            <span class="ui-control-row">
+              <span class="ui-control-icon" aria-hidden="true">⌖</span>
+              <input
+                id="profileProvince"
+                class="ui-input"
+                required
+                placeholder="서울특별시"
+              >
+            </span>
+          </label>
+
+          <label class="ui-control" for="profileDistrict">
+            <span class="ui-control-label">시·군·구 ★</span>
+            <span class="ui-control-row">
+              <span class="ui-control-icon" aria-hidden="true">⌖</span>
+              <input
+                id="profileDistrict"
+                class="ui-input"
+                required
+                placeholder="관악구"
+              >
+            </span>
+          </label>
+        </div>
+
+        <label class="ui-control wide-field" for="profileNeighborhood">
+          <span class="ui-control-label">상세 지역 · 선택</span>
+          <span class="ui-control-row">
+            <span class="ui-control-icon" aria-hidden="true">+</span>
+            <input
+              id="profileNeighborhood"
+              class="ui-input"
+              placeholder="봉천동"
+            >
+          </span>
+        </label>
+
+        <p class="privacy-hint">친구에게는 시·군·구까지만 공개하고 상세 지역은 추천용으로만 사용하도록 설계합니다.</p>
+      </div>
+    </section>
+
+    <section class="profile-form-section important-section">
+      <div class="form-section-number">03</div>
+      <div class="form-section-body">
+        <p class="section-kicker">MY SPORTS ★</p>
+        <h2>좋아하는 운동</h2>
+
+        <div class="sport-visual-grid profile-sport-visual-grid" id="profileSportChecks">
+          <label class="sport-visual-option sport-running">
+            <input type="checkbox" value="running">
+            <span class="sport-visual-card">
+              <span class="sport-visual-media">
+                <img src="{% static 'assets/images/sports/running.webp' %}" alt="러닝을 하는 사람">
+                <span class="sport-visual-shade" aria-hidden="true"></span>
+                <span class="sport-visual-number" aria-hidden="true">01</span>
+                <span class="sport-motion-line" aria-hidden="true"></span>
+              </span>
+              <span class="sport-visual-body">
+                <span class="sport-visual-copy">
+                  <small>RUNNING</small>
+                  <strong>러닝</strong>
+                  <em>가볍게 달리며 오늘의 리듬 찾기</em>
+                </span>
+                <span class="sport-visual-check" aria-hidden="true">✓</span>
+              </span>
+            </span>
+          </label>
+
+          <label class="sport-visual-option sport-cycling">
+            <input type="checkbox" value="cycling">
+            <span class="sport-visual-card">
+              <span class="sport-visual-media">
+                <img src="{% static 'assets/images/sports/cycling.webp' %}" alt="자전거를 타는 사람">
+                <span class="sport-visual-shade" aria-hidden="true"></span>
+                <span class="sport-visual-number" aria-hidden="true">02</span>
+                <span class="sport-motion-line" aria-hidden="true"></span>
+              </span>
+              <span class="sport-visual-body">
+                <span class="sport-visual-copy">
+                  <small>CYCLING</small>
+                  <strong>자전거</strong>
+                  <em>바람을 타고 조금 더 멀리 움직이기</em>
+                </span>
+                <span class="sport-visual-check" aria-hidden="true">✓</span>
+              </span>
+            </span>
+          </label>
+
+          <label class="sport-visual-option sport-crossfit">
+            <input type="checkbox" value="crossfit">
+            <span class="sport-visual-card">
+              <span class="sport-visual-media">
+                <img src="{% static 'assets/images/sports/crossfit.webp' %}" alt="기능성 근력 운동을 하는 사람">
+                <span class="sport-visual-shade" aria-hidden="true"></span>
+                <span class="sport-visual-number" aria-hidden="true">03</span>
+                <span class="sport-motion-line" aria-hidden="true"></span>
+              </span>
+              <span class="sport-visual-body">
+                <span class="sport-visual-copy">
+                  <small>CROSSFIT</small>
+                  <strong>크로스핏</strong>
+                  <em>전신을 깨우는 강한 기능성 트레이닝</em>
+                </span>
+                <span class="sport-visual-check" aria-hidden="true">✓</span>
+              </span>
+            </span>
+          </label>
+
+          <label class="sport-visual-option sport-fitness">
+            <input type="checkbox" value="fitness">
+            <span class="sport-visual-card">
+              <span class="sport-visual-media">
+                <img src="{% static 'assets/images/sports/fitness.webp' %}" alt="헬스장에서 근력 운동을 하는 사람">
+                <span class="sport-visual-shade" aria-hidden="true"></span>
+                <span class="sport-visual-number" aria-hidden="true">04</span>
+                <span class="sport-motion-line" aria-hidden="true"></span>
+              </span>
+              <span class="sport-visual-body">
+                <span class="sport-visual-copy">
+                  <small>FITNESS</small>
+                  <strong>헬스</strong>
+                  <em>차근차근 쌓아가는 나만의 근력 루틴</em>
+                </span>
+                <span class="sport-visual-check" aria-hidden="true">✓</span>
+              </span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-form-section important-section">
+      <div class="form-section-number">04</div>
+      <div class="form-section-body">
+        <p class="section-kicker">MY MOVE STYLE ★</p>
+        <h2>평소 이동 방식</h2>
+
+        <div class="two-field-row ui-field-grid">
+          <label class="ui-control" for="profileTransport">
+            <span class="ui-control-label">주 이동수단 ★</span>
+            <span class="ui-select-wrap">
+              <select id="profileTransport" class="ui-select">
+                <option value="walk">도보</option>
+                <option value="transit">대중교통</option>
+              </select>
+            </span>
+          </label>
+
+          <label class="ui-control" for="profileTravelMinutes">
+            <span class="ui-control-label">기본 이동 가능시간 ★</span>
+            <span class="ui-select-wrap">
+              <select id="profileTravelMinutes" class="ui-select">
+                <option value="10">10분</option>
+                <option value="20">20분</option>
+                <option value="30">30분</option>
+                <option value="40">40분</option>
+              </select>
+            </span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="friend-code-box">
+      <div>
+        <span class="tiny-label">MY FRIEND CODE</span>
+        <strong id="friendCodeText">USIM-7K29</strong>
+      </div>
+      <p>친구 추가 기능은 기존 Backend API와 연결할 수 있도록 별도 페이지로 분리합니다.</p>
+    </section>
+
+    <div class="save-bar">
+      <span id="profileSaveMessage">저장하면 HOME 추천 기본값에 바로 반영됩니다.</span>
+      <button class="ui-action ui-action-primary ui-action-wide" type="submit">
+        <span>프로필 저장하기</span>
+        <b aria-hidden="true">→</b>
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'assets/js/profile.js' %}?v=20260918-150"></script>
+{% endblock %}

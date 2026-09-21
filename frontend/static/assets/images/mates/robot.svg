@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 760">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eff4f8"/><stop offset=".4" stop-color="#8493a6"/><stop offset="1" stop-color="#303a48"/></linearGradient>
+    <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4a73ff"/><stop offset=".6" stop-color="#263fba"/><stop offset="1" stop-color="#111943"/></linearGradient>
+    <filter id="sh" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="26" stdDeviation="19" flood-color="#000" flood-opacity=".4"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <ellipse cx="263" cy="710" rx="142" ry="24" fill="#000" opacity=".24"/>
+  <g filter="url(#sh)">
+    <path d="M218 70l35-40h58l38 40 5 83-45 48h-72l-42-48z" fill="url(#metal)"/>
+    <path d="M218 92h119v53l-38 34h-44l-37-34z" fill="#0b111c"/>
+    <path d="M237 119h26M291 119h26" stroke="#d9ff3f" stroke-width="7" stroke-linecap="round" filter="url(#glow)"/>
+    <path d="M213 217l62-34 64 34 68 74-28 171-69 26h-74l-75-27-27-170z" fill="url(#armor)"/>
+    <path d="M230 231l46 42 48-42 25 90-73 44-72-44z" fill="#d9ff3f"/>
+    <path d="M151 292l-42 55 24 149 53-11-4-118 48-39zM397 292l44 55-25 149-54-11 5-118-48-39z" fill="url(#metal)"/>
+    <path d="M217 456l-38 210 79 8 20-163 29 163 79-8-42-210z" fill="url(#metal)"/>
+    <path d="M165 655h105v47H151c-17 0-22-20-8-31zM299 656h99l27 18c16 11 9 28-10 28H299z" fill="#101620"/>
+    <path d="M170 659h87l-12 18h-85zM315 659h71l26 18h-97z" fill="#d9ff3f"/>
+    <circle cx="277" cy="371" r="32" fill="#131c2b" stroke="#b3c0cf" stroke-width="6"/><circle cx="277" cy="371" r="11" fill="#d9ff3f" filter="url(#glow)"/>
+    <path d="M238 402h80" stroke="#a9b7c6" stroke-width="3" opacity=".65"/>
+  </g>
+  <g transform="translate(362 110) rotate(-7)"><rect width="118" height="40" rx="20" fill="#ff6534"/><text x="59" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="800" letter-spacing="2" fill="#fff">ROBOT 07</text></g>
+</svg>

@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: woosimwoonkka-web
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py check && python manage.py migrate --noinput && python manage.py collectstatic --no-input
+    startCommand: gunicorn config.wsgi:application
+    healthCheckPath: /healthz/
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        sync: false
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: KMA_SERVICE_KEY
+        sync: false
+      - key: AIRKOREA_SERVICE_KEY
+        sync: false
+      - key: FACILITY_SERVICE_KEY
+        sync: false
+      - key: KAKAO_REST_API_KEY
+        sync: false
+      - key: KAKAO_JAVASCRIPT_KEY
+        sync: false
+      - key: FACILITY_API_URL
+        value: http://apis.data.go.kr/B551014/SRVC_API_SFMS_FACI/TODZ_API_SFMS_FACI

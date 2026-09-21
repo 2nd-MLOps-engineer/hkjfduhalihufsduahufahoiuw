@@ -1,0 +1,212 @@
+/* =========================================================
+   USIMUNKKA HOME v9.2
+   Character-led vintage room + draggable furniture
+========================================================= */
+.character-home{max-width:100%;margin:0 auto}
+.character-home-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:16px}
+.character-home-intro>div:first-child{min-width:0}
+.home-kicker{display:block;color:#a55f49;font-size:10px;font-weight:950;letter-spacing:.18em}
+.character-home-intro h1{margin:5px 0 7px;font-size:34px;line-height:1.05;letter-spacing:-.05em;color:#26323a}
+.character-home-intro p{max-width:620px;margin:0;color:#776d61;font-size:12px;line-height:1.65}
+.intro-sticker{flex:0 0 auto;padding:9px 12px;border:1.5px solid #897762;border-radius:48% 52% 47% 53%;background:#fffaf0;color:#415849;font-size:9px;font-weight:950;line-height:1.22;text-align:center;transform:rotate(4deg);box-shadow:3px 4px 0 rgba(70,55,40,.08)}
+
+.sports-room-panel{overflow:hidden;border:1.5px solid #a99a84;border-radius:18px;background:#dfd1bc;box-shadow:0 14px 28px rgba(60,47,31,.11)}
+.room-titlebar{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 12px 9px 16px;border-bottom:1px solid #887a66;background:#405a4b;color:#fff8e9}
+.room-title-copy{display:flex;align-items:center;gap:11px;min-width:0}
+.room-title-copy>div{min-width:0}
+.room-index{flex:0 0 auto;width:30px;height:30px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.45);border-radius:50%;background:#f0e0c2;color:#405a4b;font-size:10px;font-weight:1000}
+.room-titlebar strong{display:block;font-size:13px;letter-spacing:.13em}
+.room-titlebar small{display:block;margin-top:2px;overflow:hidden;color:#dce6df;font-size:9px;white-space:nowrap;text-overflow:ellipsis}
+.room-title-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.room-title-actions button{min-height:36px;padding:0 12px;border:1px solid #d9cbb4;border-radius:10px;background:#f7ecda;color:#3e4f45;font-size:10px;font-weight:900;box-shadow:inset 0 -2px rgba(0,0,0,.08)}
+.room-title-actions .room-reset-button{background:#53685b;color:#fff9ed;border-color:#74867a}
+.room-title-actions .room-edit-button{background:#e2b963;color:#3b392f;border-color:#c99f47}
+
+.room-scene-2d{position:relative;height:500px;overflow:hidden;isolation:isolate;user-select:none;touch-action:pan-y;background:#e5d8c4}
+.room-wall-flat{position:absolute;inset:0 0 31% 0;z-index:0;background:#e9dfcc;background-image:linear-gradient(rgba(89,75,57,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(89,75,57,.028) 1px,transparent 1px);background-size:34px 34px;transition:background .2s ease}
+.room-floor-flat{position:absolute;left:0;right:0;bottom:0;height:31%;z-index:0;border-top:3px solid #69513f;background:repeating-linear-gradient(90deg,#9d6e49 0 45px,#bc885b 45px 48px);box-shadow:inset 0 16px 28px rgba(73,45,27,.08)}
+.room-baseboard{position:absolute;left:0;right:0;top:68.8%;height:10px;z-index:1;border-top:2px solid #82715c;border-bottom:2px solid #82715c;background:#f0e5d1}
+.room-drag-help{position:absolute;right:14px;bottom:11px;z-index:50;padding:5px 8px;border:1px solid rgba(255,255,255,.23);border-radius:999px;background:rgba(44,58,50,.88);color:#fff8e9;font-size:8px;font-weight:900;letter-spacing:.08em;pointer-events:none}
+
+#sportsRoom[data-tone="sage"] .room-wall-flat{background:#d8dfd2;background-image:linear-gradient(rgba(75,87,67,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(75,87,67,.028) 1px,transparent 1px);background-size:34px 34px}
+#sportsRoom[data-tone="blue"] .room-wall-flat{background:#d9e1e5;background-image:linear-gradient(rgba(73,83,91,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(73,83,91,.028) 1px,transparent 1px);background-size:34px 34px}
+
+.room-item{position:absolute;left:50%;top:50%;z-index:7;transform:translate(-50%,-50%);cursor:grab;touch-action:none;outline:none;transition:filter .12s ease,opacity .18s ease,transform .12s ease}
+.room-item:focus-visible,.room-item.is-dragging{outline:2px dashed rgba(177,99,76,.85);outline-offset:5px}
+.room-item.is-dragging{z-index:60;cursor:grabbing;filter:drop-shadow(0 12px 10px rgba(42,33,24,.16))}
+.room-item.is-room-hidden{display:none!important}
+
+.room-window-flat{width:178px;height:116px;z-index:2;border:6px solid #f3eadb;outline:2px solid #625649;background:#bcd3d8;box-shadow:5px 6px 0 rgba(58,45,31,.08)}
+.room-window-flat:before{content:"";position:absolute;inset:0;background:linear-gradient(165deg,rgba(255,255,255,.72),transparent 38%),linear-gradient(#c7dce0 0 62%,#9db38f 62%)}
+.room-window-flat i{position:absolute;z-index:2;background:#f3eadb}.room-window-flat i:first-child{left:50%;top:0;bottom:0;width:5px}.room-window-flat i:nth-child(2){left:0;right:0;top:50%;height:5px}.room-window-flat span{position:absolute;right:6px;bottom:5px;z-index:3;color:#41545a;font-size:7px;font-weight:950;letter-spacing:.08em}
+
+.wall-poster{width:110px;height:130px;z-index:3}.poster-paper{width:100%;height:100%;padding:15px 12px;border:3px solid #4b4842;background:#f4e9d2;box-shadow:5px 6px 0 rgba(50,43,34,.10);transform:rotate(-2deg)}.poster-paper b{display:block;color:#2f4237;font-size:25px;line-height:.9;letter-spacing:-.06em}.poster-paper span{display:block;margin-top:10px;color:#9b5d49;font-size:7px;font-weight:950;letter-spacing:.08em}.poster-paper i{display:block;width:42px;height:4px;margin-top:12px;border-radius:99px;background:#deb457;box-shadow:0 9px 0 #6f95a5}
+
+.room-bed{width:225px;height:132px;z-index:7}.bed-head{position:absolute;left:0;top:2px;width:34px;height:101px;border:4px solid #574739;border-radius:13px 5px 0 0;background:#7a6049}.bed-mattress{position:absolute;left:25px;right:0;top:42px;height:67px;border:4px solid #574739;border-radius:8px;background:#ede1cf}.bed-blanket{position:absolute;left:88px;right:5px;top:46px;height:59px;border:2px solid #526b5b;border-radius:5px;background:repeating-linear-gradient(90deg,#466052 0 18px,#d9d2bf 18px 20px,#768a74 20px 39px,#d9d2bf 39px 41px)}.bed-pillow{position:absolute;left:37px;top:48px;width:54px;height:35px;border:2px solid #a08c72;border-radius:12px;background:#fff6e8}.room-bed>i{position:absolute;top:105px;width:8px;height:25px;background:#574739}.room-bed>i:nth-of-type(1){left:35px}.room-bed>i:nth-of-type(2){right:14px}
+
+.book-shelf{width:132px;height:160px;z-index:5}.shelf-frame{position:absolute;inset:0;border:5px solid #574232;background:#976844;box-shadow:6px 7px 0 rgba(67,49,33,.10)}.shelf-frame:before,.shelf-frame:after{content:"";position:absolute;left:8px;right:8px;height:5px;background:#574232}.shelf-frame:before{top:49px}.shelf-frame:after{top:99px}.shelf-books{position:absolute;z-index:2;display:flex;align-items:flex-end;gap:3px}.shelf-books i{display:block;width:10px;border:2px solid #4d453b;border-bottom:0}.shelf-books.row-a{left:15px;top:20px}.shelf-books.row-a i:nth-child(1){height:24px;background:#b76750}.shelf-books.row-a i:nth-child(2){height:29px;background:#799cac}.shelf-books.row-a i:nth-child(3){height:21px;background:#deb457}.shelf-books.row-a i:nth-child(4){height:26px;background:#486452}.shelf-books.row-b{right:14px;top:70px}.shelf-books.row-b i:nth-child(1){height:22px;background:#deb457}.shelf-books.row-b i:nth-child(2){height:28px;background:#b76750}.shelf-books.row-b i:nth-child(3){height:18px;background:#799cac}.shelf-box{position:absolute;left:18px;bottom:11px;z-index:2;width:36px;height:29px;border:3px solid #684e36;background:#d8bd8d}
+
+.desk-set{width:210px;height:126px;z-index:8}.desk-top{position:absolute;left:0;right:0;top:57px;height:15px;border:3px solid #594334;background:#a8764f}.desk-leg{position:absolute;top:69px;width:10px;height:55px;background:#594334}.desk-leg.left{left:16px}.desk-leg.right{right:16px}.desk-laptop{position:absolute;left:63px;top:14px;width:72px;height:47px;border:3px solid #3e4549;border-radius:5px;background:#596267}.desk-laptop i{position:absolute;left:7px;right:7px;top:7px;bottom:8px;border-radius:2px;background:#c8d6d4}.desk-cup{position:absolute;right:19px;top:35px;width:24px;height:28px;border:3px solid #6b5b4e;border-radius:4px 4px 9px 9px;background:#e8decb}.desk-books{position:absolute;left:16px;top:39px;width:37px;height:17px;background:#b76750;box-shadow:0 -7px 0 #deb457;border:2px solid #5e5146}
+
+.floor-rug{width:250px;height:92px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid #5c584e;border-radius:48%;background:#405d4d;color:#f3ead9;box-shadow:5px 5px 0 rgba(76,55,35,.08)}.floor-rug:before{content:"";position:absolute;inset:8px;border:2px dashed #d2b96d;border-radius:48%}.floor-rug b{position:relative;z-index:2;font-size:16px;letter-spacing:.13em}.floor-rug span{position:relative;z-index:2;margin-top:4px;font-size:7px;letter-spacing:.16em}
+
+.room-plant{width:84px;height:126px;z-index:9}.plant-pot{position:absolute;left:21px;bottom:0;width:44px;height:50px;border:3px solid #68453b;border-radius:7px 7px 14px 14px;background:#b76750}.room-plant i{position:absolute;left:38px;bottom:44px;width:17px;height:61px;border:3px solid #3f5c43;border-radius:80% 10% 80% 10%;background:#5e7d5f;transform-origin:bottom}.room-plant .leaf-a{transform:rotate(-38deg)}.room-plant .leaf-b{height:74px;transform:rotate(2deg);background:#789473}.room-plant .leaf-c{transform:rotate(39deg);background:#4f7058}
+
+.floor-lamp{width:78px;height:150px;z-index:5}.floor-lamp span{position:absolute;left:35px;top:36px;width:6px;height:100px;background:#55524d}.floor-lamp i{position:absolute;left:8px;top:2px;width:62px;height:44px;border:3px solid #66594c;background:#e0b85c;clip-path:polygon(20% 0,80% 0,100% 100%,0 100%)}.floor-lamp b{position:absolute;left:21px;bottom:0;width:36px;height:8px;border-radius:50%;background:#55524d}
+
+.character-piece{width:170px;height:286px;z-index:18;filter:drop-shadow(5px 9px 0 rgba(46,42,35,.12))}.character-piece img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;pointer-events:none;user-select:none;-webkit-user-drag:none}.character-bubble{position:absolute;left:94%;top:3%;min-width:88px;padding:8px 9px;border:2px solid #435048;border-radius:50%;background:#fffaf0;color:#3d4f44;font-size:9px;font-weight:900;line-height:1.25;text-align:center;transform:rotate(-4deg);pointer-events:none}.character-bubble:after{content:"";position:absolute;left:-8px;bottom:10px;width:13px;height:13px;border-left:2px solid #435048;border-bottom:2px solid #435048;background:#fffaf0;transform:rotate(35deg)}
+
+.sport-prop{z-index:14}.prop-dumbbell{width:96px;height:36px}.prop-dumbbell b{position:absolute;left:21px;right:21px;top:14px;height:8px;border:2px solid #333c3e;background:#526064}.prop-dumbbell i{position:absolute;top:5px;width:25px;height:27px;border:3px solid #323a3d;border-radius:7px;background:#4b565a}.prop-dumbbell i:first-child{left:0}.prop-dumbbell i:last-child{right:0}.prop-basketball{width:54px;height:54px;border:3px solid #4c433b;border-radius:50%;background:#c77d42}.prop-basketball:before,.prop-basketball:after{content:"";position:absolute;background:#4c433b}.prop-basketball:before{left:24px;top:0;bottom:0;width:3px}.prop-basketball:after{left:0;right:0;top:24px;height:3px}.prop-basketball i{position:absolute;inset:7px;border:2px solid #4c433b;border-radius:50%}.prop-gymbag{width:90px;height:58px;border:3px solid #31463a;border-radius:10px;background:#405d4d;color:#efe5d2}.prop-gymbag:before{content:"";position:absolute;left:20px;right:20px;top:-24px;height:28px;border:5px solid #31463a;border-bottom:0;border-radius:20px 20px 0 0}.prop-gymbag b{position:absolute;left:0;right:0;top:19px;text-align:center;font-size:11px;letter-spacing:.12em}.prop-gymbag span{position:absolute;left:12px;right:12px;bottom:8px;height:3px;background:#d9b35b}
+
+.today-move-card{margin-top:18px;overflow:hidden;border:1.5px solid #b9ab95;border-radius:16px;background:#fffaf0;box-shadow:5px 7px 0 rgba(79,64,40,.05)}
+.move-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid #cbbda8;background:#ece2d1}.move-head span{color:#9c5a46;font-size:9px;font-weight:950;letter-spacing:.14em}.move-head strong{color:#5b574e;font-size:10px}
+.move-main{display:grid;grid-template-columns:150px minmax(210px,.75fr) minmax(260px,1fr) 170px;align-items:stretch}.move-main>div{min-width:0}.move-character-visual{position:relative;display:flex;align-items:flex-end;justify-content:center;padding:12px 8px 0;background:#f3eadc}.move-character-visual img{width:104px;height:150px;object-fit:contain;object-position:center bottom}.move-character-visual span{position:absolute;right:5px;top:14px;padding:5px 7px;border:1.5px solid #6e6356;border-radius:50%;background:#fffaf0;color:#4b5c51;font-size:8px;font-weight:900;line-height:1.2;transform:rotate(5deg)}
+.move-copy,.recommend-place,.move-action{padding:19px}.move-copy{border-left:1px solid #e0d5c2;border-right:1px solid #e0d5c2}.move-copy small{color:#8d7d6c;font-size:8px}.move-copy h2{margin:7px 0 8px;color:#26323a;font-size:25px;line-height:1.1}.move-copy h2 em{color:#b2614c;font-style:normal}.move-copy p{margin:0;color:#766c61;font-size:10px;line-height:1.6}.recommend-place{display:grid;grid-template-columns:56px 1fr;gap:13px;align-items:center;border-right:1px solid #e0d5c2}.place-stamp{width:56px;height:56px;display:grid;place-items:center;border:3px solid #32473b;border-radius:50%;background:#476652;color:#fff3df;font-size:11px;font-weight:950;box-shadow:inset 0 -5px rgba(0,0,0,.12)}.recommend-place small{color:#98604c;font-size:8px;letter-spacing:.10em}.recommend-place h3{margin:4px 0;font-size:19px}.recommend-place p{margin:0;color:#746b60;font-size:10px}.condition-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.condition-tags span{padding:4px 7px;border-radius:999px;background:#efe5d6;color:#6a6055;font-size:8px}.move-action{display:flex;flex-direction:column;justify-content:center;gap:7px}.move-action label{color:#8f6553;font-size:9px;font-weight:900}.move-action select,.move-action button,.primary-move-link{height:38px;border:1.5px solid #bead95;border-radius:10px;background:#fffdf8;padding:0 10px;color:#36433c;font-size:10px;font-weight:850}.move-action button{background:#efe4d3}.primary-move-link{display:grid;place-items:center;border-color:#344e40;background:#405d4d;color:#fff8ea;text-decoration:none;box-shadow:inset 0 -3px rgba(0,0,0,.10)}
+
+.friend-note-panel{margin-top:18px;padding:17px;border:1.5px solid #c2b398;border-radius:14px;background:#eee1c9;box-shadow:5px 7px 0 rgba(79,64,40,.05)}.friend-note-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:10px}.friend-note-head span{display:block;color:#98604c;font-size:9px;font-weight:950;letter-spacing:.13em}.friend-note-head strong{display:block;margin-top:3px;font-size:15px}.friend-note-head a{color:#4a5d50;font-size:9px;font-weight:900}.talk-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.talk-row{min-height:58px;padding:10px 11px;border:1px solid #d7c6a5;background:#fff9ed;display:grid;grid-template-columns:auto 1fr;column-gap:8px;row-gap:4px;align-items:start}.talk-row b{font-size:10px}.talk-row span{color:#5f554a;font-size:11px}.talk-row time{grid-column:2;color:#998974;font-size:7px}.mini-talk-form{display:grid;grid-template-columns:minmax(0,1fr) 88px;margin-top:9px}.mini-talk-form input{min-width:0;height:42px;padding:0 12px;border:1.5px solid #c1af94;border-right:0;border-radius:10px 0 0 10px;background:#fffdf8;color:#304039;font-size:10px;outline:none}.mini-talk-form input:focus{border-color:#9b5b48;box-shadow:inset 0 0 0 2px rgba(177,99,76,.08)}.mini-talk-form button{border:1.5px solid #334b3e;border-radius:0 10px 10px 0;background:#405d4d;color:#fff9ed;font-size:9px;font-weight:950}
+
+.customizer-backdrop{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:28px;background:rgba(35,40,37,.60)}.customizer-backdrop[hidden]{display:none}.customizer-panel{width:min(720px,92vw);max-height:88vh;overflow:auto;border:7px solid #354b3e;border-radius:18px;background:#f7efe2;box-shadow:0 34px 90px rgba(0,0,0,.32)}.customizer-head{min-height:70px;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:4px solid #d8ae55;background:#405d4d;color:#fff8e9}.customizer-head span{color:#ead491;font-size:8px;font-weight:950;letter-spacing:.16em}.customizer-head h2{margin:3px 0 0;font-size:20px}.customizer-head>button{width:36px;height:36px;border:0;border-radius:50%;background:#f1e6d3;color:#3c5245;font-size:23px}.customizer-intro{margin:16px 18px 4px;color:#756b5f;font-size:11px;line-height:1.6}.customizer-options{display:grid;gap:13px;padding:8px 18px 18px}.customizer-options fieldset{margin:0;padding:12px 0 0;border:0;border-top:1px solid #cdbda3}.customizer-options legend{padding-right:9px;color:#995d48;font-size:8px;font-weight:950;letter-spacing:.14em}.option-grid,.item-toggle-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.option-grid button,.item-toggle-grid button{min-height:58px;padding:9px;border:1.5px solid #b8a88e;border-radius:11px;background:#fff9ed;color:#443e36;text-align:left}.option-grid button b,.item-toggle-grid button b{display:block;font-size:11px}.option-grid button small,.item-toggle-grid button span{display:block;margin-bottom:3px;color:#8d806d;font-size:7px;font-weight:900;letter-spacing:.09em}.option-grid button.is-selected,.item-toggle-grid button.is-selected{border-color:#a95f49;background:#f2dfcc;box-shadow:inset 0 0 0 2px #fff6e8}.sport-item-grid button{background:#edf2e9}.customizer-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 18px;border-top:1px solid #cbbb9e;background:#eadcc6}.customizer-footer span{color:#6d6458;font-size:9px}.customizer-footer button{height:40px;padding:0 20px;border:1px solid #31483b;border-radius:9px;background:#405d4d;color:#fff8e9;font-size:10px;font-weight:950}
+
+@media(max-width:1280px){
+  .room-scene-2d{height:460px}.move-main{grid-template-columns:130px minmax(180px,.75fr) minmax(240px,1fr) 155px}.move-copy,.recommend-place,.move-action{padding:15px}.talk-list{grid-template-columns:1fr}
+}
+@media(max-width:1080px){
+  .character-home-intro{align-items:flex-start}.intro-sticker{display:none}.room-titlebar small{display:none}.move-main{grid-template-columns:130px 1fr 1fr}.move-action{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;align-items:end;border-top:1px solid #e0d5c2}.move-action label{grid-column:1/-1}.recommend-place{border-right:0}.room-scene-2d{height:430px}.character-bubble{display:none}
+}
+@media(max-width:820px){
+  .character-home-intro{display:block}.character-home-intro p{margin-top:7px}.room-titlebar{align-items:flex-start}.room-title-actions{flex-direction:column}.room-scene-2d{height:400px}.room-window-flat{transform:translate(-50%,-50%) scale(.82)}.room-bed,.desk-set,.book-shelf{transform:translate(-50%,-50%) scale(.82)}.character-piece{transform:translate(-50%,-50%) scale(.84)}.move-main{grid-template-columns:1fr}.move-character-visual{display:none}.move-copy,.recommend-place{border:0;border-bottom:1px solid #e0d5c2}.move-action{grid-column:auto;display:grid;grid-template-columns:1fr 1fr}.move-action label{grid-column:1/-1}.option-grid,.item-toggle-grid{grid-template-columns:1fr 1fr}
+}
+/* ============================================================
+   v11 · MOVE LOG + ROOM REWARD OBJECTS
+   ============================================================ */
+.workout-log-panel{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(260px,.9fr) minmax(220px,.75fr);
+  gap:14px;
+  align-items:center;
+  padding:18px;
+  border:1.5px solid #aebaa8;
+  border-radius:16px;
+  background:linear-gradient(135deg,#eef3e9 0%,#f7f4eb 100%);
+  box-shadow:5px 7px 0 rgba(63,77,64,.05);
+}
+.workout-log-copy span{display:block;color:#8e5c49;font-size:9px;font-weight:950;letter-spacing:.13em}
+.workout-log-copy h2{margin:5px 0 6px;color:#25342d;font-size:20px;letter-spacing:-.04em}
+.workout-log-copy p{margin:0;color:#706b62;font-size:10px;line-height:1.6}
+.workout-log-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+.workout-log-form label{min-width:0;color:#46554b;font-size:9px;font-weight:900}
+.workout-log-form label>span:first-child{display:block;margin-bottom:6px}
+.calorie-input-shell{height:44px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border:1.5px solid #a9a08f;border-radius:11px;background:#fffdf8;overflow:hidden;box-shadow:inset 0 1px 0 #fff}
+.calorie-input-shell input{width:100%;height:100%!important;min-height:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:0 10px!important;font-size:12px!important;font-weight:900!important;outline:0}
+.calorie-input-shell b{padding:0 10px;color:#8c7d6a;font-size:9px;border-left:1px solid #ddd2c0}
+.workout-log-form button{height:44px;padding:0 14px;border:1.5px solid #274638;border-radius:11px;background:#315642;color:#fff8eb;font-size:9px;font-weight:950;white-space:nowrap;box-shadow:inset 0 -3px rgba(0,0,0,.08)}
+.workout-log-form button:hover{transform:translateY(-1px);background:#274a39}
+.room-progress-card{padding:12px;border:1px solid #c6baa7;border-radius:12px;background:#fffaf1}
+.room-progress-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.room-progress-head span{color:#8b604e;font-size:7px;font-weight:950;letter-spacing:.12em}.room-progress-head strong{color:#315642;font-size:12px}
+.room-progress-track{height:7px;margin:9px 0 8px;border-radius:99px;background:#e2d9ca;overflow:hidden}.room-progress-track i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#315642,#d3a957);transition:width .35s ease}
+.room-progress-card p{margin:0;color:#756c61;font-size:8px;line-height:1.5}
+
+/* unlockable room props */
+.prop-bottle{width:28px;height:56px;transform:translate(-50%,-50%);z-index:24;border:2px solid #283a32;border-radius:8px 8px 6px 6px;background:#476d59;box-shadow:3px 4px 0 rgba(44,55,47,.11)}
+.prop-bottle::before{content:"";position:absolute;left:7px;right:7px;top:-8px;height:10px;border:2px solid #283a32;border-bottom:0;border-radius:4px 4px 0 0;background:#e8eadf}
+.prop-bottle i{position:absolute;left:4px;right:4px;top:15px;height:2px;background:#d9b55f;box-shadow:0 22px 0 rgba(255,255,255,.35)}
+.prop-bottle b{position:absolute;inset:20px 0 auto;text-align:center;color:#f5ead7;font-size:10px}
+.prop-towel{width:64px;height:34px;transform:translate(-50%,-50%) rotate(-4deg);z-index:21;border:2px solid #463e35;border-radius:4px;background:#f3eee3;box-shadow:3px 4px 0 rgba(66,53,38,.09)}
+.prop-towel::before,.prop-towel::after{content:"";position:absolute;top:0;bottom:0;width:7px;background:#41644f}.prop-towel::before{left:8px}.prop-towel::after{right:8px}.prop-towel b{position:absolute;inset:11px 0 auto;text-align:center;color:#9a604d;font-size:7px;letter-spacing:.08em}
+.prop-shoes{width:78px;height:42px;transform:translate(-50%,-50%);z-index:25}
+.prop-shoes i{position:absolute;bottom:5px;width:43px;height:22px;border:2px solid #342f2a;border-radius:18px 12px 6px 8px;background:#f8f3e9;box-shadow:0 6px 0 #d7c9b4}.prop-shoes i:first-child{left:0;transform:rotate(9deg)}.prop-shoes i:last-child{right:0;transform:scaleX(-1) rotate(9deg)}
+.prop-shoes i::after{content:"";position:absolute;left:9px;right:8px;top:6px;height:2px;background:#3b644e;box-shadow:0 5px 0 #3b644e}
+.prop-medal{width:46px;height:70px;transform:translate(-50%,-50%);z-index:13}
+.prop-medal::before,.prop-medal::after{content:"";position:absolute;top:0;width:17px;height:38px;background:#355947;border:2px solid #2f3f37}.prop-medal::before{left:6px;transform:skew(10deg)}.prop-medal::after{right:6px;transform:skew(-10deg)}
+.prop-medal i{position:absolute;left:7px;bottom:0;width:34px;height:34px;border:3px solid #6e5726;border-radius:50%;background:#d7aa4d;z-index:2;box-shadow:inset 0 0 0 4px #f0d284}.prop-medal b{position:absolute;left:0;right:0;bottom:10px;z-index:3;text-align:center;color:#3d5749;font-size:10px}
+
+.sport-item-grid button{position:relative}
+.sport-item-grid button small{display:inline-flex;margin-top:6px;padding:3px 6px;border-radius:99px;background:#e5ecdf;color:#365342;font-size:6px;font-weight:950;letter-spacing:.1em}
+.sport-item-grid button.is-locked{opacity:.58;filter:grayscale(.35);cursor:not-allowed;background:#eee9df!important;border-style:dashed}
+.sport-item-grid button.is-locked small{background:#dfd7ca;color:#827565}
+.sport-item-grid button:not(.is-locked) small{background:#dce8d8;color:#2d5a43}
+
+@media(max-width:1180px){.workout-log-panel{grid-template-columns:1fr 1fr}.room-progress-card{grid-column:1/-1}}
+@media(max-width:820px){.workout-log-panel{grid-template-columns:1fr}.room-progress-card{grid-column:auto}.workout-log-form{grid-template-columns:1fr}.workout-log-form button{width:100%}}
+
+/* ============================================================
+   v14 · UNLIMITED MOVE EXP + ROOM LEVEL
+   ============================================================ */
+.room-progress-card{
+  position:relative;
+  overflow:hidden;
+}
+.room-level-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:10px 0 8px;
+}
+.room-level-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:58px;
+  height:34px;
+  padding:0 10px;
+  border:1.5px solid #2f5744;
+  border-radius:10px;
+  background:#315642;
+  color:#fff8eb;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.05em;
+  box-shadow:inset 0 -3px rgba(0,0,0,.08),3px 3px 0 rgba(49,86,66,.12);
+}
+.room-level-copy{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+.room-level-copy strong{
+  color:#263a31;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.room-level-copy small{
+  color:#8a7767;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.07em;
+}
+.room-progress-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:-2px 0 8px;
+  color:#7a7065;
+  font-size:7px;
+  font-weight:850;
+}
+.room-progress-foot b{
+  color:#315642;
+  font-size:8px;
+}
+.room-progress-card.is-level-up::after{
+  content:"LEVEL UP";
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background:rgba(255,250,241,.92);
+  color:#315642;
+  font-size:18px;
+  font-weight:1000;
+  letter-spacing:.16em;
+  animation:roomLevelUp .9s ease both;
+  pointer-events:none;
+}
+@keyframes roomLevelUp{
+  0%{opacity:0;transform:scale(.86)}
+  28%{opacity:1;transform:scale(1.04)}
+  70%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.03)}
+}

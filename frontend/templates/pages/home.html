@@ -1,0 +1,186 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% block title %}우심운까 · MY ROOM{% endblock %}
+{% block content %}
+<div class="home-page character-home">
+  <header class="home-intro character-home-intro">
+    <div>
+      <span class="home-kicker">MY MOVE HOME</span>
+      <h1><span id="homeNickname">우심이</span>의 작은 방</h1>
+      <p>평범한 내 방에서 시작해요. 가구는 마음대로 옮기고, 운동을 하면서 나만의 소품을 하나씩 더해보세요.</p>
+    </div>
+    <div class="intro-sticker" aria-hidden="true">GOOD MOVE<br>GOOD DAY :)</div>
+  </header>
+
+  <section class="sports-room-panel" id="sportsRoom" data-tone="cream">
+    <div class="room-titlebar">
+      <div class="room-title-copy">
+        <span class="room-index">01</span>
+        <div>
+          <strong>MY ROOM</strong>
+          <small>가구와 캐릭터를 마우스로 드래그해서 원하는 곳에 놓아보세요.</small>
+        </div>
+      </div>
+      <div class="room-title-actions">
+        <button type="button" class="room-reset-button" id="resetRoomLayout">배치 초기화</button>
+        <button type="button" class="room-edit-button" id="openCustomizer">꾸미기 +</button>
+      </div>
+    </div>
+
+    <div class="room-scene room-scene-2d" id="roomScene" aria-label="직접 배치할 수 있는 2D 개인 방">
+      <div class="room-wall-flat" aria-hidden="true"></div>
+      <div class="room-floor-flat" aria-hidden="true"></div>
+      <div class="room-baseboard" aria-hidden="true"></div>
+
+      <div class="room-item room-window-flat" data-room-item="window" data-default-x="23" data-default-y="28" data-min-y="15" data-max-y="45" tabindex="0" role="button" aria-label="창문. 드래그하거나 방향키로 이동">
+        <i></i><i></i><span>SEOUL · 15:24</span>
+      </div>
+
+      <div class="room-item wall-poster" data-room-item="poster" data-default-x="53" data-default-y="29" data-min-y="15" data-max-y="48" tabindex="0" role="button" aria-label="포스터. 드래그하거나 방향키로 이동">
+        <div class="poster-paper"><b>GOOD<br>MOVES</b><span>MAKE BETTER DAYS</span><i></i></div>
+      </div>
+
+      <div class="room-item room-bed" data-room-item="bed" data-default-x="27" data-default-y="69" data-min-y="54" data-max-y="84" tabindex="0" role="button" aria-label="침대. 드래그하거나 방향키로 이동">
+        <div class="bed-head"></div><div class="bed-mattress"></div><div class="bed-blanket"></div><div class="bed-pillow"></div><i></i><i></i>
+      </div>
+
+      <div class="room-item book-shelf" data-room-item="shelf" data-default-x="84" data-default-y="42" data-min-y="23" data-max-y="60" tabindex="0" role="button" aria-label="책장. 드래그하거나 방향키로 이동">
+        <div class="shelf-frame"></div>
+        <div class="shelf-books row-a"><i></i><i></i><i></i><i></i></div>
+        <div class="shelf-books row-b"><i></i><i></i><i></i></div>
+        <div class="shelf-box"></div>
+      </div>
+
+      <div class="room-item desk-set" data-room-item="desk" data-default-x="77" data-default-y="72" data-min-y="54" data-max-y="85" tabindex="0" role="button" aria-label="책상. 드래그하거나 방향키로 이동">
+        <div class="desk-top"></div><div class="desk-leg left"></div><div class="desk-leg right"></div>
+        <div class="desk-laptop"><i></i></div><div class="desk-cup"></div><div class="desk-books"></div>
+      </div>
+
+      <div class="room-item floor-rug" data-room-item="rug" data-default-x="52" data-default-y="84" data-min-y="70" data-max-y="91" tabindex="0" role="button" aria-label="러그. 드래그하거나 방향키로 이동">
+        <b>USIMUNKKA</b><span>GOOD MOVE · GOOD DAY</span>
+      </div>
+
+      <div class="room-item room-plant" data-room-item="plant" data-default-x="93" data-default-y="70" data-min-y="52" data-max-y="84" tabindex="0" role="button" aria-label="화분. 드래그하거나 방향키로 이동">
+        <div class="plant-pot"></div><i class="leaf-a"></i><i class="leaf-b"></i><i class="leaf-c"></i>
+      </div>
+
+      <div class="room-item floor-lamp" data-room-item="lamp" data-default-x="8" data-default-y="65" data-min-y="45" data-max-y="82" tabindex="0" role="button" aria-label="스탠드 조명. 드래그하거나 방향키로 이동">
+        <span></span><i></i><b></b>
+      </div>
+
+      <div class="room-item character-piece" id="roomCharacter" data-room-item="character" data-default-x="52" data-default-y="61" data-min-y="39" data-max-y="82" tabindex="0" role="button" aria-label="캐릭터. 드래그하거나 방향키로 이동">
+        <img src="{% static 'assets/images/character/player_main.png' %}" alt="운동 헤어밴드를 한 우심운까 캐릭터">
+        <span class="character-bubble">오늘도<br>움직일까? :)</span>
+      </div>
+
+      <div class="room-item sport-prop prop-dumbbell is-room-hidden" data-room-item="dumbbell" data-default-x="63" data-default-y="79" data-min-y="62" data-max-y="89" tabindex="0" role="button" aria-label="덤벨. 드래그하거나 방향키로 이동">
+        <i></i><b></b><i></i>
+      </div>
+
+      <div class="room-item sport-prop prop-basketball is-room-hidden" data-room-item="basketball" data-default-x="68" data-default-y="83" data-min-y="68" data-max-y="91" tabindex="0" role="button" aria-label="공. 드래그하거나 방향키로 이동"><i></i></div>
+
+      <div class="room-item sport-prop prop-gymbag is-room-hidden" data-room-item="gymbag" data-default-x="13" data-default-y="83" data-min-y="66" data-max-y="91" tabindex="0" role="button" aria-label="운동 가방. 드래그하거나 방향키로 이동"><b>MOVE</b><span></span></div>
+
+      <div class="room-drag-help" aria-hidden="true">DRAG & DROP · 위치 자동 저장</div>
+    </div>
+  </section>
+
+  <section class="today-move-card">
+    <div class="move-head">
+      <span>02 / TODAY'S MOVE</span>
+      <strong id="homeRegion">서울특별시 관악구</strong>
+    </div>
+    <div class="move-main">
+      <div class="move-character-visual" aria-hidden="true">
+        <img src="{% static 'assets/images/character/player_main.png' %}" alt="">
+        <span>움직이는<br>오늘이 좋아!</span>
+      </div>
+      <div class="move-copy">
+        <small id="homePreference">러닝 · 도보 20분 기준</small>
+        <h2>오늘은 <em id="spotlightSport">러닝</em> 어때요?</h2>
+        <p>프로필에 저장한 지역과 취향을 기준으로 오늘 바로 움직일 수 있는 운동을 하나 골랐어요.</p>
+      </div>
+      <div class="recommend-place">
+        <span class="place-stamp" id="spotlightIcon">RUN</span>
+        <div>
+          <small>RECOMMENDED PLACE</small>
+          <h3 id="spotlightTitle">관악산 둘레길</h3>
+          <p id="spotlightMeta">러닝 · 도보 13분 · 야외</p>
+          <div class="condition-tags" id="spotlightTags"></div>
+        </div>
+      </div>
+      <div class="move-action">
+        <label for="quickMinutes">오늘 가능한 시간</label>
+        <select id="quickMinutes">
+          <option value="30">30분</option>
+          <option value="60" selected>60분</option>
+          <option value="90">90분</option>
+          <option value="120">120분</option>
+        </select>
+        <button id="quickRecommendButton" type="button">다시 추천</button>
+        <a class="primary-move-link" href="{% url 'recommend' %}">운동 추천 자세히 보기 →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="friend-note-panel">
+    <div class="friend-note-head">
+      <div><span>03 / FRIEND NOTE</span><strong>짧게 남기는 한마디</strong></div>
+      <a href="{% url 'friends' %}">친구 보기 →</a>
+    </div>
+    <div class="talk-list" id="homeTalkList"></div>
+    <form class="mini-talk-form" id="homeTalkForm">
+      <input id="homeTalkInput" maxlength="60" placeholder="오늘 운동 약속이나 응원을 남겨보세요" autocomplete="off">
+      <button type="submit">POST →</button>
+    </form>
+  </section>
+
+  <div class="customizer-backdrop" id="customizerBackdrop" hidden>
+    <section class="customizer-panel" role="dialog" aria-modal="true" aria-labelledby="customizerTitle">
+      <div class="customizer-head">
+        <div><span>ROOM EDIT</span><h2 id="customizerTitle">내 방 꾸미기</h2></div>
+        <button type="button" id="closeCustomizer" aria-label="닫기">×</button>
+      </div>
+      <p class="customizer-intro">처음은 평범한 개인 방이에요. 기본 가구를 빼거나 더하고, 운동 소품은 필요할 때만 추가해보세요.</p>
+
+      <div class="customizer-options">
+        <fieldset>
+          <legend>ROOM TONE</legend>
+          <div class="option-grid option-grid-three">
+            <button type="button" data-tone="cream" class="is-selected"><b>크림</b><small>CREAM</small></button>
+            <button type="button" data-tone="sage"><b>세이지</b><small>SAGE</small></button>
+            <button type="button" data-tone="blue"><b>소프트 블루</b><small>BLUE</small></button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>ROOM ITEMS</legend>
+          <div class="item-toggle-grid">
+            <button type="button" data-toggle-item="bed" class="is-selected"><span>BED</span><b>침대</b></button>
+            <button type="button" data-toggle-item="desk" class="is-selected"><span>DESK</span><b>책상</b></button>
+            <button type="button" data-toggle-item="shelf" class="is-selected"><span>SHELF</span><b>책장</b></button>
+            <button type="button" data-toggle-item="plant" class="is-selected"><span>PLANT</span><b>화분</b></button>
+            <button type="button" data-toggle-item="poster" class="is-selected"><span>POSTER</span><b>포스터</b></button>
+            <button type="button" data-toggle-item="lamp" class="is-selected"><span>LAMP</span><b>조명</b></button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>SPORT ITEMS · 기본은 OFF</legend>
+          <div class="item-toggle-grid sport-item-grid">
+            <button type="button" data-toggle-item="dumbbell"><span>GEAR 01</span><b>덤벨</b></button>
+            <button type="button" data-toggle-item="basketball"><span>GEAR 02</span><b>공</b></button>
+            <button type="button" data-toggle-item="gymbag"><span>GEAR 03</span><b>운동 가방</b></button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="customizer-footer">
+        <span id="customizerSaveMessage">방 분위기와 소품을 골라보세요.</span>
+        <button type="button" id="saveCustomizer">저장하기</button>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'assets/js/home.js' %}?v=20260917-100"></script>{% endblock %}

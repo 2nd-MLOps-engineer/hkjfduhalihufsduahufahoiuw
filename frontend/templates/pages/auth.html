@@ -1,0 +1,17 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>우심운까 · {{ mode }}</title>
+  <link rel="stylesheet" href="{% static 'assets/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/forms.css' %}">
+  <style>
+    .auth-page{min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(135deg,#d7d0c4,#eee7da,#d4cabc)}
+    .auth-card{width:min(470px,100%);padding:42px;background:var(--paper-2);border:1px solid #d6cbb8;border-radius:22px;box-shadow:var(--shadow)}
+    .auth-card h1{margin:0 0 10px;color:var(--navy);font-family:Georgia,"Noto Serif KR",serif}.auth-card>p{color:#70695e}.auth-card form{margin-top:26px}.auth-card button{width:100%;min-height:48px;margin-top:18px;border:0;border-radius:9px;background:var(--brick);color:#fff;font-weight:900}.auth-back{display:inline-block;margin-top:20px;color:var(--navy);font-size:13px;font-weight:800}
+  </style>
+</head>
+<body><main class="auth-page"><section class="auth-card"><p class="section-kicker">OUR MOVE CLUB</p><h1>{{ mode }}하고 시작해요</h1><p>우심운까와 함께 오늘의 움직임을 기록해보세요.</p><p>이 기능은 곧 준비될 예정입니다.</p><a class="auth-back" href="{% url 'welcome' %}">← 시작 화면으로</a></section></main></body>
+</html>

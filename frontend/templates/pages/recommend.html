@@ -1,0 +1,228 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% block title %}우심운까 · 운동추천{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/recommend.css' %}?v=20260917-100">
+<link rel="stylesheet" href="{% static 'assets/css/forms.css' %}?v=20260917-100">
+<link rel="stylesheet" href="{% static 'assets/css/sport_picker.css' %}?v=20260917-101">
+{% endblock %}
+{% block content %}
+<div class="content-page recommend-page">
+  <header class="paper-heading">
+    <div>
+      <p class="section-kicker">TODAY'S MOVE</p>
+      <h1>오늘 어디서 운동할까?</h1>
+      <p>프로필 기본값을 불러왔어요. 오늘 상황만 바꿔서 더 정확하게 추천받을 수 있어요.</p>
+    </div>
+    <span class="mini-sticker lime">CORE FEATURE</span>
+    <div class="page-character-sticker recommend-character-sticker" aria-hidden="true">
+      <img src="{% static 'assets/images/character/player_main.png' %}" alt="">
+      <span>READY<br>TO MOVE?</span>
+    </div>
+  </header>
+
+  <div class="recommend-layout">
+    <form class="recommend-form" id="recommendForm">
+      <section class="form-block profile-default-block">
+        <div class="form-block-head">
+          <span>01</span>
+          <div>
+            <b>출발 지역</b>
+            <small>프로필의 기본 운동 지역</small>
+          </div>
+        </div>
+
+        <div class="two-field-row ui-field-grid">
+          <label class="ui-control" for="provinceInput">
+            <span class="ui-control-label">시·도</span>
+            <span class="ui-control-row">
+              <span class="ui-control-icon" aria-hidden="true">⌖</span>
+              <input id="provinceInput" class="ui-input" name="province" required>
+            </span>
+          </label>
+
+          <label class="ui-control" for="districtInput">
+            <span class="ui-control-label">시·군·구</span>
+            <span class="ui-control-row">
+              <span class="ui-control-icon" aria-hidden="true">⌖</span>
+              <input id="districtInput" class="ui-input" name="district" required>
+            </span>
+          </label>
+        </div>
+
+        <p class="form-hint">오늘 다른 곳에서 운동한다면 여기서만 바꿔도 프로필 정보는 수정되지 않아요.</p>
+      </section>
+
+      <section class="form-block">
+        <div class="form-block-head">
+          <span>02</span>
+          <div>
+            <b>오늘 가능한 시간</b>
+            <small>이동 + 운동 + 복귀 전체 시간</small>
+          </div>
+        </div>
+
+        <div class="choice-row" id="minutesChoices">
+          <label><input type="radio" name="available_minutes" value="30"><span>30분</span></label>
+          <label><input type="radio" name="available_minutes" value="60" checked><span>60분</span></label>
+          <label><input type="radio" name="available_minutes" value="90"><span>90분</span></label>
+          <label><input type="radio" name="available_minutes" value="120"><span>120분</span></label>
+        </div>
+      </section>
+
+      <section class="form-block sport-form-block">
+        <div class="form-block-head">
+          <span>03</span>
+          <div>
+            <b>오늘 하고 싶은 운동</b>
+            <small>한 종목만 선택</small>
+          </div>
+        </div>
+
+        <div class="sport-visual-grid" id="sportChoices">
+          <label class="sport-visual-option sport-running">
+            <input type="radio" name="sport" value="running">
+            <span class="sport-visual-card">
+              <span class="sport-visual-media">
+                <img src="{% static 'assets/images/sports/running.webp' %}" alt="러닝을 하는 사람">
+                <span class="sport-visual-shade" aria-hidden="true"></span>
+                <span class="sport-visual-number" aria-hidden="true">01</span>
+                <span class="sport-motion-line" aria-hidden="true"></span>
+              </span>
+              <span class="sport-visual-body">
+                <span class="sport-visual-copy">
+                  <small>RUNNING</small>
+                  <strong>러닝</strong>
+                  <em>가볍게 달리며 오늘의 리듬 찾기</em>
+                </span>
+                <span class="sport-visual-check" aria-hidden="true">✓</span>
+              </span>
+            </span>
+          </label>
+
+          <label class="sport-visual-option sport-cycling">
+            <input type="radio" name="sport" value="cycling">
+            <span class="sport-visual-card">
+              <span class="sport-visual-media">
+                <img src="{% static 'assets/images/sports/cycling.webp' %}" alt="자전거를 타는 사람">
+                <span class="sport-visual-shade" aria-hidden="true"></span>
+                <span class="sport-visual-number" aria-hidden="true">02</span>
+                <span class="sport-motion-line" aria-hidden="true"></span>
+              </span>
+              <span class="sport-visual-body">
+                <span class="sport-visual-copy">
+                  <small>CYCLING</small>
+                  <strong>자전거</strong>
+                  <em>바람을 타고 조금 더 멀리 움직이기</em>
+                </span>
+                <span class="sport-visual-check" aria-hidden="true">✓</span>
+              </span>
+            </span>
+          </label>
+
+          <label class="sport-visual-option sport-crossfit">
+            <input type="radio" name="sport" value="crossfit">
+            <span class="sport-visual-card">
+              <span class="sport-visual-media">
+                <img src="{% static 'assets/images/sports/crossfit.webp' %}" alt="기능성 근력 운동을 하는 사람">
+                <span class="sport-visual-shade" aria-hidden="true"></span>
+                <span class="sport-visual-number" aria-hidden="true">03</span>
+                <span class="sport-motion-line" aria-hidden="true"></span>
+              </span>
+              <span class="sport-visual-body">
+                <span class="sport-visual-copy">
+                  <small>CROSSFIT</small>
+                  <strong>크로스핏</strong>
+                  <em>전신을 깨우는 강한 기능성 트레이닝</em>
+                </span>
+                <span class="sport-visual-check" aria-hidden="true">✓</span>
+              </span>
+            </span>
+          </label>
+
+          <label class="sport-visual-option sport-fitness">
+            <input type="radio" name="sport" value="fitness">
+            <span class="sport-visual-card">
+              <span class="sport-visual-media">
+                <img src="{% static 'assets/images/sports/fitness.webp' %}" alt="헬스장에서 근력 운동을 하는 사람">
+                <span class="sport-visual-shade" aria-hidden="true"></span>
+                <span class="sport-visual-number" aria-hidden="true">04</span>
+                <span class="sport-motion-line" aria-hidden="true"></span>
+              </span>
+              <span class="sport-visual-body">
+                <span class="sport-visual-copy">
+                  <small>FITNESS</small>
+                  <strong>헬스</strong>
+                  <em>차근차근 쌓아가는 나만의 근력 루틴</em>
+                </span>
+                <span class="sport-visual-check" aria-hidden="true">✓</span>
+              </span>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-block">
+        <div class="form-block-head">
+          <span>04</span>
+          <div>
+            <b>이동 조건</b>
+            <small>프로필 기본값을 불러옵니다.</small>
+          </div>
+        </div>
+
+        <div class="two-field-row ui-field-grid">
+          <label class="ui-control" for="transportSelect">
+            <span class="ui-control-label">이동수단</span>
+            <span class="ui-select-wrap">
+              <select id="transportSelect" class="ui-select" name="transport">
+                <option value="walk">도보</option>
+                <option value="transit">대중교통</option>
+              </select>
+            </span>
+          </label>
+
+          <label class="ui-control" for="travelMinutesSelect">
+            <span class="ui-control-label">최대 이동시간</span>
+            <span class="ui-select-wrap">
+              <select id="travelMinutesSelect" class="ui-select" name="max_travel_minutes">
+                <option value="10">10분</option>
+                <option value="20">20분</option>
+                <option value="30">30분</option>
+                <option value="40">40분</option>
+              </select>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <button class="ui-action ui-action-accent ui-action-block" type="submit">
+        <span>
+          <small>READY TO MOVE?</small>
+          지금 할 운동 찾아줘
+        </span>
+        <b aria-hidden="true">→</b>
+      </button>
+    </form>
+
+    <aside class="recommend-result-panel">
+      <div class="result-panel-head">
+        <span class="tiny-label accent">RECOMMEND RESULT</span>
+        <h2>지금 갈 수 있는 곳</h2>
+        <p>현재는 MOCK 결과로 동작하며, API adapter만 교체하면 기존 Backend 결과를 사용할 수 있게 분리했습니다.</p>
+      </div>
+
+      <div id="recommendResults" class="recommend-results">
+        <div class="empty-result">
+          <span>★</span>
+          <b>조건을 확인하고 추천 버튼을 눌러주세요.</b>
+          <small>프로필의 지역·선호 운동·이동 조건이 기본값으로 들어갑니다.</small>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'assets/js/recommend.js' %}?v=20260917-100"></script>
+{% endblock %}

@@ -1,0 +1,291 @@
+/* =========================================================
+   USIMUNKKA SPORT IMAGE PICKER v10.2
+   Reuses the earlier photo assets with character-theme colors.
+========================================================= */
+
+.sport-visual-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  width:100%;
+}
+
+.sport-visual-option{
+  position:relative;
+  min-width:0;
+  display:block;
+  cursor:pointer;
+}
+
+.sport-visual-option > input{
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+  pointer-events:none;
+}
+
+.sport-visual-card{
+  position:relative;
+  display:block;
+  overflow:hidden;
+  min-height:210px;
+  border:1px solid #c9b9a1;
+  border-radius:18px;
+  background:#fffaf2;
+  box-shadow:0 8px 20px rgba(63,48,31,.075);
+  transform:translateY(0);
+  transition:
+    transform .24s cubic-bezier(.2,.75,.2,1),
+    border-color .24s ease,
+    box-shadow .24s ease,
+    background .24s ease;
+}
+
+.sport-visual-media{
+  position:relative;
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:auto;
+  aspect-ratio:4 / 3;
+  overflow:hidden;
+  padding:9px;
+  background:
+    radial-gradient(circle at 50% 42%,rgba(255,255,255,.96),rgba(247,242,232,.94) 58%,rgba(231,226,214,.96) 100%);
+}
+
+.sport-visual-media img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:contain;
+  object-position:center;
+  filter:saturate(.84) contrast(1.02) brightness(.99);
+  transform:scale(.94);
+  transform-origin:center;
+  transition:
+    transform .48s cubic-bezier(.2,.75,.2,1),
+    filter .4s ease;
+}
+
+.sport-visual-shade{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(180deg,rgba(20,31,26,.02) 0%,rgba(20,31,26,.05) 45%,rgba(24,39,32,.60) 100%);
+  transition:background .35s ease;
+}
+
+.sport-visual-number{
+  position:absolute;
+  top:10px;
+  right:10px;
+  min-width:34px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  padding:0 8px;
+  border:1px solid rgba(255,255,255,.72);
+  border-radius:999px;
+  background:rgba(31,43,39,.53);
+  color:#fffaf1;
+  backdrop-filter:blur(8px);
+  font-size:.62rem;
+  font-weight:1000;
+  letter-spacing:.08em;
+  box-shadow:0 5px 14px rgba(0,0,0,.10);
+  transition:transform .22s ease,background .22s ease,border-color .22s ease;
+}
+
+.sport-motion-line{
+  position:absolute;
+  left:-48%;
+  bottom:17px;
+  width:46%;
+  height:3px;
+  border-radius:99px;
+  background:linear-gradient(90deg,transparent,rgba(255,249,237,.98),transparent);
+  opacity:0;
+  transform:translateX(0) skewX(-18deg);
+  transition:opacity .18s ease,transform .58s cubic-bezier(.18,.72,.2,1);
+}
+
+.sport-visual-body{
+  min-height:74px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 30px;
+  align-items:center;
+  gap:10px;
+  padding:12px 13px 13px;
+  background:linear-gradient(180deg,#fffaf2 0%,#f6eee2 100%);
+  transition:background .22s ease;
+}
+
+.sport-visual-copy{
+  min-width:0;
+}
+
+.sport-visual-copy small,
+.sport-visual-copy strong,
+.sport-visual-copy em{
+  display:block;
+}
+
+.sport-visual-copy small{
+  color:#8e5e4b;
+  font-size:.53rem;
+  font-weight:1000;
+  letter-spacing:.105em;
+}
+
+.sport-visual-copy strong{
+  margin-top:2px;
+  color:#22322b;
+  font-size:.88rem;
+  font-weight:1000;
+  letter-spacing:-.035em;
+}
+
+.sport-visual-copy em{
+  margin-top:4px;
+  overflow:hidden;
+  color:#7a6e61;
+  font-size:.6rem;
+  font-style:normal;
+  font-weight:650;
+  line-height:1.42;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.sport-visual-check{
+  width:29px;
+  height:29px;
+  display:grid;
+  place-items:center;
+  border:1.5px solid #c2b39e;
+  border-radius:50%;
+  background:#fffaf1;
+  color:transparent;
+  font-size:.7rem;
+  font-weight:1000;
+  box-shadow:0 4px 10px rgba(63,48,31,.06);
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+/* hover: restore full photo color and add the older motion effect */
+.sport-visual-option:hover .sport-visual-card{
+  border-color:#839a88;
+  box-shadow:0 16px 30px rgba(47,89,71,.15);
+  transform:translateY(-5px);
+}
+
+.sport-visual-option:hover .sport-visual-media img{
+  filter:saturate(1.06) contrast(1.04) brightness(1.015);
+  transform:scale(.99) translateY(-2px);
+}
+
+.sport-visual-option:hover .sport-visual-shade{
+  background:
+    linear-gradient(180deg,rgba(47,89,71,.01) 0%,rgba(31,44,38,.03) 42%,rgba(31,49,40,.50) 100%);
+}
+
+.sport-visual-option:hover .sport-visual-number{
+  background:#2f5947;
+  border-color:#2f5947;
+  transform:translateY(-2px);
+}
+
+.sport-visual-option:hover .sport-motion-line{
+  opacity:.82;
+  transform:translateX(330%) skewX(-18deg);
+}
+
+/* keyboard focus */
+.sport-visual-option > input:focus-visible + .sport-visual-card{
+  outline:3px solid rgba(47,89,71,.24);
+  outline-offset:3px;
+}
+
+/* selected */
+.sport-visual-option > input:checked + .sport-visual-card{
+  border-color:#2f5947;
+  background:#f6f8f1;
+  box-shadow:
+    0 0 0 3px rgba(47,89,71,.11),
+    0 15px 28px rgba(47,89,71,.14);
+}
+
+.sport-visual-option > input:checked + .sport-visual-card .sport-visual-body{
+  background:linear-gradient(180deg,#f4f7ee 0%,#e8eee0 100%);
+}
+
+.sport-visual-option > input:checked + .sport-visual-card .sport-visual-check{
+  border-color:#2f5947;
+  background:#2f5947;
+  color:#fff8eb;
+  transform:scale(1.05);
+  box-shadow:0 5px 12px rgba(47,89,71,.20);
+}
+
+.sport-visual-option > input:checked + .sport-visual-card .sport-visual-number{
+  background:#2f5947;
+  border-color:#2f5947;
+}
+
+.sport-visual-option > input:checked + .sport-visual-card::after{
+  content:"SELECTED";
+  position:absolute;
+  left:11px;
+  top:10px;
+  z-index:3;
+  padding:5px 8px;
+  border:1px solid rgba(255,255,255,.58);
+  border-radius:999px;
+  background:rgba(47,89,71,.86);
+  color:#fff8eb;
+  font-size:.48rem;
+  font-weight:1000;
+  letter-spacing:.09em;
+  backdrop-filter:blur(6px);
+}
+
+/* subtle per-card accent only; images remain the main visual */
+.sport-running .sport-visual-copy small{color:#a75f45}
+.sport-cycling .sport-visual-copy small{color:#50778d}
+.sport-crossfit .sport-visual-copy small{color:#765646}
+.sport-fitness .sport-visual-copy small{color:#436650}
+
+/* Profile keeps the same visual system; multiple cards can be selected. */
+.profile-sport-visual-grid{
+  margin-top:4px;
+}
+
+@media(max-width:820px){
+  .sport-visual-grid{
+    grid-template-columns:1fr;
+  }
+ .sport-visual-media{
+    height:160px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .sport-visual-card,
+  .sport-visual-number,
+  .sport-motion-line,
+  .sport-visual-check{
+    transition:none!important;
+    transform:none!important;
+  }
+  .sport-visual-media img{
+    transition:none!important;
+    transform:scale(.94)!important;
+  }
+}

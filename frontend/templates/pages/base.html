@@ -1,0 +1,109 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}우심운까{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'assets/css/base.css' %}?v=20260917-100">
+  <link rel="stylesheet" href="{% static 'assets/css/mini_home.css' %}?v=20260917-100">
+  <link rel="stylesheet" href="{% static 'assets/css/pages.css' %}?v=20260917-100">
+  {% block extra_css %}{% endblock %}
+  <link rel="stylesheet" href="{% static 'assets/css/character_theme.css' %}?v=20260917-100">
+</head>
+<body data-page="{{ active_tab|default:'home' }}">
+  <main class="site-stage">
+    <section class="mini-shell character-theme-shell">
+      <header class="mini-topbar">
+        <a class="brand-lockup" href="{% url 'home' %}" aria-label="우심운까 홈">
+          <div class="brand-mark" aria-hidden="true">우</div>
+          <div>
+            <strong class="brand">우심운까</strong>
+            <span>오늘도, 움직이는 내가 좋다.</span>
+          </div>
+        </a>
+        <div class="topbar-tag">MY MOVE CLUB</div>
+        <div class="visitor-counter" aria-label="방문 카운터">
+          <span>TODAY <b id="todayCount">12</b></span>
+          <i></i>
+          <span>TOTAL <b id="totalCount">321</b></span>
+        </div>
+      </header>
+
+      <div class="mini-book-wrap">
+        <div class="mini-book">
+          <aside class="profile-rail">
+            <div class="rail-caption">MY PROFILE</div>
+            <div class="profile-photo-frame character-photo-frame">
+              <div class="profile-avatar" id="profileAvatar">
+                <img
+                  id="profileAvatarImage"
+                  class="profile-avatar-image"
+                  src="{% static 'assets/images/character/player_main.png' %}"
+                  data-default-src="{% static 'assets/images/character/player_main.png' %}"
+                  alt="USIMUNKKA character profile"
+                >
+              </div>
+              <span class="profile-tape" aria-hidden="true"></span>
+              <span class="profile-doodle" aria-hidden="true">GOOD MOVE!</span>
+              <span class="profile-photo-tag">MEMBER 07</span>
+            </div>
+            <h2 id="profileNickname">우심이</h2>
+            <p class="profile-message" id="profileMessage">오늘도 일단 움직이자.</p>
+
+            <dl class="profile-facts">
+              <div><dt>HOME</dt><dd id="profileRegion">서울 관악구</dd></div>
+              <div><dt>SPORT</dt><dd id="profileSports">러닝 · 헬스</dd></div>
+              <div><dt>MOVE</dt><dd id="profileMove">도보 · 20분</dd></div>
+            </dl>
+
+            <a class="small-outline-button" href="{% url 'profile' %}">프로필 수정</a>
+
+            <div class="friend-note-mini">
+              <small>FRIEND NOTE</small>
+              <strong>“오늘 뭐 할래?”</strong>
+              <span>친구의 한마디가 도착했어요.</span>
+            </div>
+
+            <section class="mini-music-player is-playing" id="miniMusicPlayer" aria-label="배경음악 데모 플레이어">
+              <div class="music-player-top">
+                <span class="music-badge">BGM</span>
+                <small>MY ROOM TAPE</small>
+                <div class="music-equalizer" aria-hidden="true"><i></i><i></i><i></i></div>
+              </div>
+              <div class="music-track-row">
+                <div class="music-cover" aria-hidden="true"><span>U</span><i>07</i></div>
+                <div class="music-track-copy">
+                  <strong id="musicTrackTitle">Morning Lap</strong>
+                  <span id="musicTrackArtist">USIM ROOM MIX</span>
+                </div>
+              </div>
+              <div class="music-control-row">
+                <button type="button" class="music-skip" id="musicPrev" aria-label="이전 곡">‹</button>
+                <button type="button" class="music-play" id="musicToggle" aria-label="재생 상태 전환"><span aria-hidden="true">Ⅱ</span></button>
+                <button type="button" class="music-skip" id="musicNext" aria-label="다음 곡">›</button>
+                <div class="music-progress" aria-hidden="true"><i id="musicProgress"></i></div>
+                <time id="musicTime">0:37</time>
+              </div>
+              <p>DEMO BGM · 실제 음원은 재생되지 않아요.</p>
+            </section>
+          </aside>
+
+          <section class="page-paper">{% block content %}{% endblock %}</section>
+
+          <nav class="bookmark-tabs" aria-label="메뉴">
+            <a class="bookmark {% if active_tab == 'home' %}is-active{% endif %}" href="{% url 'home' %}"><span>HOME</span><small>MY ROOM</small></a>
+            <a class="bookmark recommend-tab {% if active_tab == 'recommend' %}is-active{% endif %}" href="{% url 'recommend' %}"><span>MOVE</span><small>운동추천</small></a>
+            <a class="bookmark {% if active_tab == 'friends' %}is-active{% endif %}" href="{% url 'friends' %}"><span>FRIEND</span><small>NOTE</small></a>
+            <a class="bookmark {% if active_tab == 'profile' %}is-active{% endif %}" href="{% url 'profile' %}"><span>PROFILE</span><small>SETTING</small></a>
+          </nav>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="{% static 'assets/js/api.js' %}?v=20260917-100"></script>
+  <script src="{% static 'assets/js/app.js' %}?v=20260917-100"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

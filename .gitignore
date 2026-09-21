@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+db.sqlite3
+.env
+staticfiles/
+
+# Local development environment and generated files
+.venv/
+.DS_Store
+output/
+archive/
+
+# Large local data exports/backups
+frontend/db_backup/*.csv

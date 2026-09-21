@@ -1,0 +1,51 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>우심운까 · 준비 중</title>
+  <style>
+    :root{--ink:#243044;--green:#2f5d4c;--cream:#f8f1e5;--line:#ded1bd;--brick:#a35c47}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 20%,#fffdf8 0,#f5ecdc 64%,#eadbc5 100%);color:var(--ink);font-family:Arial,"Apple SD Gothic Neo",sans-serif}
+    .loading-page{min-height:100vh;display:grid;place-items:center;padding:24px}.loading-card{width:min(520px,100%);padding:44px 30px 34px;border:1px solid var(--line);border-radius:24px;background:rgba(255,252,245,.9);box-shadow:0 22px 60px rgba(94,67,38,.14);text-align:center;overflow:hidden}
+    .loading-kicker{margin:0;color:var(--brick);font-size:12px;font-weight:900;letter-spacing:.18em}.loading-card h1{margin:10px 0 8px;font-size:clamp(24px,6vw,38px);letter-spacing:-.06em}.loading-copy{margin:0;color:#777064;font-size:14px;line-height:1.6}
+    .run-stage{position:relative;height:210px;margin:22px auto 14px;display:grid;place-items:center;border-bottom:2px solid #c9b799;overflow:hidden}.run-stage:before,.run-stage:after{display:none}.runner{width:190px;height:190px;background-image:url("{% static 'assets/images/character/loading_runner_sprite.png' %}");background-position:0 0;background-repeat:no-repeat;background-size:400% 200%;filter:drop-shadow(0 13px 5px rgba(63,52,39,.18));animation:runner-sprite 960ms steps(1,end) infinite}.loading-dots{display:flex;justify-content:center;gap:6px;margin-top:18px}.loading-dots i{width:7px;height:7px;border-radius:50%;background:var(--green);animation:dot 900ms ease-in-out infinite}.loading-dots i:nth-child(2){animation-delay:150ms}.loading-dots i:nth-child(3){animation-delay:300ms}.loading-status{margin:12px 0 0;color:var(--green);font-size:12px;font-weight:800}
+    @keyframes runner-sprite{0%{background-position:0 0;transform:translateX(-14px) translateY(3px)}12.5%{background-position:33.333% 0;transform:translateX(-10px) translateY(-2px)}25%{background-position:66.666% 0;transform:translateX(-5px) translateY(2px)}37.5%{background-position:100% 0;transform:translateX(0) translateY(-4px)}50%{background-position:0 100%;transform:translateX(5px) translateY(2px)}62.5%{background-position:33.333% 100%;transform:translateX(10px) translateY(-3px)}75%{background-position:66.666% 100%;transform:translateX(14px) translateY(2px)}87.5%{background-position:100% 100%;transform:translateX(10px) translateY(-4px)}100%{background-position:0 0;transform:translateX(-14px) translateY(3px)}}@keyframes dash{from{transform:translateX(0)}to{transform:translateX(-24px)}}@keyframes dot{0%,100%{opacity:.3;transform:scale(.75)}50%{opacity:1;transform:scale(1.15)}}
+    @media(prefers-reduced-motion:reduce){.runner,.run-stage:before,.run-stage:after,.loading-dots i{animation:none}}
+  </style>
+</head>
+<body>
+  <main class="loading-page">
+    <section class="loading-card" aria-live="polite">
+      <p class="loading-kicker">GOOD MOVE · LOADING</p>
+      <h1>오늘 운동을 준비하고 있어요</h1>
+      <p class="loading-copy">우심이가 먼저 달려가서<br>내 주변 시설과 오늘의 운동 정보를 확인하고 있어요.</p>
+      <div class="run-stage"><div class="runner" role="img" aria-label="힘차게 달리는 우심이"></div></div>
+      <div class="loading-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="loading-status" id="loadingStatus">추천 정보를 준비하는 중이에요…</p>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const started = performance.now();
+      const minimum = 5000;
+      const maximum = 10000;
+      const status = document.getElementById("loadingStatus");
+      const prepare = fetch("{% url 'prepare_login_home' %}", { credentials: "same-origin", headers: { Accept: "application/json" } })
+        .then(response => response.ok ? response.json() : Promise.reject(new Error("prepare failed")))
+        .catch(() => ({ ready: false }));
+      const goHome = () => { window.location.replace("{% url 'home' %}"); };
+      const waitMinimum = prepare.then(() => {
+        const remaining = Math.max(0, minimum - (performance.now() - started));
+        window.setTimeout(goHome, remaining);
+      });
+      window.setTimeout(() => {
+        if (status) status.textContent = "거의 다 됐어요. 곧 방으로 이동합니다.";
+        goHome();
+      }, maximum);
+      void waitMinimum;
+    })();
+  </script>
+</body>
+</html>

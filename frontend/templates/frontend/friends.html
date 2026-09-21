@@ -1,0 +1,119 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% block title %}우심운까 · 친구{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/forms.css' %}?v=20260918-150">
+{% endblock %}
+{% block content %}
+<div class="content-page friends-page">
+  <header class="paper-heading">
+    <div>
+      <p class="section-kicker">MOVE FRIENDS</p>
+      <h1>친구 운동방</h1>
+      <p>일촌처럼 가볍게 연결하고, 서로의 운동 소식을 보고 한마디를 남겨요.</p>
+    </div>
+    <span class="mini-sticker lime">FRIEND CODE</span>
+    <div class="page-character-sticker friend-character-sticker" aria-hidden="true">
+      <img src="{% static 'assets/images/character/player_thumb.png' %}" data-female-src="{% static 'assets/images/character/female_thumb.png' %}" data-male-src="{% static 'assets/images/character/player_thumb.png' %}" alt="">
+      <span>GOOD<br>TOGETHER!</span>
+    </div>
+  </header>
+
+  <div class="friend-page-grid">
+    <section class="friend-code-panel">
+      <span class="tiny-label">MY CODE</span>
+      <strong id="myFriendCode">USIM-7K29</strong>
+
+      <form id="friendAddForm" class="ui-inline-form friend-code-search-form">
+        <label class="ui-control ui-control-code" for="friendCodeInput">
+          <span class="ui-control-label">FRIEND CODE</span>
+          <span class="ui-control-row">
+            <span class="ui-control-icon" aria-hidden="true">#</span>
+            <input
+              id="friendCodeInput"
+              class="ui-input"
+              placeholder="친구 코드를 입력하세요"
+              autocomplete="off"
+            >
+          </span>
+        </label>
+
+        <button class="ui-action ui-action-soft friend-lookup-button" id="friendLookupButton" type="button">
+          <span>조회</span>
+          <b aria-hidden="true">⌕</b>
+        </button>
+
+        <button class="ui-action ui-action-accent" id="friendAddButton" type="submit" disabled>
+          <span>ADD CREW</span>
+          <b aria-hidden="true">→</b>
+        </button>
+      </form>
+
+      <p id="friendAddFeedback">친구 코드를 먼저 조회해주세요. <span>데모 코드 · USIM-SEON</span></p>
+
+      <div
+        id="friendLookupFrame"
+        class="friend-profile-frame is-empty"
+        aria-live="polite"
+        data-avatar-main="{% static 'assets/images/character/player_main.png' %}"
+        data-avatar-wave="{% static 'assets/images/character/player_wave.png' %}"
+        data-avatar-thumb="{% static 'assets/images/character/player_thumb.png' %}"
+        data-avatar-tie="{% static 'assets/images/character/player_tie.png' %}"
+        data-avatar-run="{% static 'assets/images/character/player_run.png' %}"
+      >
+        <div class="friend-frame-empty">
+          <span aria-hidden="true">⌕</span>
+          <strong>친구 프로필 미리보기</strong>
+          <p>코드를 조회하면 친구의 프로필이 이 액자 안에 나타나요.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="friend-list-panel">
+      <div class="card-title-row">
+        <div>
+          <span class="tiny-label">MY FRIENDS</span>
+          <h2>운동 친구</h2>
+        </div>
+        <span class="count-chip friend-count-label" id="friendCount">친구 3명</span>
+      </div>
+      <div id="friendCards" class="friend-cards"></div>
+    </section>
+  </div>
+
+  <section class="guestbook-panel">
+    <div class="card-title-row">
+      <div>
+        <span class="tiny-label">GUESTBOOK</span>
+        <h2>운동 한마디</h2>
+      </div>
+      <small>최신 한마디 5개만 보여요</small>
+    </div>
+
+    <div id="guestbookList" class="guestbook-list"></div>
+
+    <form id="guestbookForm" class="guestbook-form ui-inline-form">
+      <label class="ui-control ui-control-grow" for="guestbookInput">
+        <span class="ui-control-label">CREW NOTE</span>
+        <span class="ui-control-row">
+          <span class="ui-control-icon" aria-hidden="true">✎</span>
+          <input
+            id="guestbookInput"
+            class="ui-input"
+            maxlength="60"
+            placeholder="오늘 운동 약속이나 응원을 남겨보세요"
+          >
+        </span>
+      </label>
+
+      <button class="ui-action ui-action-primary" type="submit">
+        <span>POST</span>
+        <b aria-hidden="true">→</b>
+      </button>
+    </form>
+  </section>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'assets/js/friends.js' %}?v=20260918-150"></script>
+{% endblock %}
