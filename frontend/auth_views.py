@@ -350,12 +350,15 @@ def friends_api(request):
 @member_required
 @require_GET
 def friend_lookup_api(request):
-    code = request.GET.get("code", "").strip().upper()
-    if not code:
-        return JsonResponse({"error": "친구 코드를 입력해주세요."}, status=400)
-    target = Member.objects.filter(friend_code=code).first()
+    identifier = request.GET.get("code", "").strip()
+    if not identifier:
+        return JsonResponse({"error": "친구 코드 또는 아이디를 입력해주세요."}, status=400)
+    if identifier.upper().startswith("USIM-"):
+        target = Member.objects.filter(friend_code=identifier.upper()).first()
+    else:
+        target = Member.objects.filter(nickname=identifier).first()
     if target is None:
-        return JsonResponse({"error": "해당 친구 코드를 찾지 못했어요."}, status=404)
+        return JsonResponse({"error": "해당 친구 코드 또는 아이디를 찾지 못했어요."}, status=404)
     if target.pk == request.usim_member.pk:
         return JsonResponse({"error": "내 친구 코드는 조회할 수 없어요."}, status=400)
     return JsonResponse({"friend": _friend_payload(target)})

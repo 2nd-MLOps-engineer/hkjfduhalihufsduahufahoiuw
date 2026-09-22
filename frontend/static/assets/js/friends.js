@@ -129,7 +129,7 @@
       return payload.friend;
     } catch (error) {
       feedback.textContent = error.message;
-      renderLookupEmpty(error.status === 404 ? "아직 등록되지 않은 코드예요. 코드를 다시 확인해주세요." : error.message);
+      renderLookupEmpty(error.status === 404 ? "등록되지 않은 친구 코드 또는 아이디예요. 다시 확인해주세요." : error.message);
       return null;
     } finally {
       lookupButton.disabled = false;
