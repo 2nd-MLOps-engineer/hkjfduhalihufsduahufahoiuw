@@ -16,6 +16,11 @@ urlpatterns = [
     path("api/check-member-nickname/", auth_views.check_member_nickname, name="check_member_nickname"),
     path("api/account-state/", auth_views.account_state, name="account_state"),
     path("api/workout-calories/", auth_views.add_workout_calories, name="add_workout_calories"),
+    path("api/friends/", auth_views.friends_api, name="friends_api"),
+    path("api/friends/lookup/", auth_views.friend_lookup_api, name="friend_lookup_api"),
+    path("api/friends/add/", auth_views.add_friend_api, name="add_friend_api"),
+    path("api/friend-notes/", auth_views.friend_notes_api, name="friend_notes_api"),
+    path("api/friend-notes/create/", auth_views.create_friend_note_api, name="create_friend_note_api"),
     # 일부 브라우저 확장 프로그램이 /api/ 경로를 차단할 때 사용하는 별칭
     path("account-state-data/", auth_views.account_state, name="account_state_data"),
     path("workout-calories-data/", auth_views.add_workout_calories, name="workout_calories_data"),

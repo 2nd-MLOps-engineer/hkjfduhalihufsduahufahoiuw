@@ -60,3 +60,37 @@ class WorkoutProgress(models.Model):
 
     def __str__(self):
         return f"{self.member.nickname} · LV.{self.level}"
+
+
+class Friendship(models.Model):
+    """회원 사이의 친구 관계. 친구 추가 시 양쪽 방향으로 저장한다."""
+
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="friendships")
+    friend = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="added_by_friendships")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["member", "friend"],
+                name="unique_member_friend",
+            ),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.member.nickname} ↔ {self.friend.nickname}"
+
+
+class FriendNote(models.Model):
+    """현재 회원과 친구들이 함께 보는 운동 한마디."""
+
+    author = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="friend_notes")
+    text = models.TextField(max_length=60)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.author.nickname}: {self.text[:24]}"

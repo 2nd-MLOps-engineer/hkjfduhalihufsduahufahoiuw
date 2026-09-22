@@ -26,6 +26,12 @@ def _rows(sql: str, params: tuple = ()) -> list[dict]:
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
+def _table_exists(schema: str, table: str) -> bool:
+    """현재 연결된 PostgreSQL에 선택한 테이블이 있는지 확인한다."""
+    rows = _rows("SELECT to_regclass(%s) IS NOT NULL AS exists", (f"{schema}.{table}",))
+    return bool(rows and rows[0].get("exists"))
+
+
 def _load_env() -> None:
     env_path = Path(settings.BASE_DIR) / ".env"
     if not env_path.exists():
@@ -71,6 +77,61 @@ def facilities_for_region(
     nearby_only: bool = False,
 ) -> list[dict]:
     """시설 DB에서 시도와 시군구가 모두 일치하는 행만 반환한다."""
+    # 복원한 processed 스키마를 먼저 사용하고, 기존 public 테이블은 호환용으로 유지한다.
+    # Supabase처럼 processed 스키마가 없는 환경에서도 기존 기능이 계속 동작한다.
+    if _table_exists("processed", "facility"):
+        if origin and nearby_only:
+            processed_rows = _rows(
+                """
+                SELECT faci_nm, ftype_nm, fcob_nm, cp_nm, cpb_nm, faci_road_addr,
+                       faci_addr, faci_lat, faci_lot, NULL::text AS enriched_fields,
+                       ST_Distance(
+                         ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography,
+                         ST_SetSRID(ST_MakePoint(faci_lot, faci_lat), 4326)::geography
+                       ) / 1000.0 AS db_distance_km
+                FROM processed.facility
+                WHERE faci_lat BETWEEN -90 AND 90
+                  AND faci_lot BETWEEN -180 AND 180
+                ORDER BY db_distance_km, faci_nm
+                LIMIT %s
+                """,
+                (origin[1], origin[0], max(limit, 2000)),
+            )
+        elif origin:
+            processed_rows = _rows(
+                """
+                SELECT faci_nm, ftype_nm, fcob_nm, cp_nm, cpb_nm, faci_road_addr,
+                       faci_addr, faci_lat, faci_lot, NULL::text AS enriched_fields,
+                       ST_Distance(
+                         ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography,
+                         ST_SetSRID(ST_MakePoint(faci_lot, faci_lat), 4326)::geography
+                       ) / 1000.0 AS db_distance_km
+                FROM processed.facility
+                WHERE trim(cp_nm) = trim(%s)
+                  AND trim(cpb_nm) = trim(%s)
+                  AND faci_lat BETWEEN -90 AND 90
+                  AND faci_lot BETWEEN -180 AND 180
+                ORDER BY db_distance_km NULLS LAST, faci_nm
+                LIMIT %s
+                """,
+                (origin[1], origin[0], sido, district, limit),
+            )
+        else:
+            processed_rows = _rows(
+                """
+                SELECT faci_nm, ftype_nm, fcob_nm, cp_nm, cpb_nm, faci_road_addr,
+                       faci_addr, faci_lat, faci_lot, NULL::text AS enriched_fields
+                FROM processed.facility
+                WHERE trim(cp_nm) = trim(%s)
+                  AND trim(cpb_nm) = trim(%s)
+                ORDER BY faci_nm
+                LIMIT %s
+                """,
+                (sido, district, limit),
+            )
+        if processed_rows:
+            return [_facility_row(row, "DB:processed.facility") for row in processed_rows]
+
     if origin and nearby_only:
         # 실제 GPS 위치를 받은 경우에는 로그인 지역에 한정하지 않고
         # 전국 시설 중 현재 위치에 가까운 시설을 먼저 검색한다.
@@ -149,17 +210,22 @@ def environment_for_region(sido: str, district: str) -> dict:
     _load_env()
     nx = int(os.getenv("KMA_NX", "60"))
     ny = int(os.getenv("KMA_NY", "127"))
+    weather_table = (
+        "processed.weather_ultra_ncst"
+        if _table_exists("processed", "weather_ultra_ncst")
+        else "weather_ultra_ncst"
+    )
     weather_rows = _rows(
-        """
+        f"""
         SELECT DISTINCT ON (category) category, "obsrValue", nx, ny, collected_at
-        FROM weather_ultra_ncst
+        FROM {weather_table}
         WHERE nx = %s AND ny = %s
         ORDER BY category, collected_at DESC
         """,
         (nx, ny),
     )
     weather = {row["category"]: row["obsrValue"] for row in weather_rows}
-    weather_source = "DB:weather_ultra_ncst" if weather else ""
+    weather_source = f"DB:{weather_table}" if weather else ""
     if not weather:
         try:
             raw = collector.fetch_weather(nx, ny)
@@ -172,11 +238,16 @@ def environment_for_region(sido: str, district: str) -> dict:
     sido_alias = {"경기도": "경기", "서울특별시": "서울", "인천광역시": "인천", "부산광역시": "부산", "대전광역시": "대전", "대구광역시": "대구", "광주광역시": "광주", "울산광역시": "울산"}
     sido_short = sido_alias.get(sido, sido_short)
     district_token = district.replace("시", "").replace("군", "").replace("구", "")
+    air_table = (
+        "processed.air_quality"
+        if _table_exists("processed", "air_quality")
+        else "air_quality_processed"
+    )
     air_rows = _rows(
-        """
+        f"""
         SELECT "sidoName", "stationName", "pm10Value", "pm25Value", "o3Value",
                "khaiValue", "dataTime", collected_at
-        FROM air_quality_processed
+        FROM {air_table}
         WHERE ("sidoName" = %s OR "sidoName" ILIKE %s)
           AND ("stationName" ILIKE %s OR "stationName" ILIKE %s)
         ORDER BY collected_at DESC, "dataTime" DESC
@@ -186,10 +257,10 @@ def environment_for_region(sido: str, district: str) -> dict:
     )
     if not air_rows:
         air_rows = _rows(
-            """
+            f"""
             SELECT "sidoName", "stationName", "pm10Value", "pm25Value", "o3Value",
                    "khaiValue", "dataTime", collected_at
-            FROM air_quality_processed
+            FROM {air_table}
             WHERE "sidoName" = %s OR "sidoName" ILIKE %s
             ORDER BY collected_at DESC, "dataTime" DESC
             LIMIT 1
@@ -197,7 +268,7 @@ def environment_for_region(sido: str, district: str) -> dict:
             (sido_short, f"%{sido_short}%"),
         )
     air = air_rows[0] if air_rows else {}
-    air_source = "DB:air_quality_processed" if air else ""
+    air_source = f"DB:{air_table}" if air else ""
     if not air:
         try:
             raw = collector.fetch_air_nearby(sido, district)

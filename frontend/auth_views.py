@@ -1,6 +1,7 @@
 from functools import wraps
 
 from django.contrib.auth.hashers import check_password, make_password
+from django.db import IntegrityError, transaction
 import json
 
 from django.http import JsonResponse
@@ -10,7 +11,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from .auth_forms import LoginForm, SignupForm
-from .models import Member, WorkoutProgress, generate_friend_code
+from .models import FriendNote, Friendship, Member, WorkoutProgress, generate_friend_code
 from .recommendation_service import make_recommendations
 
 LOGIN_ERROR_MESSAGE = "아이디 또는 비밀번호 오류입니다."
@@ -273,6 +274,137 @@ def recommend_page(request):
 @app_access_required
 def friends_page(request):
     return render(request, "frontend/friends.html", _app_context(request, "friends"))
+
+
+def _friend_progress(member):
+    progress = getattr(member, "workout_progress", None)
+    total = max(0, int(progress.total_calories or 0)) if progress else 0
+    return total
+
+
+def _friend_payload(member):
+    """친구 화면에서 필요한 공개 프로필만 반환한다."""
+    if not member.friend_code:
+        member.friend_code = generate_friend_code()
+        member.save(update_fields=["friend_code", "updated_at"])
+    total = _friend_progress(member)
+    return {
+        "id": member.pk,
+        "friend_code": member.friend_code,
+        "nickname": member.nickname,
+        "region": member.address or "지역 미설정",
+        "sport": "fitness",
+        "preferred_sports": ["fitness"],
+        "calories": total,
+        "status": "운동 기록 있음" if total else "운동 기다리는 중",
+        "message": "오늘도 같이 움직여요!",
+        "mood": "energy" if total else "ready",
+        "pose": "main",
+    }
+
+
+def _friend_list(member):
+    relations = Friendship.objects.filter(member=member).select_related("friend")
+    return [_friend_payload(relation.friend) for relation in relations]
+
+
+def _json_body(request):
+    try:
+        return json.loads(request.body or "{}")
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return {}
+
+
+@never_cache
+@member_required
+@require_GET
+def friends_api(request):
+    member = request.usim_member
+    return JsonResponse({"friends": _friend_list(member)})
+
+
+@never_cache
+@member_required
+@require_GET
+def friend_lookup_api(request):
+    code = request.GET.get("code", "").strip().upper()
+    if not code:
+        return JsonResponse({"error": "친구 코드를 입력해주세요."}, status=400)
+    target = Member.objects.filter(friend_code=code).first()
+    if target is None:
+        return JsonResponse({"error": "해당 친구 코드를 찾지 못했어요."}, status=404)
+    if target.pk == request.usim_member.pk:
+        return JsonResponse({"error": "내 친구 코드는 조회할 수 없어요."}, status=400)
+    return JsonResponse({"friend": _friend_payload(target)})
+
+
+@never_cache
+@member_required
+@require_POST
+def add_friend_api(request):
+    member = request.usim_member
+    code = str(_json_body(request).get("friend_code", "")).strip().upper()
+    if not code:
+        return JsonResponse({"error": "친구 코드를 입력해주세요."}, status=400)
+    target = Member.objects.filter(friend_code=code).first()
+    if target is None:
+        return JsonResponse({"error": "해당 친구 코드를 찾지 못했어요."}, status=404)
+    if target.pk == member.pk:
+        return JsonResponse({"error": "내 친구 코드는 추가할 수 없어요."}, status=400)
+
+    if Friendship.objects.filter(member=member, friend=target).exists():
+        return JsonResponse({"error": "이미 친구로 추가된 회원이에요.", "friends": _friend_list(member)}, status=409)
+
+    try:
+        with transaction.atomic():
+            Friendship.objects.create(member=member, friend=target)
+            Friendship.objects.get_or_create(member=target, friend=member)
+    except IntegrityError:
+        return JsonResponse({"error": "이미 친구로 추가된 회원이에요.", "friends": _friend_list(member)}, status=409)
+
+    return JsonResponse({"friend": _friend_payload(target), "friends": _friend_list(member)})
+
+
+@never_cache
+@member_required
+@require_GET
+def friend_notes_api(request):
+    member = request.usim_member
+    visible_ids = [member.pk] + list(
+        Friendship.objects.filter(member=member).values_list("friend_id", flat=True)
+    )
+    notes = FriendNote.objects.filter(author_id__in=visible_ids).select_related("author")[:5]
+    return JsonResponse({
+        "notes": [
+            {
+                "id": note.pk,
+                "author": note.author.nickname,
+                "text": note.text,
+                "time": timezone.localtime(note.created_at).strftime("%H:%M"),
+            }
+            for note in notes
+        ]
+    })
+
+
+@never_cache
+@member_required
+@require_POST
+def create_friend_note_api(request):
+    text = str(_json_body(request).get("text", "")).strip()
+    if not text:
+        return JsonResponse({"error": "한마디를 입력해주세요."}, status=400)
+    if len(text) > 60:
+        return JsonResponse({"error": "한마디는 60자 이내로 입력해주세요."}, status=400)
+    note = FriendNote.objects.create(author=request.usim_member, text=text)
+    return JsonResponse({
+        "note": {
+            "id": note.pk,
+            "author": note.author.nickname,
+            "text": note.text,
+            "time": timezone.localtime(note.created_at).strftime("%H:%M"),
+        }
+    }, status=201)
 
 
 @never_cache
