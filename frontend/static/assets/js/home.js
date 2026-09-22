@@ -535,12 +535,28 @@
     }
   };
 
-  const renderTalks = () => {
+  const renderTalks = rows => {
     const list = $("#homeTalkList");
     if (!list) return;
-    list.innerHTML = app.getTalks().slice(0, 3).map(row => `
+    const talks = Array.isArray(rows) ? rows : app.getTalks().slice(0, 3);
+    list.innerHTML = talks.slice(0, 3).map(row => `
       <div class="talk-row"><b>${row.author}</b><span>${row.text}</span><time>${row.time}</time></div>
     `).join("");
+  };
+
+  const loadTalks = async () => {
+    if (!isMember) {
+      renderTalks();
+      return;
+    }
+    try {
+      const response = await fetch("/api/friend-notes/", { credentials: "same-origin", headers: { Accept: "application/json" } });
+      const payload = await response.json();
+      if (!response.ok) throw new Error("한마디 조회 실패");
+      renderTalks(payload.notes);
+    } catch (_) {
+      renderTalks();
+    }
   };
 
   const reloadRecommendation = async () => {
@@ -567,6 +583,17 @@
     const input = $("#homeTalkInput");
     const text = input.value.trim();
     if (!text) return;
+    if (isMember) {
+      fetch("/api/friend-notes/create/", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, Accept: "application/json" },
+        body: JSON.stringify({ text }),
+      }).then(response => response.ok ? response.json() : Promise.reject(new Error("한마디 저장 실패")))
+        .then(() => { input.value = ""; loadTalks(); })
+        .catch(() => {});
+      return;
+    }
     app.addTalk(text, memberNickname || profile.nickname);
     input.value = "";
     renderTalks();
@@ -577,7 +604,7 @@
     applyRoomState(savedState);
     restoreLayout();
     renderWorkoutProgress();
-    renderTalks();
+    loadTalks();
     if (isMember) {
       fetch("/account-state-data/", { credentials: "same-origin", headers: { Accept: "application/json" } })
         .then(response => response.ok ? response.json() : Promise.reject(new Error("계정 상태 조회 실패")))

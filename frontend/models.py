@@ -84,6 +84,29 @@ class Friendship(models.Model):
         return f"{self.member.nickname} ↔ {self.friend.nickname}"
 
 
+class FriendRequest(models.Model):
+    STATUS_PENDING = "pending"
+    STATUS_ACCEPTED = "accepted"
+    STATUS_DECLINED = "declined"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "대기중"),
+        (STATUS_ACCEPTED, "승인"),
+        (STATUS_DECLINED, "거절"),
+    ]
+
+    requester = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="sent_friend_requests")
+    recipient = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="received_friend_requests")
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    responded_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.requester.nickname} → {self.recipient.nickname} ({self.status})"
+
+
 class FriendNote(models.Model):
     """현재 회원과 친구들이 함께 보는 운동 한마디."""
 

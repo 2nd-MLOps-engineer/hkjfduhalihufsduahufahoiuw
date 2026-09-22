@@ -11,7 +11,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from .auth_forms import LoginForm, SignupForm
-from .models import FriendNote, Friendship, Member, WorkoutProgress, generate_friend_code
+from .models import FriendNote, FriendRequest, Friendship, Member, WorkoutProgress, generate_friend_code
 from .recommendation_service import make_recommendations
 
 LOGIN_ERROR_MESSAGE = "아이디 또는 비밀번호 오류입니다."
@@ -405,6 +405,63 @@ def friend_lookup_api(request):
     return JsonResponse({"friend": _friend_payload(target)})
 
 
+def _friend_request_payload(friend_request):
+    requester = friend_request.requester
+    return {
+        "id": friend_request.pk,
+        "nickname": requester.nickname,
+        "friend_code": requester.friend_code,
+        "region": requester.address or "지역 미설정",
+        "created_at": timezone.localtime(friend_request.created_at).strftime("%m/%d %H:%M"),
+    }
+
+
+@never_cache
+@member_required
+@require_GET
+def friend_requests_api(request):
+    requests = FriendRequest.objects.filter(
+        recipient=request.usim_member, status=FriendRequest.STATUS_PENDING
+    ).select_related("requester")
+    return JsonResponse({"requests": [_friend_request_payload(row) for row in requests]})
+
+
+@never_cache
+@member_required
+@require_POST
+def respond_friend_request_api(request):
+    body = _json_body(request)
+    try:
+        request_id = int(body.get("request_id"))
+    except (TypeError, ValueError):
+        request_id = 0
+    action = str(body.get("action", "")).strip().lower()
+    if action not in {"accept", "decline"} or not request_id:
+        return JsonResponse({"error": "친구 요청 처리 정보가 올바르지 않아요."}, status=400)
+
+    friend_request = FriendRequest.objects.filter(
+        pk=request_id,
+        recipient=request.usim_member,
+        status=FriendRequest.STATUS_PENDING,
+    ).select_related("requester").first()
+    if friend_request is None:
+        return JsonResponse({"error": "처리할 친구 요청을 찾지 못했어요."}, status=404)
+
+    if action == "decline":
+        friend_request.status = FriendRequest.STATUS_DECLINED
+        friend_request.responded_at = timezone.now()
+        friend_request.save(update_fields=["status", "responded_at"])
+        return JsonResponse({"status": "declined"})
+
+    with transaction.atomic():
+        friend_request.status = FriendRequest.STATUS_ACCEPTED
+        friend_request.responded_at = timezone.now()
+        friend_request.save(update_fields=["status", "responded_at"])
+        Friendship.objects.get_or_create(member=request.usim_member, friend=friend_request.requester)
+        Friendship.objects.get_or_create(member=friend_request.requester, friend=request.usim_member)
+    return JsonResponse({"status": "accepted", "friend": _friend_payload(friend_request.requester)})
+
+
 @never_cache
 @member_required
 @require_POST
@@ -421,15 +478,17 @@ def add_friend_api(request):
 
     if Friendship.objects.filter(member=member, friend=target).exists():
         return JsonResponse({"error": "이미 친구로 추가된 회원이에요.", "friends": _friend_list(member)}, status=409)
+    if FriendRequest.objects.filter(
+        requester=member, recipient=target, status=FriendRequest.STATUS_PENDING
+    ).exists():
+        return JsonResponse({"error": "이미 친구 요청을 보냈어요."}, status=409)
+    if FriendRequest.objects.filter(
+        requester=target, recipient=member, status=FriendRequest.STATUS_PENDING
+    ).exists():
+        return JsonResponse({"error": "상대가 보낸 친구 요청을 먼저 승인해주세요."}, status=409)
 
-    try:
-        with transaction.atomic():
-            Friendship.objects.create(member=member, friend=target)
-            Friendship.objects.get_or_create(member=target, friend=member)
-    except IntegrityError:
-        return JsonResponse({"error": "이미 친구로 추가된 회원이에요.", "friends": _friend_list(member)}, status=409)
-
-    return JsonResponse({"friend": _friend_payload(target), "friends": _friend_list(member)})
+    friend_request = FriendRequest.objects.create(requester=member, recipient=target)
+    return JsonResponse({"request": _friend_request_payload(friend_request), "status": "pending"}, status=201)
 
 
 @never_cache

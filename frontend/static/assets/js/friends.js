@@ -9,6 +9,9 @@
   const addButton = $("#friendAddButton");
   const feedback = $("#friendAddFeedback");
   const frame = $("#friendLookupFrame");
+  const requestModal = $("#friendRequestModal");
+  const requestList = $("#friendRequestList");
+  const requestCount = $("#friendRequestCount");
   let selectedFriend = null;
   let friends = [];
 
@@ -63,6 +66,26 @@
     `).join("") || `<p class="friend-empty-copy">친구들과 나눈 운동 한마디가 여기에 보여요.</p>`;
   };
 
+  const renderFriendRequests = rows => {
+    const requests = Array.isArray(rows) ? rows : [];
+    requestCount.textContent = String(requests.length);
+    requestList.innerHTML = requests.map(row => `
+      <div class="friend-request-row">
+        <div class="friend-request-copy"><strong>${escapeHTML(row.nickname)}</strong><small>${escapeHTML(row.region || "지역 미설정")} · ${escapeHTML(row.created_at || "")}</small></div>
+        <div class="friend-request-actions"><button class="accept" data-request-action="accept" data-request-id="${row.id}">승인</button><button class="decline" data-request-action="decline" data-request-id="${row.id}">거절</button></div>
+      </div>
+    `).join("") || `<div class="friend-request-empty">새로운 친구 요청이 없어요.</div>`;
+  };
+
+  const loadFriendRequests = async () => {
+    try {
+      const payload = await requestJSON("/api/friend-requests/");
+      renderFriendRequests(payload.requests);
+    } catch (_) {
+      renderFriendRequests([]);
+    }
+  };
+
   const renderLookupEmpty = (message = "코드를 조회하면 친구의 프로필이 이 액자 안에 나타나요.") => {
     selectedFriend = null;
     frame.className = "friend-profile-frame is-empty";
@@ -104,9 +127,10 @@
 
   const loadPageData = async () => {
     try {
-      const [friendPayload, notePayload] = await Promise.all([requestJSON("/api/friends/"), requestJSON("/api/friend-notes/")]);
+      const [friendPayload, notePayload, requestPayload] = await Promise.all([requestJSON("/api/friends/"), requestJSON("/api/friend-notes/"), requestJSON("/api/friend-requests/")]);
       renderFriends(friendPayload.friends);
       renderGuestbook(notePayload.notes);
+      renderFriendRequests(requestPayload.requests);
     } catch (error) {
       renderFriends(app.getFriends());
       renderGuestbook(app.getTalks());
@@ -116,10 +140,10 @@
   };
 
   const lookup = async () => {
-    const code = codeInput.value.trim().toUpperCase();
+    const code = codeInput.value.trim();
     if (!code) {
-      feedback.textContent = "조회할 친구 코드를 입력해주세요.";
-      renderLookupEmpty("친구 코드를 입력한 뒤 조회 버튼을 눌러주세요.");
+      feedback.textContent = "친구 코드 또는 아이디를 입력해주세요.";
+      renderLookupEmpty("친구 코드 또는 아이디를 입력한 뒤 조회 버튼을 눌러주세요.");
       return null;
     }
     lookupButton.disabled = true;
@@ -159,6 +183,27 @@
   codeInput.addEventListener("keydown", event => { if (event.key === "Enter") { event.preventDefault(); lookup(); } });
   codeInput.addEventListener("input", () => { selectedFriend = null; addButton.disabled = true; addButton.querySelector("span").textContent = "ADD CREW"; });
 
+  $("#friendRequestsButton").addEventListener("click", async () => {
+    await loadFriendRequests();
+    requestModal.hidden = false;
+  });
+  $("#closeFriendRequestModal").addEventListener("click", () => { requestModal.hidden = true; });
+  requestModal.addEventListener("click", event => { if (event.target === requestModal) requestModal.hidden = true; });
+  requestList.addEventListener("click", async event => {
+    const button = event.target.closest("[data-request-action]");
+    if (!button) return;
+    button.disabled = true;
+    try {
+      await requestJSON("/api/friend-requests/respond/", { method: "POST", headers: { "X-CSRFToken": csrfToken }, body: JSON.stringify({ request_id: button.dataset.requestId, action: button.dataset.requestAction }) });
+      const friendPayload = await requestJSON("/api/friends/");
+      renderFriends(friendPayload.friends);
+      await loadFriendRequests();
+    } catch (error) {
+      feedback.textContent = error.message;
+      button.disabled = false;
+    }
+  });
+
   $("#friendAddForm").addEventListener("submit", async event => {
     event.preventDefault();
     const friend = selectedFriend || await lookup();
@@ -166,9 +211,9 @@
     addButton.disabled = true;
     try {
       const payload = await requestJSON("/api/friends/add/", { method: "POST", headers: { "X-CSRFToken": csrfToken }, body: JSON.stringify({ friend_code: friend.friend_code }) });
-      renderFriends(payload.friends);
       renderLookupProfile(friend);
-      feedback.innerHTML = `<b>${escapeHTML(friend.nickname)}</b>님을 운동 친구로 추가했어요.`;
+      addButton.disabled = true;
+      feedback.innerHTML = `<b>${escapeHTML(friend.nickname)}</b>님에게 친구 요청을 보냈어요. 상대가 승인하면 친구 목록에 보여요.`;
     } catch (error) {
       feedback.textContent = error.message;
       if (error.payload?.friends) renderFriends(error.payload.friends);

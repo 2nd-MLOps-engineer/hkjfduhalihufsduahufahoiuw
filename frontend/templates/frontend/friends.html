@@ -75,9 +75,23 @@
           <span class="tiny-label">MY FRIENDS</span>
           <h2>운동 친구</h2>
         </div>
-        <span class="count-chip friend-count-label" id="friendCount">친구 3명</span>
+        <div class="friend-list-actions">
+          <span class="count-chip friend-count-label" id="friendCount">친구 3명</span>
+          <button type="button" class="ui-action ui-action-soft friend-request-button" id="friendRequestsButton">요청 <b id="friendRequestCount">0</b></button>
+        </div>
       </div>
       <div id="friendCards" class="friend-cards"></div>
+    </section>
+  </div>
+
+  <div class="friend-request-modal" id="friendRequestModal" hidden>
+    <section class="friend-request-dialog" role="dialog" aria-modal="true" aria-labelledby="friendRequestTitle">
+      <div class="friend-request-dialog-head">
+        <div><span class="tiny-label">FRIEND REQUEST</span><h2 id="friendRequestTitle">친구 요청 확인</h2></div>
+        <button type="button" id="closeFriendRequestModal" aria-label="닫기">×</button>
+      </div>
+      <p>승인한 사람만 운동 친구 목록과 친구의 운동방에 연결돼요.</p>
+      <div class="friend-request-list" id="friendRequestList"></div>
     </section>
   </div>
 
