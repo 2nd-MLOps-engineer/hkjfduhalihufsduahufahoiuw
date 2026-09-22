@@ -46,17 +46,20 @@
     set("#todayStatus", "오늘 운동 완료");
   }
 
-  // Decorative BGM player: visual-only, no audio source is loaded.
+  // Shared BGM player: remember the selected track and position across page navigation.
   const musicPlayer = document.querySelector("#miniMusicPlayer");
   if (musicPlayer) {
     const tracks = [
-      { title: "Morning Lap", artist: "USIM ROOM MIX", seconds: 37 },
-      { title: "Window Seat", artist: "ROOM TAPE 02", seconds: 64 },
-      { title: "After Five", artist: "USIM SIDE B", seconds: 91 }
+      { title: "Late Night Diary", artist: "USIM ROOM TAPE", src: "/static/assets/audio/late-night-diary.mp3" },
+      { title: "Lofy 120RPM", artist: "USIM MOVE MIX", src: "/static/assets/audio/lofy-120rpm.mp3" },
+      { title: "Old Homepage Memories", artist: "USIM ROOM TAPE", src: "/static/assets/audio/old-homepage-memories.mp3" },
+      { title: "Spring Homepage", artist: "USIM ROOM TAPE", src: "/static/assets/audio/spring-homepage.mp3" }
     ];
-    let trackIndex = 0;
-    let playing = true;
-    let seconds = tracks[0].seconds;
+    const STORAGE_KEY = "usimunkka-bgm-state";
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (_) { saved = {}; }
+    let trackIndex = Number.isInteger(saved.trackIndex) && saved.trackIndex >= 0 && saved.trackIndex < tracks.length ? saved.trackIndex : 0;
+    let playing = saved.playing !== false;
     const titleEl = musicPlayer.querySelector("#musicTrackTitle");
     const artistEl = musicPlayer.querySelector("#musicTrackArtist");
     const progressEl = musicPlayer.querySelector("#musicProgress");
@@ -64,31 +67,60 @@
     const toggleEl = musicPlayer.querySelector("#musicToggle");
     const prevEl = musicPlayer.querySelector("#musicPrev");
     const nextEl = musicPlayer.querySelector("#musicNext");
+    const audio = new Audio();
+    audio.preload = "auto";
+
+    const saveState = () => {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ trackIndex, currentTime: audio.currentTime || 0, playing })); } catch (_) {}
+    };
 
     const renderMusic = () => {
       const track = tracks[trackIndex];
       titleEl.textContent = track.title;
       artistEl.textContent = track.artist;
-      const total = 180;
-      const safeSeconds = Math.max(0, Math.min(total, seconds));
+      const total = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 1;
+      const safeSeconds = Math.max(0, Math.min(total, audio.currentTime || 0));
       const mm = Math.floor(safeSeconds / 60);
       const ss = String(safeSeconds % 60).padStart(2, "0");
       timeEl.textContent = `${mm}:${ss}`;
       progressEl.style.width = `${Math.max(6, Math.min(96, (safeSeconds / total) * 100))}%`;
       musicPlayer.classList.toggle("is-playing", playing);
       toggleEl.querySelector("span").textContent = playing ? "Ⅱ" : "▶";
-      toggleEl.setAttribute("aria-label", playing ? "일시정지 상태로 보기" : "재생 상태로 보기");
+      toggleEl.setAttribute("aria-label", playing ? "일시정지" : "재생");
     };
 
-    toggleEl.addEventListener("click", () => { playing = !playing; renderMusic(); });
-    prevEl.addEventListener("click", () => { trackIndex = (trackIndex + tracks.length - 1) % tracks.length; seconds = tracks[trackIndex].seconds; renderMusic(); });
-    nextEl.addEventListener("click", () => { trackIndex = (trackIndex + 1) % tracks.length; seconds = tracks[trackIndex].seconds; renderMusic(); });
-    window.setInterval(() => {
-      if (!playing) return;
-      seconds += 1;
-      if (seconds > 179) seconds = 0;
+    const loadTrack = (autoplay = playing, startAt = 0) => {
+      const track = tracks[trackIndex];
+      audio.src = track.src;
+      audio.load();
+      audio.addEventListener("loadedmetadata", () => {
+        audio.currentTime = Math.min(Math.max(0, Number(startAt) || 0), Math.max(0, audio.duration - 0.2));
+        renderMusic();
+        if (autoplay) audio.play().catch(() => { playing = false; renderMusic(); saveState(); });
+      }, { once: true });
       renderMusic();
-    }, 1000);
+    };
+
+    toggleEl.addEventListener("click", () => {
+      playing = !playing;
+      if (playing) audio.play().catch(() => { playing = false; }).finally(() => { renderMusic(); saveState(); });
+      else audio.pause();
+      renderMusic();
+      saveState();
+    });
+    const changeTrack = direction => {
+      trackIndex = (trackIndex + direction + tracks.length) % tracks.length;
+      playing = true;
+      loadTrack(true, 0);
+      saveState();
+    };
+    prevEl.addEventListener("click", () => changeTrack(-1));
+    nextEl.addEventListener("click", () => changeTrack(1));
+    audio.addEventListener("timeupdate", renderMusic);
+    audio.addEventListener("pause", saveState);
+    audio.addEventListener("ended", () => changeTrack(1));
+    window.addEventListener("pagehide", saveState);
+    loadTrack(playing, saved.currentTime || 0);
     renderMusic();
   }
 })();
