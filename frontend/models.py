@@ -33,6 +33,8 @@ class Member(models.Model):
     password_hash = models.CharField(max_length=128)
     address = models.CharField(max_length=200)
     friend_code = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    room_state = models.JSONField(default=dict, blank=True)
+    room_layout = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

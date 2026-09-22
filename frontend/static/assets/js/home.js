@@ -2,10 +2,12 @@
   const app = window.USIMUNKKA;
   if (!app) return;
 
-  const memberNickname = document.body?.dataset.memberNickname?.trim() || "";
-  const memberAddress = document.body?.dataset.memberAddress?.trim() || "";
+  const isRoomVisitor = document.body?.dataset.roomVisitor === "1";
+  const roomOwnerId = document.body?.dataset.roomOwnerId?.trim() || document.body?.dataset.memberId?.trim() || "";
+  const memberNickname = document.body?.dataset.roomOwnerNickname?.trim() || document.body?.dataset.memberNickname?.trim() || "";
+  const memberAddress = document.body?.dataset.roomOwnerAddress?.trim() || document.body?.dataset.memberAddress?.trim() || "";
   const memberId = document.body?.dataset.memberId?.trim() || "";
-  const isMember = Boolean(memberId) && document.body?.dataset.isGuest !== "1";
+  const isMember = Boolean(memberId) && document.body?.dataset.isGuest !== "1" && !isRoomVisitor;
   const csrfToken = document.querySelector("meta[name='csrf-token']")?.content || "";
   const serverLocationLoaded = document.body?.dataset.locationLoaded === "1";
   const pageParams = new URLSearchParams(window.location.search);
@@ -29,7 +31,7 @@
   const sportLabel = sport => app.SPORT_META[sport]?.label || sport;
   const transportLabel = app.TRANSPORT_META[profile.transport] || profile.transport;
 
-  const accountStorageKey = memberId || "guest";
+  const accountStorageKey = roomOwnerId || "guest";
   const ROOM_STATE_KEY = `usimunkka.v1.room.state.${accountStorageKey}.v91`;
   const LAYOUT_KEY = `usimunkka.v1.room.layout.${accountStorageKey}.v91`;
   const defaultVisible = {
@@ -96,7 +98,9 @@
   set("#homeRegion", memberAddress || `${profile.province} ${profile.district}`);
   set("#homePreference", `${profile.preferred_sports.map(sportLabel).join(" · ")} · ${transportLabel} ${profile.max_travel_minutes}분 기준`);
 
-  let serverProgress = isMember ? { total_calories: 0, entries: [] } : null;
+  let serverProgress = isMember
+    ? { total_calories: 0, entries: [] }
+    : (isRoomVisitor ? { total_calories: Number(document.body?.dataset.roomOwnerCalories || 0), entries: [] } : null);
   const getWorkoutProgress = () => serverProgress || app.getWorkoutProgress?.() || { total_calories: 0, entries: [] };
   const isUnlocked = (key, total = getWorkoutProgress().total_calories) => {
     const reward = ROOM_REWARDS.find(item => item.key === key);
@@ -134,6 +138,7 @@
   };
 
   const openCustomizer = () => {
+    if (isRoomVisitor) return;
     draftState = JSON.parse(JSON.stringify(savedState));
     syncCustomizer();
     const backdrop = $("#customizerBackdrop");
@@ -178,9 +183,11 @@
   });
 
   $("#saveCustomizer")?.addEventListener("click", () => {
+    if (isRoomVisitor) return;
     savedState = JSON.parse(JSON.stringify(draftState));
     localStorage.setItem(ROOM_STATE_KEY, JSON.stringify(savedState));
     applyRoomState(savedState);
+    persistRoomState();
     set("#customizerSaveMessage", "저장했어요. 내 방에 바로 반영됐어요.");
     window.setTimeout(() => closeCustomizer(false), 450);
   });
@@ -198,6 +205,7 @@
   });
 
   const setItemPosition = (item, x, y, save = false) => {
+    if (isRoomVisitor) return;
     const limits = getLimits(item);
     const nx = clamp(Number(x), limits.minX, limits.maxX);
     const ny = clamp(Number(y), limits.minY, limits.maxY);
@@ -209,6 +217,7 @@
   };
 
   const saveLayout = () => {
+    if (isRoomVisitor) return;
     const state = {};
     draggableItems.forEach(item => {
       state[item.dataset.roomItem] = {
@@ -217,6 +226,37 @@
       };
     });
     localStorage.setItem(LAYOUT_KEY, JSON.stringify(state));
+    persistRoomState();
+  };
+
+  const persistRoomState = async () => {
+    if (!isMember) return;
+    try {
+      await fetch("/api/room-state/", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, Accept: "application/json" },
+        body: JSON.stringify({ state: savedState, layout: safeJson(LAYOUT_KEY, {}) }),
+      });
+    } catch (_) {}
+  };
+
+  const loadServerRoomState = async () => {
+    const url = isRoomVisitor ? `/api/room-state/${encodeURIComponent(roomOwnerId)}/` : (isMember ? "/api/room-state/" : "");
+    if (!url) return;
+    try {
+      const response = await fetch(url, { credentials: "same-origin", headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error("방 상태 조회 실패");
+      const payload = await response.json();
+      const hasServerState = payload.state && Object.keys(payload.state).length;
+      const hasServerLayout = payload.layout && Object.keys(payload.layout).length;
+      if (hasServerState) {
+        savedState = { tone: payload.state.tone || defaultState.tone, visible: { ...defaultVisible, ...(payload.state.visible || {}) } };
+        draftState = JSON.parse(JSON.stringify(savedState));
+      }
+      if (hasServerLayout) localStorage.setItem(LAYOUT_KEY, JSON.stringify(payload.layout));
+      if (!isRoomVisitor && (!hasServerState || !hasServerLayout)) persistRoomState();
+    } catch (_) {}
   };
 
   const restoreLayout = () => {
@@ -240,6 +280,7 @@
 
   draggableItems.forEach(item => {
     item.addEventListener("pointerdown", event => {
+      if (isRoomVisitor) return;
       if (item.classList.contains("is-room-hidden")) return;
       if (event.button !== undefined && event.button !== 0) return;
       const sceneRect = roomScene.getBoundingClientRect();
@@ -271,6 +312,7 @@
     item.addEventListener("pointercancel", endDrag);
 
     item.addEventListener("keydown", event => {
+      if (isRoomVisitor) return;
       if (item.classList.contains("is-room-hidden")) return;
       const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
       if (!keys.includes(event.key)) return;
@@ -287,6 +329,7 @@
   });
 
   $("#resetRoomLayout")?.addEventListener("click", () => {
+    if (isRoomVisitor) return;
     draggableItems.forEach(item => {
       setItemPosition(item, Number(item.dataset.defaultX || 50), Number(item.dataset.defaultY || 50), false);
     });
@@ -322,6 +365,7 @@
 
   $("#workoutLogForm")?.addEventListener("submit", async event => {
     event.preventDefault();
+    if (isRoomVisitor) return;
     const input = $("#workoutCaloriesInput");
     const numericValue = Number(input?.value || 0);
     const amount = Math.round(numericValue);
@@ -519,6 +563,7 @@
   $("#quickMinutes")?.addEventListener("change", reloadRecommendation);
   $("#homeTalkForm")?.addEventListener("submit", event => {
     event.preventDefault();
+    if (isRoomVisitor) return;
     const input = $("#homeTalkInput");
     const text = input.value.trim();
     if (!text) return;
@@ -527,18 +572,22 @@
     renderTalks();
   });
 
-  applyRoomState(savedState);
-  restoreLayout();
-  renderWorkoutProgress();
-  renderTalks();
-  if (isMember) {
-    fetch("/account-state-data/", { credentials: "same-origin", headers: { Accept: "application/json" } })
-      .then(response => response.ok ? response.json() : Promise.reject(new Error("계정 상태 조회 실패")))
-      .then(payload => {
-        serverProgress = payload;
-        renderWorkoutProgress();
-      })
-      .catch(() => {});
-  }
-  renderQuick();
+  const bootHome = async () => {
+    await loadServerRoomState();
+    applyRoomState(savedState);
+    restoreLayout();
+    renderWorkoutProgress();
+    renderTalks();
+    if (isMember) {
+      fetch("/account-state-data/", { credentials: "same-origin", headers: { Accept: "application/json" } })
+        .then(response => response.ok ? response.json() : Promise.reject(new Error("계정 상태 조회 실패")))
+        .then(payload => {
+          serverProgress = payload;
+          renderWorkoutProgress();
+        })
+        .catch(() => {});
+    }
+    renderQuick();
+  };
+  bootHome();
 })();

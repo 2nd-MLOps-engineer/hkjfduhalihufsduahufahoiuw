@@ -6,7 +6,7 @@
   <header class="home-intro character-home-intro">
     <div>
       <span class="home-kicker">MY MOVE HOME</span>
-      <h1><span id="homeNickname">{{ member.nickname|default:"우심이" }}</span>의 작은 방</h1>
+      <h1><span id="homeNickname">{{ room_owner.nickname|default:"우심이" }}</span>의 작은 방</h1>
       <p>평범한 내 방에서 시작해요. 가구는 마음대로 옮기고, 운동을 하면서 나만의 소품을 하나씩 더해보세요.</p>
     </div>
     <div class="intro-sticker" aria-hidden="true">GOOD MOVE<br>GOOD DAY :)</div>
@@ -109,7 +109,7 @@
   <section class="today-move-card">
     <div class="move-head">
       <span>02 / TODAY'S MOVE</span>
-      <strong id="homeRegion">{{ member.address|default:"서울특별시 관악구" }}</strong>
+      <strong id="homeRegion">{{ room_owner.address|default:"서울특별시 관악구" }}</strong>
     </div>
     <div class="move-main">
       <div class="move-character-visual" aria-hidden="true">

@@ -12,7 +12,7 @@
   {% block extra_css %}{% endblock %}
   <link rel="stylesheet" href="{% static 'assets/css/character_theme.css' %}?v=20260918-180">
 </head>
-<body data-page="{{ active_tab|default:'home' }}" data-member-id="{{ member.id|default:'' }}" data-member-nickname="{{ member.nickname|default:''|escape }}" data-member-address="{{ member.address|default:''|escape }}" data-member-friend-code="{{ member.friend_code|default:''|escape }}" data-location-loaded="{% if location_loaded %}1{% else %}0{% endif %}" data-is-guest="{% if is_guest %}1{% else %}0{% endif %}" data-home-url="{% url 'home' %}">
+<body data-page="{{ active_tab|default:'home' }}" data-member-id="{{ member.id|default:'' }}" data-member-nickname="{{ member.nickname|default:''|escape }}" data-member-address="{{ member.address|default:''|escape }}" data-member-friend-code="{{ member.friend_code|default:''|escape }}" data-room-owner-id="{{ room_owner.id|default:member.id|default:'' }}" data-room-owner-nickname="{{ room_owner.nickname|default:member.nickname|default:''|escape }}" data-room-owner-address="{{ room_owner.address|default:member.address|default:''|escape }}" data-room-owner-calories="{{ visitor_total_calories|default:0 }}" data-room-visitor="{% if room_is_visitor %}1{% else %}0{% endif %}" data-location-loaded="{% if location_loaded %}1{% else %}0{% endif %}" data-is-guest="{% if is_guest %}1{% else %}0{% endif %}" data-home-url="{% url 'home' %}">
   <main class="site-stage">
     <section class="mini-shell character-theme-shell">
       <header class="mini-topbar">

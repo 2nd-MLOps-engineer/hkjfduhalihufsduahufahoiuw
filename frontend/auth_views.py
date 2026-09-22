@@ -239,6 +239,10 @@ def main_page(request):
     request.usim_member = member
     request.usim_guest = is_guest
     context = _app_context(request, "home")
+    context["room_owner"] = member
+    context["room_is_visitor"] = False
+    owner_progress = getattr(member, "workout_progress", None) if member is not None else None
+    context["visitor_total_calories"] = max(0, int(owner_progress.total_calories or 0)) if owner_progress else 0
     address = member.address if member is not None else "서울특별시 관악구"
     try:
         latitude = float(request.GET["latitude"]) if request.GET.get("latitude") else None
@@ -279,7 +283,7 @@ def friends_page(request):
 @never_cache
 @member_required
 def friend_visitor_page(request, member_id):
-    """친구 목록에서 들어온 회원 전용 공개 방문자 페이지."""
+    """친구가 꾸민 MY ROOM을 그대로 보여주는 방문자 홈페이지."""
     visitor = Member.objects.filter(pk=member_id).first()
     if visitor is None or not Friendship.objects.filter(
         member=request.usim_member, friend=visitor
@@ -288,15 +292,28 @@ def friend_visitor_page(request, member_id):
 
     progress = getattr(visitor, "workout_progress", None)
     total_calories = max(0, int(progress.total_calories or 0)) if progress else 0
-    notes = FriendNote.objects.filter(author=visitor)[:5]
     context = _app_context(request, "friends")
     context.update({
-        "visitor": visitor,
+        "room_owner": visitor,
+        "room_is_visitor": True,
         "visitor_total_calories": total_calories,
         "visitor_level": (total_calories // 1500) + 1,
-        "visitor_notes": notes,
     })
-    return render(request, "frontend/friend_visitor.html", context)
+    try:
+        latitude = float(request.GET["latitude"]) if request.GET.get("latitude") else None
+        longitude = float(request.GET["longitude"]) if request.GET.get("longitude") else None
+        if latitude is not None and not -90 <= latitude <= 90:
+            latitude = longitude = None
+        if longitude is not None and not -180 <= longitude <= 180:
+            latitude = longitude = None
+        origin = (latitude, longitude) if latitude is not None and longitude is not None else None
+        payload = make_recommendations(visitor.address, set(), 60, 20, origin)
+        context["initial_recommendations"] = payload.get("recommendations", [])
+        context["location_loaded"] = bool(origin)
+    except Exception:
+        context["initial_recommendations"] = []
+        context["location_loaded"] = False
+    return render(request, "frontend/home.html", context)
 
 
 def _friend_progress(member):
@@ -336,6 +353,30 @@ def _json_body(request):
         return json.loads(request.body or "{}")
     except (TypeError, ValueError, json.JSONDecodeError):
         return {}
+
+
+@never_cache
+@member_required
+@require_http_methods(["GET", "POST"])
+def room_state_api(request, member_id=None):
+    """내 방은 저장하고, 친구 방은 읽기 전용으로 조회한다."""
+    current = request.usim_member
+    owner = current if member_id is None else Member.objects.filter(pk=member_id).first()
+    if owner is None:
+        return JsonResponse({"error": "방을 찾지 못했어요."}, status=404)
+    if owner.pk != current.pk and not Friendship.objects.filter(member=current, friend=owner).exists():
+        return JsonResponse({"error": "친구의 운동방만 볼 수 있어요."}, status=403)
+    if request.method == "GET":
+        return JsonResponse({"state": owner.room_state or {}, "layout": owner.room_layout or {}})
+    if owner.pk != current.pk:
+        return JsonResponse({"error": "친구의 운동방은 수정할 수 없어요."}, status=403)
+    body = _json_body(request)
+    state = body.get("state") if isinstance(body.get("state"), dict) else {}
+    layout = body.get("layout") if isinstance(body.get("layout"), dict) else {}
+    owner.room_state = state
+    owner.room_layout = layout
+    owner.save(update_fields=["room_state", "room_layout", "updated_at"])
+    return JsonResponse({"saved": True, "state": state, "layout": layout})
 
 
 @never_cache
