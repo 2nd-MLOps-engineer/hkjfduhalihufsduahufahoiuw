@@ -12,6 +12,7 @@
   const requestModal = $("#friendRequestModal");
   const requestList = $("#friendRequestList");
   const requestCount = $("#friendRequestCount");
+  const requestButton = $("#friendRequestsButton");
   let selectedFriend = null;
   let friends = [];
 
@@ -69,6 +70,7 @@
   const renderFriendRequests = rows => {
     const requests = Array.isArray(rows) ? rows : [];
     requestCount.textContent = String(requests.length);
+    requestButton.hidden = requests.length === 0;
     requestList.innerHTML = requests.map(row => `
       <div class="friend-request-row">
         <div class="friend-request-copy"><strong>${escapeHTML(row.nickname)}</strong><small>${escapeHTML(row.region || "지역 미설정")} · ${escapeHTML(row.created_at || "")}</small></div>
