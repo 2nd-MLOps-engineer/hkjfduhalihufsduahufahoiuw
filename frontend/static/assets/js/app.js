@@ -50,10 +50,10 @@
   const musicPlayer = document.querySelector("#miniMusicPlayer");
   if (musicPlayer) {
     const tracks = [
-      { title: "Late Night Diary", artist: "USIM ROOM TAPE", src: "/static/assets/audio/late-night-diary.mp3" },
-      { title: "Lofy 120RPM", artist: "USIM MOVE MIX", src: "/static/assets/audio/lofy-120rpm.mp3" },
-      { title: "Old Homepage Memories", artist: "USIM ROOM TAPE", src: "/static/assets/audio/old-homepage-memories.mp3" },
-      { title: "Spring Homepage", artist: "USIM ROOM TAPE", src: "/static/assets/audio/spring-homepage.mp3" }
+      { title: "Track 1111", artist: "USIM ROOM TAPE", src: "/static/assets/audio/1111.mp3" },
+      { title: "Track 2222", artist: "USIM MOVE MIX", src: "/static/assets/audio/2222.mp3" },
+      { title: "Track 333", artist: "USIM ROOM TAPE", src: "/static/assets/audio/333.mp3" },
+      { title: "Track 4444", artist: "USIM ROOM TAPE", src: "/static/assets/audio/4444.mp3" }
     ];
     const STORAGE_KEY = "usimunkka-bgm-state";
     let saved = {};
