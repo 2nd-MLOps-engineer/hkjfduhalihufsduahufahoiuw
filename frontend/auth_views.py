@@ -276,6 +276,29 @@ def friends_page(request):
     return render(request, "frontend/friends.html", _app_context(request, "friends"))
 
 
+@never_cache
+@member_required
+def friend_visitor_page(request, member_id):
+    """친구 목록에서 들어온 회원 전용 공개 방문자 페이지."""
+    visitor = Member.objects.filter(pk=member_id).first()
+    if visitor is None or not Friendship.objects.filter(
+        member=request.usim_member, friend=visitor
+    ).exists():
+        return redirect("friends")
+
+    progress = getattr(visitor, "workout_progress", None)
+    total_calories = max(0, int(progress.total_calories or 0)) if progress else 0
+    notes = FriendNote.objects.filter(author=visitor)[:5]
+    context = _app_context(request, "friends")
+    context.update({
+        "visitor": visitor,
+        "visitor_total_calories": total_calories,
+        "visitor_level": (total_calories // 1500) + 1,
+        "visitor_notes": notes,
+    })
+    return render(request, "frontend/friend_visitor.html", context)
+
+
 def _friend_progress(member):
     progress = getattr(member, "workout_progress", None)
     total = max(0, int(progress.total_calories or 0)) if progress else 0

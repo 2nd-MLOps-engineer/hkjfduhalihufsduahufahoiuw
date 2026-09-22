@@ -1,0 +1,61 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% block title %}우심운까 · {{ visitor.nickname }}의 운동방{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/forms.css' %}?v=20260918-150">
+{% endblock %}
+{% block content %}
+<div class="content-page profile-page">
+  <header class="paper-heading profile-paper-heading">
+    <div>
+      <p class="section-kicker">VISITOR ROOM</p>
+      <h1>{{ visitor.nickname }}님의 운동방</h1>
+      <p>운동 친구의 오늘 상태와 운동 기록을 구경해보세요.</p>
+    </div>
+    <span class="mini-sticker">FRIEND VIEW</span>
+    <div class="page-character-sticker profile-character-sticker" aria-hidden="true">
+      <img src="{% static 'assets/images/character/player_thumb.png' %}" alt="">
+      <span>GOOD<br>TOGETHER!</span>
+    </div>
+  </header>
+
+  <section class="profile-form-section">
+    <div class="form-section-number">01</div>
+    <div class="form-section-body">
+      <p class="section-kicker">PROFILE</p>
+      <h2>{{ visitor.nickname }}님의 프로필</h2>
+      <div class="profile-status-card profile-vibe-card">
+        <div class="profile-status-head vibe-head">
+          <div>
+            <span class="tiny-label">TODAY MOVE</span>
+            <strong>{{ visitor.nickname }}님의 운동 기록</strong>
+            <small>{{ visitor.address|default:"지역 미설정" }}</small>
+          </div>
+          <div class="mood-preview vibe-preview">
+            <span>LV. {{ visitor_level }}</span>
+            <b>{% if visitor_total_calories %}운동 중{% else %}운동 기다리는 중{% endif %}</b>
+          </div>
+        </div>
+        <div class="two-field-row ui-field-grid identity-text-fields">
+          <div class="ui-control"><span class="ui-control-label">FRIEND CODE</span><span class="ui-control-row"><span class="ui-control-icon">#</span><span class="ui-input">{{ visitor.friend_code }}</span></span></div>
+          <div class="ui-control"><span class="ui-control-label">TOTAL MOVE</span><span class="ui-control-row"><span class="ui-control-icon">U</span><span class="ui-input">{{ visitor_total_calories }} kcal</span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="guestbook-panel">
+    <div class="card-title-row">
+      <div><span class="tiny-label">RECENT NOTE</span><h2>운동 한마디</h2></div>
+      <small>친구의 최근 기록</small>
+    </div>
+    <div class="guestbook-list">
+      {% for note in visitor_notes %}
+        <div class="guestbook-row"><b>{{ visitor.nickname }}</b><span>{{ note.text }}</span><time>{{ note.created_at|date:"H:i" }}</time></div>
+      {% empty %}
+        <p class="friend-empty-copy">아직 남겨진 운동 한마디가 없어요.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

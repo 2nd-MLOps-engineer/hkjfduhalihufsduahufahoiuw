@@ -30,6 +30,7 @@ urlpatterns = [
     path("main/", auth_views.main_page, name="index"),
     path("recommend/", auth_views.recommend_page, name="recommend"),
     path("friends/", auth_views.friends_page, name="friends"),
+    path("friends/visitor/<int:member_id>/", auth_views.friend_visitor_page, name="friend_visitor"),
     path("profile/", auth_views.profile_page, name="profile"),
     path("diary/", auth_views.diary_page, name="diary"),
 ]

@@ -12,6 +12,25 @@
   let selectedFriend = null;
   let friends = [];
 
+  const openFriendVisitor = card => {
+    const index = Array.from($("#friendCards").children).indexOf(card);
+    const friend = friends[index];
+    if (friend?.id) window.location.assign(`/friends/visitor/${encodeURIComponent(friend.id)}/`);
+  };
+
+  $("#friendCards").addEventListener("click", event => {
+    const card = event.target.closest(".friend-card");
+    if (card) openFriendVisitor(card);
+  });
+
+  $("#friendCards").addEventListener("keydown", event => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const card = event.target.closest(".friend-card");
+    if (!card) return;
+    event.preventDefault();
+    openFriendVisitor(card);
+  });
+
   $("#myFriendCode").textContent = document.body?.dataset.memberFriendCode || profile.friend_code || "-";
 
   const getAvatar = pose => frame?.dataset[`avatar${String(pose || "main").replace(/^./, c => c.toUpperCase())}`]
@@ -30,6 +49,11 @@
         <strong>${friend.calories ? `누적 ${Number(friend.calories)} kcal 🔥` : "운동 기다리는 중"}</strong>
       </article>
     `).join("") || `<p class="friend-empty-copy">아직 친구가 없어요. 친구 코드로 첫 친구를 추가해보세요.</p>`;
+    $("#friendCards").querySelectorAll(".friend-card").forEach(card => {
+      card.tabIndex = 0;
+      card.setAttribute("role", "link");
+      card.setAttribute("aria-label", `${card.querySelector("h3")?.textContent || "친구"}의 운동방 방문`);
+    });
   };
 
   const renderGuestbook = rows => {
