@@ -7,10 +7,10 @@
   <title>{% block title %}우심운까{% endblock %}</title>
   <meta name="csrf-token" content="{{ csrf_token }}">
   <link rel="stylesheet" href="{% static 'assets/css/base.css' %}?v=20260918-180">
-  <link rel="stylesheet" href="{% static 'assets/css/mini_home.css' %}?v=20260918-180">
+  <link rel="stylesheet" href="{% static 'assets/css/mini_home.css' %}?v=20260923-1600">
   <link rel="stylesheet" href="{% static 'assets/css/pages.css' %}?v=20260918-180">
   {% block extra_css %}{% endblock %}
-  <link rel="stylesheet" href="{% static 'assets/css/character_theme.css' %}?v=20260918-180">
+  <link rel="stylesheet" href="{% static 'assets/css/character_theme.css' %}?v=20260923-1600">
 </head>
 <body data-page="{{ active_tab|default:'home' }}" data-member-id="{{ member.id|default:'' }}" data-member-nickname="{{ member.nickname|default:''|escape }}" data-member-address="{{ member.address|default:''|escape }}" data-member-friend-code="{{ member.friend_code|default:''|escape }}" data-room-owner-id="{{ room_owner.id|default:member.id|default:'' }}" data-room-owner-nickname="{{ room_owner.nickname|default:member.nickname|default:''|escape }}" data-room-owner-address="{{ room_owner.address|default:member.address|default:''|escape }}" data-room-owner-calories="{{ visitor_total_calories|default:0 }}" data-room-visitor="{% if room_is_visitor %}1{% else %}0{% endif %}" data-location-loaded="{% if location_loaded %}1{% else %}0{% endif %}" data-is-guest="{% if is_guest %}1{% else %}0{% endif %}" data-home-url="{% url 'home' %}">
   <main class="site-stage">
@@ -46,6 +46,7 @@
                   data-male-src="{% static 'assets/images/character/player_main.png' %}"
                   alt="USIMUNKKA character profile"
                 >
+                <img id="profileClothesImage" class="character-clothes-layer" src="" alt="" aria-hidden="true">
               </div>
               <span class="profile-tape" aria-hidden="true"></span>
               <span class="profile-doodle" aria-hidden="true">GOOD MOVE!</span>
@@ -121,7 +122,7 @@
   </main>
 
   <script src="{% static 'assets/js/api.js' %}?v=20260918-180"></script>
-  <script src="{% static 'assets/js/app.js' %}?v=20260918-180"></script>
+  <script src="{% static 'assets/js/app.js' %}?v=20260923-1600"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

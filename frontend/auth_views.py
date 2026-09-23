@@ -373,6 +373,15 @@ def room_state_api(request, member_id=None):
     body = _json_body(request)
     state = body.get("state") if isinstance(body.get("state"), dict) else {}
     layout = body.get("layout") if isinstance(body.get("layout"), dict) else {}
+    # 의상은 현재 운동 레벨에서 해금된 항목만 서버에도 저장한다.
+    outfit = state.get("outfit", "default")
+    progress = getattr(owner, "workout_progress", None)
+    level = (int(progress.total_calories or 0) // 1500) + 1 if progress else 1
+    if outfit not in {"default", "summer", "winter"}:
+        outfit = "default"
+    if outfit != "default" and level < 5:
+        outfit = "default"
+    state["outfit"] = outfit
     owner.room_state = state
     owner.room_layout = layout
     owner.save(update_fields=["room_state", "room_layout", "updated_at"])

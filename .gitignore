@@ -3,12 +3,11 @@ __pycache__/
 db.sqlite3
 .env
 staticfiles/
-
-# Local development environment and generated files
 .venv/
-.DS_Store
-output/
+db_backups/
 archive/
-
-# Large local data exports/backups
+output/
+.DS_Store
+frontend/db_backup/
 frontend/db_backup/*.csv
+woosimwoonkka-git/
