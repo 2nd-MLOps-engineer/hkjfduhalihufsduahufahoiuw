@@ -232,4 +232,17 @@
 .character-skin-grid button.is-selected,.special-item-grid button.is-selected{border-color:#315642;background:#e9f0e4;box-shadow:inset 0 0 0 2px rgba(49,86,66,.12)}
 .character-skin-grid button.is-locked,.special-item-grid button.is-locked{filter:grayscale(1);opacity:.58;cursor:not-allowed}
 .character-skin-grid button.is-locked::after,.special-item-grid button.is-locked::after{content:"🔒";position:absolute;top:6px;right:7px;font-size:11px}
+.room-button-thumb{display:block!important;position:relative;width:100%;height:42px!important;margin:0 0 6px!important;border-radius:7px;background:#efe4d0;overflow:hidden}
+.room-button-thumb::before,.room-button-thumb::after{content:"";position:absolute;display:block}
+.thumb-bed::before{left:12%;right:12%;bottom:10px;height:13px;border-radius:7px 7px 3px 3px;background:#6e8a79;box-shadow:0 -7px 0 #8b6c52}
+.thumb-bed::after{left:9%;bottom:9px;width:16px;height:24px;border-radius:5px 3px 3px 5px;background:#765b47}
+.thumb-desk::before{left:13%;right:13%;top:14px;height:7px;background:#94613e;box-shadow:0 12px 0 -1px #76533d}
+.thumb-desk::after{left:22%;right:22%;bottom:4px;height:18px;border-left:4px solid #76533d;border-right:4px solid #76533d}
+.thumb-shelf::before{left:28%;top:5px;width:44%;height:32px;border:4px solid #765039;background:linear-gradient(#9a6846 0 4px,transparent 4px 15px,#9a6846 15px 19px,transparent 19px 30px,#9a6846 30px 34px)}
+.thumb-plant::before{left:43%;bottom:7px;width:16px;height:13px;border-radius:3px 3px 7px 7px;background:#b6604b;box-shadow:-8px -19px 0 -4px #557b64,8px -22px 0 -4px #315642}
+.thumb-plant::after{left:49%;bottom:18px;width:4px;height:16px;background:#315642;transform:rotate(12deg)}
+.thumb-poster::before{left:36%;top:5px;width:29%;height:32px;background:#fbf1dc;border:2px solid #635546;box-shadow:5px 5px 0 rgba(80,55,37,.14)}
+.thumb-poster::after{left:42%;top:14px;width:18%;height:3px;background:#315642;box-shadow:0 7px 0 #a95f49,0 14px 0 #d8ae55}
+.thumb-lamp::before{left:43%;top:8px;width:20px;height:12px;border-radius:14px 14px 3px 3px;background:#d8ae55;box-shadow:0 14px 0 -8px #76533d}
+.thumb-lamp::after{left:49%;top:19px;width:3px;height:17px;background:#76533d;box-shadow:0 16px 0 3px #76533d}
 @media (max-width:760px){.character-skin-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.special-item-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
