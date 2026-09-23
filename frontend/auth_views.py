@@ -375,7 +375,7 @@ def room_state_api(request, member_id=None):
     layout = body.get("layout") if isinstance(body.get("layout"), dict) else {}
     # Character skins and special furniture are level rewards. Validate the
     # saved JSON on the server too, so a client cannot equip a locked asset.
-    skin_levels = {"default": 1, "rockMale": 20, "rockFemale": 20, "highendMale": 50, "highendFemale": 50}
+    skin_levels = {"default": 1, "hanbokFemale": 5, "hanbokMale": 5, "hanbokFemale2": 5, "hanbokMale2": 5, "rockMale": 20, "rockFemale": 20, "highendMale": 50, "highendFemale": 50}
     requested_skin = state.get("characterSkin", "default")
     progress = WorkoutProgress.objects.filter(member=owner).first()
     current_level = ((int(progress.total_calories or 0) // 1500) + 1) if progress else 1
