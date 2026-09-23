@@ -82,6 +82,10 @@
     rockFemale: { level: 20, src: "/static/assets/images/room/special/rock-female.png", label: "ROCK FEMALE" },
     highendMale: { level: 50, src: "/static/assets/images/room/special/highend-male.png", label: "HIGHEND MALE" },
     highendFemale: { level: 50, src: "/static/assets/images/room/special/highend-female.png", label: "HIGHEND FEMALE" },
+    hanbokFemale: { level: 5, src: "/static/assets/images/room/special/hanbok-female.png", label: "HANBOK FEMALE" },
+    hanbokMale: { level: 5, src: "/static/assets/images/room/special/hanbok-male.png", label: "HANBOK MALE" },
+    hanbokFemale2: { level: 5, src: "/static/assets/images/room/special/hanbok-female-2.png", label: "HANBOK FEMALE 2" },
+    hanbokMale2: { level: 5, src: "/static/assets/images/room/special/hanbok-male-2.png", label: "HANBOK MALE 2" },
   };
 
   const getRoomLevelInfo = rawTotal => {
