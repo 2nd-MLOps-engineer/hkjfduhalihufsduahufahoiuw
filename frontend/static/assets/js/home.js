@@ -51,7 +51,7 @@
     shoes: false,
     medal: false,
   };
-  const defaultState = { tone: "cream", outfit: "default", visible: { ...defaultVisible } };
+  const defaultState = { tone: "cream", visible: { ...defaultVisible } };
   const ROOM_REWARDS = [
     { key: "bottle", calories: 100, label: "운동 물병" },
     { key: "towel", calories: 250, label: "스포츠 타월" },
@@ -73,12 +73,6 @@
     return { total, level, exp, percent, remaining, title };
   };
 
-  const OUTFITS = ["default", "summer", "winter"];
-  const outfitUnlockLevel = outfit => outfit === "default" ? 1 : 5;
-  const normalizeOutfit = outfit => OUTFITS.includes(outfit) ? outfit : "default";
-  const isOutfitUnlocked = (outfit, total = getWorkoutProgress().total_calories) =>
-    getRoomLevelInfo(total).level >= outfitUnlockLevel(outfit);
-
   const safeJson = (key, fallback) => {
     try {
       const parsed = JSON.parse(localStorage.getItem(key) || "null");
@@ -93,7 +87,6 @@
     const tone = ["cream", "sage", "blue"].includes(stored.tone) ? stored.tone : defaultState.tone;
     return {
       tone,
-      outfit: normalizeOutfit(stored.outfit),
       visible: { ...defaultVisible, ...(stored.visible || {}) },
     };
   };
@@ -118,14 +111,6 @@
     const room = $("#sportsRoom");
     if (!room) return;
     room.dataset.tone = state.tone;
-    const requestedOutfit = normalizeOutfit(state.outfit);
-    const outfit = isOutfitUnlocked(requestedOutfit) ? requestedOutfit : "default";
-    const outfitButton = document.querySelector(`[data-outfit="${outfit}"]`);
-    const clothesImage = $("#roomCharacterClothesImage");
-    if (clothesImage) {
-      clothesImage.src = outfitButton?.dataset.outfitSrc || "";
-      clothesImage.hidden = outfit === "default" || !outfitButton?.dataset.outfitSrc;
-    }
     document.querySelectorAll("[data-room-item]").forEach(item => {
       const key = item.dataset.roomItem;
       const unlocked = isUnlocked(key);
@@ -148,15 +133,6 @@
       button.setAttribute("aria-disabled", String(!unlocked));
       const status = button.querySelector("small");
       if (status && button.dataset.unlockCalories) status.textContent = unlocked ? "UNLOCKED" : "LOCKED";
-    });
-    document.querySelectorAll("[data-outfit]").forEach(button => {
-      const outfit = normalizeOutfit(button.dataset.outfit);
-      const unlocked = isOutfitUnlocked(outfit, total);
-      button.classList.toggle("is-locked", !unlocked);
-      button.classList.toggle("is-selected", unlocked && normalizeOutfit(draftState.outfit) === outfit);
-      button.setAttribute("aria-disabled", String(!unlocked));
-      const status = button.querySelector(".outfit-lock-label");
-      if (status) status.textContent = unlocked ? "UNLOCKED" : `LV.${outfitUnlockLevel(outfit)} LOCKED`;
     });
     applyRoomState(draftState);
   };
@@ -203,19 +179,6 @@
       }
       draftState.visible[key] = !(draftState.visible[key] !== false);
       syncCustomizer();
-    });
-  });
-
-  document.querySelectorAll("[data-outfit]").forEach(button => {
-    button.addEventListener("click", () => {
-      const outfit = normalizeOutfit(button.dataset.outfit);
-      if (!isOutfitUnlocked(outfit)) {
-        set("#customizerSaveMessage", `이 의상은 ROOM LV.${outfitUnlockLevel(outfit)}에서 열려요.`);
-        return;
-      }
-      draftState.outfit = outfit;
-      syncCustomizer();
-      set("#customizerSaveMessage", `${button.querySelector("strong")?.textContent || "의상"}을 입혔어요.`);
     });
   });
 
@@ -288,7 +251,7 @@
       const hasServerState = payload.state && Object.keys(payload.state).length;
       const hasServerLayout = payload.layout && Object.keys(payload.layout).length;
       if (hasServerState) {
-        savedState = { tone: payload.state.tone || defaultState.tone, outfit: normalizeOutfit(payload.state.outfit), visible: { ...defaultVisible, ...(payload.state.visible || {}) } };
+        savedState = { tone: payload.state.tone || defaultState.tone, visible: { ...defaultVisible, ...(payload.state.visible || {}) } };
         draftState = JSON.parse(JSON.stringify(savedState));
       }
       if (hasServerLayout) localStorage.setItem(LAYOUT_KEY, JSON.stringify(payload.layout));

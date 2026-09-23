@@ -77,7 +77,6 @@
           data-male-src="{% static 'assets/images/character/player_main.png' %}"
           alt="우심운까 캐릭터"
         >
-        <img id="roomCharacterClothesImage" class="character-clothes-layer" src="" alt="" aria-hidden="true">
         <span class="character-bubble">오늘도<br>움직일까? :)</span>
       </div>
 
@@ -237,28 +236,6 @@
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend>CHARACTER OUTFIT · ROOM LEVEL로 해금</legend>
-          <div class="outfit-grid">
-            <button type="button" class="outfit-option is-selected" data-outfit="default" data-unlock-level="1">
-              <span class="outfit-preview outfit-preview-default"><b>U</b></span>
-              <strong>기본 의상</strong>
-              <small>DEFAULT · LV.1</small>
-            </button>
-            <button type="button" class="outfit-option" data-outfit="summer" data-unlock-level="5"
-              data-outfit-src="{% static 'assets/images/character/clothes/level5/summer/idle_aligned.png' %}">
-              <span class="outfit-preview"><img src="{% static 'assets/images/character/clothes/level5/_preview/summer_idle_aligned_composite.png' %}" alt="여름 의상 미리보기"></span>
-              <strong>여름 운동복</strong>
-              <small>SUMMER · LV.5 <b class="outfit-lock-label">LOCKED</b></small>
-            </button>
-            <button type="button" class="outfit-option" data-outfit="winter" data-unlock-level="5"
-              data-outfit-src="{% static 'assets/images/character/clothes/level5/winter/idle_aligned.png' %}">
-              <span class="outfit-preview"><img src="{% static 'assets/images/character/clothes/level5/_preview/winter_idle_aligned_composite.png' %}" alt="겨울 의상 미리보기"></span>
-              <strong>겨울 운동복</strong>
-              <small>WINTER · LV.5 <b class="outfit-lock-label">LOCKED</b></small>
-            </button>
-          </div>
-        </fieldset>
       </div>
 
       <div class="customizer-footer">

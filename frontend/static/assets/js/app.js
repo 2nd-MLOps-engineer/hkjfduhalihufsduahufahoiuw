@@ -29,22 +29,6 @@
     profileImage.addEventListener("error", () => { profileImage.src = fallback; }, { once: true });
   }
 
-  const sharedClothesImage = document.querySelector("#profileClothesImage");
-  if (sharedClothesImage && document.body?.dataset.isGuest !== "1") {
-    fetch("/api/room-state/", { credentials: "same-origin", headers: { Accept: "application/json" } })
-      .then(response => response.ok ? response.json() : Promise.reject(new Error("room state unavailable")))
-      .then(payload => {
-        const outfit = ["summer", "winter"].includes(payload.state?.outfit) ? payload.state.outfit : "default";
-        const src = outfit === "summer"
-          ? "/static/assets/images/character/clothes/level5/summer/idle_aligned.png"
-          : outfit === "winter"
-            ? "/static/assets/images/character/clothes/level5/winter/idle_aligned.png"
-            : "";
-        sharedClothesImage.src = src;
-        sharedClothesImage.hidden = !src;
-      })
-      .catch(() => { sharedClothesImage.hidden = true; });
-  }
   set("#profileNickname", memberNickname || profile.nickname);
   set("#profileMessage", profile.message);
   set("#profileRegion", memberAddress || `${profile.province.replace("특별시", "").replace("광역시", "")} ${profile.district}`);
