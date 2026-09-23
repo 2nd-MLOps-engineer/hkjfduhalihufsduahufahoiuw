@@ -68,6 +68,25 @@
         <span></span><i></i><b></b>
       </div>
 
+      <div class="room-item special-room-item special-bookcase is-room-hidden" data-room-item="specialShelf" data-special-level="20" data-default-x="84" data-default-y="43" data-min-y="22" data-max-y="63" tabindex="0" role="button" aria-label="빈티지 책장. 드래그하거나 방향키로 이동">
+        <img src="{% static 'assets/images/room/special/bookcase.png' %}" alt="빈티지 책장">
+      </div>
+      <div class="room-item special-room-item special-turntable is-room-hidden" data-room-item="specialTurntable" data-special-level="20" data-default-x="25" data-default-y="73" data-min-y="52" data-max-y="86" tabindex="0" role="button" aria-label="턴테이블. 드래그하거나 방향키로 이동">
+        <img src="{% static 'assets/images/room/special/turntable.png' %}" alt="턴테이블">
+      </div>
+      <div class="room-item special-room-item special-amp is-room-hidden" data-room-item="specialAmp" data-special-level="20" data-default-x="77" data-default-y="52" data-min-y="30" data-max-y="72" tabindex="0" role="button" aria-label="기타 앰프. 드래그하거나 방향키로 이동">
+        <img src="{% static 'assets/images/room/special/amp.png' %}" alt="기타 앰프">
+      </div>
+      <div class="room-item special-room-item special-sofa is-room-hidden" data-room-item="specialSofa" data-special-level="20" data-default-x="28" data-default-y="70" data-min-y="51" data-max-y="84" tabindex="0" role="button" aria-label="소파. 드래그하거나 방향키로 이동">
+        <img src="{% static 'assets/images/room/special/sofa.png' %}" alt="소파">
+      </div>
+      <div class="room-item special-room-item special-rug is-room-hidden" data-room-item="specialRug" data-special-level="20" data-default-x="52" data-default-y="82" data-min-y="68" data-max-y="91" tabindex="0" role="button" aria-label="패턴 러그. 드래그하거나 방향키로 이동">
+        <img src="{% static 'assets/images/room/special/rug.png' %}" alt="패턴 러그">
+      </div>
+      <div class="room-item special-room-item special-lamp is-room-hidden" data-room-item="specialLamp" data-special-level="20" data-default-x="10" data-default-y="67" data-min-y="42" data-max-y="86" tabindex="0" role="button" aria-label="빈티지 조명. 드래그하거나 방향키로 이동">
+        <img src="{% static 'assets/images/room/special/lamp.png' %}" alt="빈티지 조명">
+      </div>
+
       <div class="room-item character-piece" id="roomCharacter" data-room-item="character" data-default-x="52" data-default-y="61" data-min-y="39" data-max-y="82" tabindex="0" role="button" aria-label="캐릭터. 드래그하거나 방향키로 이동">
         <img
           id="roomCharacterImage"
@@ -233,6 +252,29 @@
             <button type="button" data-toggle-item="gymbag" data-unlock-calories="700"><span>700 KCAL</span><b>운동 가방</b><small>LOCKED</small></button>
             <button type="button" data-toggle-item="shoes" data-unlock-calories="1000"><span>1,000 KCAL</span><b>러닝화</b><small>LOCKED</small></button>
             <button type="button" data-toggle-item="medal" data-unlock-calories="1500"><span>1,500 KCAL</span><b>기념 메달</b><small>LOCKED</small></button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>CHARACTER SKINS · LEVEL UNLOCK</legend>
+          <div class="character-skin-grid">
+            <button type="button" data-character-skin="default" data-unlock-level="1"><img src="{% static 'assets/images/character/player_main.png' %}" alt="기본 캐릭터"><b>기본 캐릭터</b><small>LV. 1</small></button>
+            <button type="button" data-character-skin="rockMale" data-unlock-level="20"><img src="{% static 'assets/images/room/special/rock-male.png' %}" alt="락 캐릭터 남성"><b>ROCK MALE</b><small>LV. 20</small></button>
+            <button type="button" data-character-skin="rockFemale" data-unlock-level="20"><img src="{% static 'assets/images/room/special/rock-female.png' %}" alt="락 캐릭터 여성"><b>ROCK FEMALE</b><small>LV. 20</small></button>
+            <button type="button" data-character-skin="highendMale" data-unlock-level="50"><img src="{% static 'assets/images/room/special/highend-male.png' %}" alt="하이엔드 트레이닝 남성"><b>HIGHEND MALE</b><small>LV. 50</small></button>
+            <button type="button" data-character-skin="highendFemale" data-unlock-level="50"><img src="{% static 'assets/images/room/special/highend-female.png' %}" alt="하이엔드 트레이닝 여성"><b>HIGHEND FEMALE</b><small>LV. 50</small></button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>SPECIAL ROOM ITEMS · LV. 20 UNLOCK</legend>
+          <div class="special-item-grid">
+            <button type="button" data-special-item="specialShelf" data-unlock-level="20"><img src="{% static 'assets/images/room/special/bookcase.png' %}" alt="빈티지 책장"><b>빈티지 책장</b><small>LOCKED</small></button>
+            <button type="button" data-special-item="specialTurntable" data-unlock-level="20"><img src="{% static 'assets/images/room/special/turntable.png' %}" alt="턴테이블"><b>턴테이블</b><small>LOCKED</small></button>
+            <button type="button" data-special-item="specialAmp" data-unlock-level="20"><img src="{% static 'assets/images/room/special/amp.png' %}" alt="기타 앰프"><b>기타 앰프</b><small>LOCKED</small></button>
+            <button type="button" data-special-item="specialSofa" data-unlock-level="20"><img src="{% static 'assets/images/room/special/sofa.png' %}" alt="소파"><b>소파</b><small>LOCKED</small></button>
+            <button type="button" data-special-item="specialRug" data-unlock-level="20"><img src="{% static 'assets/images/room/special/rug.png' %}" alt="패턴 러그"><b>패턴 러그</b><small>LOCKED</small></button>
+            <button type="button" data-special-item="specialLamp" data-unlock-level="20"><img src="{% static 'assets/images/room/special/lamp.png' %}" alt="빈티지 조명"><b>빈티지 조명</b><small>LOCKED</small></button>
           </div>
         </fieldset>
 

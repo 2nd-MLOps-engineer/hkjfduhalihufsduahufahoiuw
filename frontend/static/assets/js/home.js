@@ -50,8 +50,14 @@
     gymbag: false,
     shoes: false,
     medal: false,
+    specialShelf: false,
+    specialTurntable: false,
+    specialAmp: false,
+    specialSofa: false,
+    specialRug: false,
+    specialLamp: false,
   };
-  const defaultState = { tone: "cream", visible: { ...defaultVisible } };
+  const defaultState = { tone: "cream", characterSkin: "default", visible: { ...defaultVisible } };
   const ROOM_REWARDS = [
     { key: "bottle", calories: 100, label: "운동 물병" },
     { key: "towel", calories: 250, label: "스포츠 타월" },
@@ -62,6 +68,21 @@
   ];
   const ROOM_LEVEL_KCAL = 1500;
   const ROOM_LEVEL_TITLES = ["STARTER", "MOVER", "PACE MAKER", "ATHLETE", "ROOM MAKER", "MOVE MASTER"];
+  const SPECIAL_ITEMS = [
+    { key: "specialShelf", label: "빈티지 책장", level: 20 },
+    { key: "specialTurntable", label: "턴테이블", level: 20 },
+    { key: "specialAmp", label: "기타 앰프", level: 20 },
+    { key: "specialSofa", label: "소파", level: 20 },
+    { key: "specialRug", label: "패턴 러그", level: 20 },
+    { key: "specialLamp", label: "빈티지 조명", level: 20 },
+  ];
+  const CHARACTER_SKINS = {
+    default: { level: 1, src: null, label: "기본 캐릭터" },
+    rockMale: { level: 20, src: "/static/assets/images/room/special/rock-male.png", label: "ROCK MALE" },
+    rockFemale: { level: 20, src: "/static/assets/images/room/special/rock-female.png", label: "ROCK FEMALE" },
+    highendMale: { level: 50, src: "/static/assets/images/room/special/highend-male.png", label: "HIGHEND MALE" },
+    highendFemale: { level: 50, src: "/static/assets/images/room/special/highend-female.png", label: "HIGHEND FEMALE" },
+  };
 
   const getRoomLevelInfo = rawTotal => {
     const total = Math.max(0, Math.floor(Number(rawTotal) || 0));
@@ -87,6 +108,7 @@
     const tone = ["cream", "sage", "blue"].includes(stored.tone) ? stored.tone : defaultState.tone;
     return {
       tone,
+      characterSkin: Object.prototype.hasOwnProperty.call(CHARACTER_SKINS, stored.characterSkin) ? stored.characterSkin : defaultState.characterSkin,
       visible: { ...defaultVisible, ...(stored.visible || {}) },
     };
   };
@@ -104,13 +126,30 @@
   const getWorkoutProgress = () => serverProgress || app.getWorkoutProgress?.() || { total_calories: 0, entries: [] };
   const isUnlocked = (key, total = getWorkoutProgress().total_calories) => {
     const reward = ROOM_REWARDS.find(item => item.key === key);
-    return !reward || total >= reward.calories;
+    const special = SPECIAL_ITEMS.find(item => item.key === key);
+    return (!reward || total >= reward.calories) && (!special || getRoomLevelInfo(total).level >= special.level);
+  };
+  const isSkinUnlocked = (key, total = getWorkoutProgress().total_calories) => getRoomLevelInfo(total).level >= (CHARACTER_SKINS[key]?.level || 1);
+  const applyCharacterSkin = skinKey => {
+    const image = $("#roomCharacterImage");
+    if (!image) return;
+    const skin = CHARACTER_SKINS[skinKey] || CHARACTER_SKINS.default;
+    if (skin.src && isSkinUnlocked(skinKey)) {
+      image.src = skin.src;
+    } else {
+      const gender = app.getProfile?.().avatar_gender || profile.avatar_gender || "male";
+      image.src = gender === "female" ? image.dataset.femaleSrc : image.dataset.maleSrc;
+    }
+    image.dataset.skin = skin.src && isSkinUnlocked(skinKey) ? skinKey : "default";
   };
 
   const applyRoomState = state => {
     const room = $("#sportsRoom");
     if (!room) return;
     room.dataset.tone = state.tone;
+    const skinKey = isSkinUnlocked(state.characterSkin) ? state.characterSkin : "default";
+    applyCharacterSkin(skinKey);
+    room.dataset.characterSkin = skinKey;
     document.querySelectorAll("[data-room-item]").forEach(item => {
       const key = item.dataset.roomItem;
       const unlocked = isUnlocked(key);
@@ -133,6 +172,24 @@
       button.setAttribute("aria-disabled", String(!unlocked));
       const status = button.querySelector("small");
       if (status && button.dataset.unlockCalories) status.textContent = unlocked ? "UNLOCKED" : "LOCKED";
+    });
+    document.querySelectorAll("[data-special-item]").forEach(button => {
+      const key = button.dataset.specialItem;
+      const unlocked = isUnlocked(key, total);
+      button.classList.toggle("is-locked", !unlocked);
+      button.classList.toggle("is-selected", unlocked && draftState.visible[key] !== false);
+      button.setAttribute("aria-disabled", String(!unlocked));
+      const status = button.querySelector("small");
+      if (status) status.textContent = unlocked ? (draftState.visible[key] !== false ? "ON" : "OFF") : `LV. ${button.dataset.unlockLevel} LOCKED`;
+    });
+    document.querySelectorAll("[data-character-skin]").forEach(button => {
+      const key = button.dataset.characterSkin;
+      const unlocked = isSkinUnlocked(key, total);
+      button.classList.toggle("is-locked", !unlocked);
+      button.classList.toggle("is-selected", unlocked && draftState.characterSkin === key);
+      button.setAttribute("aria-disabled", String(!unlocked));
+      const status = button.querySelector("small");
+      if (status) status.textContent = unlocked ? (draftState.characterSkin === key ? "EQUIPPED" : `LV. ${button.dataset.unlockLevel}`) : `LV. ${button.dataset.unlockLevel} LOCKED`;
     });
     applyRoomState(draftState);
   };
@@ -178,6 +235,30 @@
         return;
       }
       draftState.visible[key] = !(draftState.visible[key] !== false);
+      syncCustomizer();
+    });
+  });
+
+  document.querySelectorAll("[data-special-item]").forEach(button => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.specialItem;
+      if (!isUnlocked(key)) {
+        set("#customizerSaveMessage", `ROOM LV.${button.dataset.unlockLevel}에서 열리는 특별 소품이에요.`);
+        return;
+      }
+      draftState.visible[key] = !(draftState.visible[key] !== false);
+      syncCustomizer();
+    });
+  });
+
+  document.querySelectorAll("[data-character-skin]").forEach(button => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.characterSkin;
+      if (!isSkinUnlocked(key)) {
+        set("#customizerSaveMessage", `ROOM LV.${button.dataset.unlockLevel}에서 열리는 캐릭터예요.`);
+        return;
+      }
+      draftState.characterSkin = key;
       syncCustomizer();
     });
   });
@@ -251,7 +332,7 @@
       const hasServerState = payload.state && Object.keys(payload.state).length;
       const hasServerLayout = payload.layout && Object.keys(payload.layout).length;
       if (hasServerState) {
-        savedState = { tone: payload.state.tone || defaultState.tone, visible: { ...defaultVisible, ...(payload.state.visible || {}) } };
+        savedState = { tone: payload.state.tone || defaultState.tone, characterSkin: Object.prototype.hasOwnProperty.call(CHARACTER_SKINS, payload.state.characterSkin) ? payload.state.characterSkin : defaultState.characterSkin, visible: { ...defaultVisible, ...(payload.state.visible || {}) } };
         draftState = JSON.parse(JSON.stringify(savedState));
       }
       if (hasServerLayout) localStorage.setItem(LAYOUT_KEY, JSON.stringify(payload.layout));
@@ -401,6 +482,7 @@
     const after = Math.max(0, Math.floor(Number(progress.total_calories) || before + amount));
     const afterLevel = getRoomLevelInfo(after).level;
     const newlyUnlocked = ROOM_REWARDS.filter(item => before < item.calories && after >= item.calories);
+    const newlySpecialUnlocked = SPECIAL_ITEMS.filter(item => beforeLevel < item.level && afterLevel >= item.level);
 
     if (newlyUnlocked.length) {
       newlyUnlocked.forEach(item => { savedState.visible[item.key] = true; });
@@ -411,6 +493,7 @@
 
     const messages = [`${amount.toLocaleString("ko-KR")} kcal 기록 완료`];
     if (newlyUnlocked.length) messages.push(`${newlyUnlocked.map(item => item.label).join(" · ")} 해금`);
+    if (newlySpecialUnlocked.length) messages.push(`특별 보상 ${newlySpecialUnlocked.map(item => item.label).join(" · ")} 해금`);
     if (afterLevel > beforeLevel) {
       messages.push(afterLevel - beforeLevel > 1
         ? `ROOM LV.${beforeLevel} → LV.${afterLevel} 점프!`
