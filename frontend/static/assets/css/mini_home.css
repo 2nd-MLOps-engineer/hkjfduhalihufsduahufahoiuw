@@ -73,6 +73,11 @@
 @media(max-width:1080px){
   .character-home-intro{align-items:flex-start}.intro-sticker{display:none}.room-titlebar small{display:none}.move-main{grid-template-columns:130px 1fr 1fr}.move-action{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;align-items:end;border-top:1px solid #e0d5c2}.move-action label{grid-column:1/-1}.recommend-place{border-right:0}.room-scene-2d{height:430px}.character-bubble{display:none}
 }
+/* Rounded standalone action button for the home friend note composer. */
+.mini-talk-form{gap:7px}
+.mini-talk-form input{border-right:1.5px solid #c1af94;border-radius:10px}
+.mini-talk-form button{border-radius:10px;box-shadow:inset 0 -3px rgba(0,0,0,.10)}
+
 @media(max-width:820px){
   .character-home-intro{display:block}.character-home-intro p{margin-top:7px}.room-titlebar{align-items:flex-start}.room-title-actions{flex-direction:column}.room-scene-2d{height:400px}.room-window-flat{transform:translate(-50%,-50%) scale(.82)}.room-bed,.desk-set,.book-shelf{transform:translate(-50%,-50%) scale(.82)}.character-piece{transform:translate(-50%,-50%) scale(.84)}.move-main{grid-template-columns:1fr}.move-character-visual{display:none}.move-copy,.recommend-place{border:0;border-bottom:1px solid #e0d5c2}.move-action{grid-column:auto;display:grid;grid-template-columns:1fr 1fr}.move-action label{grid-column:1/-1}.option-grid,.item-toggle-grid{grid-template-columns:1fr 1fr}
 }

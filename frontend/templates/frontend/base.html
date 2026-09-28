@@ -7,11 +7,11 @@
   <title>{% block title %}우심운까{% endblock %}</title>
   <meta name="csrf-token" content="{{ csrf_token }}">
   <link rel="stylesheet" href="{% static 'assets/css/base.css' %}?v=20260918-180">
-  <link rel="stylesheet" href="{% static 'assets/css/mini_home.css' %}?v=20260923-1600">
+  <link rel="stylesheet" href="{% static 'assets/css/mini_home.css' %}?v=20260928-1125">
   <link rel="stylesheet" href="{% static 'assets/css/pages.css' %}?v=20260918-180">
   {% block extra_css %}{% endblock %}
   <link rel="stylesheet" href="{% static 'assets/css/character_theme.css' %}?v=20260923-1600">
-  <link rel="stylesheet" href="{% static 'assets/css/chatbot.css' %}?v=20260923-807">
+  <link rel="stylesheet" href="{% static 'assets/css/chatbot.css' %}?v=20260928-1125">
 </head>
 <body data-page="{{ active_tab|default:'home' }}" data-member-id="{{ member.id|default:'' }}" data-member-nickname="{{ member.nickname|default:''|escape }}" data-member-address="{{ member.address|default:''|escape }}" data-member-friend-code="{{ member.friend_code|default:''|escape }}" data-room-owner-id="{{ room_owner.id|default:member.id|default:'' }}" data-room-owner-nickname="{{ room_owner.nickname|default:member.nickname|default:''|escape }}" data-room-owner-address="{{ room_owner.address|default:member.address|default:''|escape }}" data-room-owner-calories="{{ visitor_total_calories|default:0 }}" data-room-visitor="{% if room_is_visitor %}1{% else %}0{% endif %}" data-location-loaded="{% if location_loaded %}1{% else %}0{% endif %}" data-is-guest="{% if is_guest %}1{% else %}0{% endif %}" data-home-url="{% url 'home' %}">
   <main class="site-stage">
@@ -117,6 +117,20 @@
             <a class="bookmark {% if active_tab == 'profile' %}is-active{% endif %}" href="{% url 'profile' %}"><span>PROFILE</span><small>SETTING</small></a>
           </nav>
         </div>
+      </div>
+    </section>
+
+    <section class="usim-data-ribbon" aria-label="운동 추천 데이터 안내">
+      <div class="usim-data-ribbon-copy">
+        <small>BETTER MOVE, BETTER DATA</small>
+        <strong>우리 동네 운동 추천을 더 똑똑하게 만드는 데이터</strong>
+      </div>
+      <div class="usim-data-logo-grid">
+        <div class="usim-data-logo-card is-primary"><strong>공공데이터포털</strong><small>시설 정보</small></div>
+        <div class="usim-data-logo-card"><strong>기상청</strong><small>날씨 정보</small></div>
+        <div class="usim-data-logo-card"><strong>에어코리아</strong><small>대기질 정보</small></div>
+        <div class="usim-data-logo-card"><strong>카카오맵</strong><small>거리·지도</small></div>
+        <div class="usim-data-logo-card"><strong>우심운까</strong><small>운동 추천</small></div>
       </div>
     </section>
   </main>
