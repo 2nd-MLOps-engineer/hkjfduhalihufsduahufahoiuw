@@ -76,3 +76,9 @@ class SignupForm(forms.Form):
 class LoginForm(forms.Form):
     nickname = forms.CharField(label="닉네임", max_length=20, strip=True)
     password = forms.CharField(label="비밀번호", max_length=128, widget=forms.PasswordInput)
+
+    def clean_password(self):
+        value = self.cleaned_data["password"]
+        if any(ord(char) < 0x20 or ord(char) > 0x7E for char in value):
+            raise forms.ValidationError("비밀번호는 영문·숫자·기호로 입력해주세요.")
+        return value

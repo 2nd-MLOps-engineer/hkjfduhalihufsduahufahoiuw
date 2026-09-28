@@ -85,6 +85,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 database_url = os.getenv('DATABASE_URL')
+# Render에 URL을 복사할 때 @ 앞에 붙은 셸 이스케이프(\@)가
+# 환경변수에 그대로 저장된 경우에도 정상 연결되도록 보정한다.
+if database_url:
+    database_url = database_url.replace(r'\@', '@')
 if CHATBOT_ONLY_MODE:
     DATABASES = {
         'default': {
