@@ -119,3 +119,20 @@ class FriendNote(models.Model):
 
     def __str__(self):
         return f"{self.author.nickname}: {self.text[:24]}"
+
+
+class SiteVisit(models.Model):
+    """One visit per browser session and local calendar day."""
+
+    visitor_key = models.CharField(max_length=64)
+    visited_on = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["visitor_key", "visited_on"],
+                name="unique_site_visit_per_day",
+            ),
+        ]
+        ordering = ["-created_at"]

@@ -11,13 +11,12 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from .auth_forms import LoginForm, SignupForm
-from .models import FriendNote, FriendRequest, Friendship, Member, WorkoutProgress, generate_friend_code
+from .models import FriendNote, FriendRequest, Friendship, Member, SiteVisit, WorkoutProgress, generate_friend_code
 from .recommendation_service import make_recommendations
 
 LOGIN_ERROR_MESSAGE = "아이디 또는 비밀번호 오류입니다."
 GUEST_SESSION_KEY = "guest_mode"
 GUEST_MEMBER_NICKNAME = "우심운까"
-SITE_TOTAL_COUNT = 366
 
 
 def _current_member(request):
@@ -86,15 +85,17 @@ def app_access_required(view_func):
 def _app_context(request, active_tab):
     member = getattr(request, "usim_member", None) or _current_member(request)
     is_guest = bool(getattr(request, "usim_guest", False)) or (member is None and _is_guest(request))
+    if not request.session.session_key:
+        request.session.create()
+    visitor_key = request.session.session_key
+    today = timezone.localdate()
+    SiteVisit.objects.get_or_create(visitor_key=visitor_key, visited_on=today)
     return {
         "active_tab": active_tab,
         "member": member,
         "is_guest": is_guest,
-        # The header uses the current local date so it stays meaningful without
-        # pretending that the number is a visitor count. TOTAL is the project's
-        # fixed public milestone requested for the review build.
-        "site_today": timezone.localdate().strftime("%m.%d"),
-        "site_total": SITE_TOTAL_COUNT,
+        "site_today": SiteVisit.objects.filter(visited_on=today).count(),
+        "site_total": SiteVisit.objects.values("visitor_key").distinct().count(),
     }
 
 

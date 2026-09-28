@@ -26,9 +26,9 @@
         </a>
         <div class="topbar-tag">MY MOVE CLUB</div>
         <div class="visitor-counter" aria-label="방문 카운터">
-          <span>TODAY <b id="todayCount" title="오늘 날짜">{{ site_today|default:"--.--" }}</b></span>
+          <span>TODAY <b id="todayCount" title="오늘 방문자 수">{{ site_today|default:"0" }}</b></span>
           <i></i>
-          <span>TOTAL <b id="totalCount" title="우심운까 누적 기준">{{ site_total|default:"366" }}</b></span>
+          <span>TOTAL <b id="totalCount" title="누적 방문자 수">{{ site_total|default:"0" }}</b></span>
         </div>
       </header>
 
