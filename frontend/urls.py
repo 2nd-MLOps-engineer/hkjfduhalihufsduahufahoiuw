@@ -26,6 +26,7 @@ urlpatterns = [
     path("api/friend-notes/create/", auth_views.create_friend_note_api, name="create_friend_note_api"),
     path("api/room-state/", auth_views.room_state_api, name="room_state_api"),
     path("api/room-state/<int:member_id>/", auth_views.room_state_api, name="friend_room_state_api"),
+    path("api/dragon-character/", auth_views.dragon_character_api, name="dragon_character_api"),
     # 일부 브라우저 확장 프로그램이 /api/ 경로를 차단할 때 사용하는 별칭
     path("account-state-data/", auth_views.account_state, name="account_state_data"),
     path("workout-calories-data/", auth_views.add_workout_calories, name="workout_calories_data"),

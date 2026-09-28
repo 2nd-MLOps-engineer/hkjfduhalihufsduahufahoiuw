@@ -35,6 +35,7 @@ class Member(models.Model):
     friend_code = models.CharField(max_length=20, unique=True, null=True, blank=True)
     room_state = models.JSONField(default=dict, blank=True)
     room_layout = models.JSONField(default=dict, blank=True)
+    selected_dragon_design = models.CharField(max_length=20, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

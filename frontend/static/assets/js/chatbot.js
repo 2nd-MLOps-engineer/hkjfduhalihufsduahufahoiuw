@@ -29,6 +29,7 @@
   };
   const gender = () => getProfile().avatar_gender === "female" ? "female" : "male";
   const poseSource = pose => {
+    if (mascot.dataset.dragonSrc) return mascot.dataset.dragonSrc;
     const g = gender();
     const key = `${g}${pose.charAt(0).toUpperCase()}${pose.slice(1)}Src`;
     const generic = `${g.charAt(0).toUpperCase()}${g.slice(1)}Src`;
