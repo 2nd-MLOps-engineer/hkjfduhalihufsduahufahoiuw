@@ -4,6 +4,7 @@
   const $ = selector => document.querySelector(selector);
   const escapeHTML = value => String(value ?? "").replace(/[&<>'"]/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", '"':"&quot;" }[ch]));
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+  const isGuest = document.body?.dataset.isGuest === "1";
   const codeInput = $("#friendCodeInput");
   const lookupButton = $("#friendLookupButton");
   const addButton = $("#friendAddButton");
@@ -113,7 +114,7 @@
           <div class="friend-frame-bottom"><span>${friend.calories ? `누적 ${Number(friend.calories)} kcal` : "오늘 운동 기록 전"}</span><b>${alreadyFriend ? "MY CREW" : "READY TO ADD"}</b></div>
         </div>
       </div>`;
-    addButton.disabled = alreadyFriend;
+    addButton.disabled = isGuest || alreadyFriend;
     addButton.querySelector("span").textContent = alreadyFriend ? "이미 친구" : "ADD CREW";
     feedback.innerHTML = alreadyFriend
       ? `<b>${escapeHTML(friend.nickname)}</b>님은 이미 운동 친구예요.`
@@ -164,6 +165,7 @@
 
   $("#guestbookForm").addEventListener("submit", async event => {
     event.preventDefault();
+    if (isGuest) return;
     const input = $("#guestbookInput");
     const text = input.value.trim();
     if (!text) return;
@@ -186,6 +188,7 @@
   codeInput.addEventListener("input", () => { selectedFriend = null; addButton.disabled = true; addButton.querySelector("span").textContent = "ADD CREW"; });
 
   $("#friendRequestsButton").addEventListener("click", async () => {
+    if (isGuest) return;
     await loadFriendRequests();
     requestModal.hidden = false;
   });
@@ -194,6 +197,7 @@
   requestList.addEventListener("click", async event => {
     const button = event.target.closest("[data-request-action]");
     if (!button) return;
+    if (isGuest) return;
     button.disabled = true;
     try {
       await requestJSON("/api/friend-requests/respond/", { method: "POST", headers: { "X-CSRFToken": csrfToken }, body: JSON.stringify({ request_id: button.dataset.requestId, action: button.dataset.requestAction }) });
@@ -208,6 +212,7 @@
 
   $("#friendAddForm").addEventListener("submit", async event => {
     event.preventDefault();
+    if (isGuest) return;
     const friend = selectedFriend || await lookup();
     if (!friend) return;
     addButton.disabled = true;

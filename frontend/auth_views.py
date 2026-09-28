@@ -16,6 +16,7 @@ from .recommendation_service import make_recommendations
 
 LOGIN_ERROR_MESSAGE = "아이디 또는 비밀번호 오류입니다."
 GUEST_SESSION_KEY = "guest_mode"
+GUEST_MEMBER_NICKNAME = "우심운까"
 
 
 def _current_member(request):
@@ -30,17 +31,28 @@ def _current_member(request):
 
 
 def _is_guest(request):
-    return bool(request.session.get(GUEST_SESSION_KEY)) and _current_member(request) is None
+    return bool(request.session.get(GUEST_SESSION_KEY))
+
+
+def _guest_member():
+    """Return the shared read-only demo account used by guest mode."""
+    return Member.objects.filter(nickname=GUEST_MEMBER_NICKNAME).first()
 
 
 def member_required(view_func):
     @wraps(view_func)
     def wrapped(request, *args, **kwargs):
         member = _current_member(request)
+        is_guest = _is_guest(request)
+        if member is None and is_guest:
+            member = _guest_member()
+            if member is not None:
+                request.session["member_id"] = member.pk
+                request.session["member_nickname"] = member.nickname
         if member is None:
             return redirect("login")
         request.usim_member = member
-        request.usim_guest = False
+        request.usim_guest = is_guest
         return view_func(request, *args, **kwargs)
     return wrapped
 
@@ -50,11 +62,18 @@ def app_access_required(view_func):
     @wraps(view_func)
     def wrapped(request, *args, **kwargs):
         member = _current_member(request)
-        is_guest = member is None and _is_guest(request)
+        is_guest = _is_guest(request)
+        if member is None and is_guest:
+            member = _guest_member()
+            if member is not None:
+                request.session["member_id"] = member.pk
+                request.session["member_nickname"] = member.nickname
         if member is None and not is_guest:
             return redirect("login")
+        if member is None:
+            return redirect("welcome")
 
-        if member is not None:
+        if member is not None and not is_guest:
             request.session.pop(GUEST_SESSION_KEY, None)
 
         request.usim_member = member
@@ -79,16 +98,20 @@ def welcome(request):
 
 @require_POST
 def guest_start(request):
-    """오프닝에서 로그인 없이 MY ROOM만 체험하도록 게스트 세션을 시작한다."""
+    """심사위원용 우심운까 계정을 읽기 전용 게스트 세션으로 시작한다."""
     member = _current_member(request)
-    if member is not None:
+    if member is not None and not _is_guest(request):
         # 이미 로그인된 사용자는 자신의 방으로 바로 보낸다.
         request.session.pop(GUEST_SESSION_KEY, None)
         return redirect("home")
 
+    demo_member = _guest_member()
+    if demo_member is None:
+        return redirect("login")
+
     request.session.cycle_key()
-    request.session.pop("member_id", None)
-    request.session.pop("member_nickname", None)
+    request.session["member_id"] = demo_member.pk
+    request.session["member_nickname"] = demo_member.nickname
     request.session[GUEST_SESSION_KEY] = True
     return redirect("home")
 
@@ -209,6 +232,8 @@ def add_workout_calories(request):
     member = getattr(request, "usim_member", None)
     if member is None:
         return JsonResponse({"error": "회원 로그인 후 운동량을 저장할 수 있습니다."}, status=401)
+    if getattr(request, "usim_guest", False):
+        return JsonResponse({"error": "게스트 모드에서는 보기만 가능합니다."}, status=403)
     try:
         body = json.loads(request.body or "{}")
         amount = int(body.get("calories", 0))
@@ -229,11 +254,18 @@ def add_workout_calories(request):
 def main_page(request):
     """회원은 자신의 방, 게스트는 오프닝에서 시작한 체험 방에 접근한다."""
     member = _current_member(request)
-    is_guest = member is None and _is_guest(request)
+    is_guest = _is_guest(request)
+    if member is None and is_guest:
+        member = _guest_member()
+        if member is not None:
+            request.session["member_id"] = member.pk
+            request.session["member_nickname"] = member.nickname
     if member is None and not is_guest:
         return redirect("login")
+    if member is None:
+        return redirect("welcome")
 
-    if member is not None:
+    if member is not None and not is_guest:
         request.session.pop(GUEST_SESSION_KEY, None)
 
     request.usim_member = member
@@ -368,6 +400,8 @@ def room_state_api(request, member_id=None):
         return JsonResponse({"error": "친구의 운동방만 볼 수 있어요."}, status=403)
     if request.method == "GET":
         return JsonResponse({"state": owner.room_state or {}, "layout": owner.room_layout or {}})
+    if getattr(request, "usim_guest", False):
+        return JsonResponse({"error": "게스트 모드에서는 보기만 가능합니다."}, status=403)
     if owner.pk != current.pk:
         return JsonResponse({"error": "친구의 운동방은 수정할 수 없어요."}, status=403)
     body = _json_body(request)
@@ -444,6 +478,8 @@ def friend_requests_api(request):
 @member_required
 @require_POST
 def respond_friend_request_api(request):
+    if getattr(request, "usim_guest", False):
+        return JsonResponse({"error": "게스트 모드에서는 보기만 가능합니다."}, status=403)
     body = _json_body(request)
     try:
         request_id = int(body.get("request_id"))
@@ -480,6 +516,8 @@ def respond_friend_request_api(request):
 @member_required
 @require_POST
 def add_friend_api(request):
+    if getattr(request, "usim_guest", False):
+        return JsonResponse({"error": "게스트 모드에서는 보기만 가능합니다."}, status=403)
     member = request.usim_member
     code = str(_json_body(request).get("friend_code", "")).strip().upper()
     if not code:
@@ -531,6 +569,8 @@ def friend_notes_api(request):
 @member_required
 @require_POST
 def create_friend_note_api(request):
+    if getattr(request, "usim_guest", False):
+        return JsonResponse({"error": "게스트 모드에서는 보기만 가능합니다."}, status=403)
     text = str(_json_body(request).get("text", "")).strip()
     if not text:
         return JsonResponse({"error": "한마디를 입력해주세요."}, status=400)

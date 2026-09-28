@@ -3,6 +3,7 @@
   const profile = app.getProfile();
   const $ = s => document.querySelector(s);
   const setValue = (s, v) => { const el = $(s); if (el) el.value = v ?? ""; };
+  const isGuest = document.body?.dataset.isGuest === "1";
 
   setValue("#nicknameInput", profile.nickname);
   setValue("#messageInput", profile.message);
@@ -51,8 +52,17 @@
     input.checked = profile.preferred_sports.includes(input.value);
   });
 
+  if (isGuest) {
+    document.querySelectorAll("#profileForm input, #profileForm select, #profileForm button").forEach(control => {
+      control.disabled = true;
+    });
+    const message = $("#profileSaveMessage");
+    if (message) message.textContent = "게스트 모드에서는 프로필을 보기만 할 수 있어요.";
+  }
+
   $("#profileForm").addEventListener("submit", event => {
     event.preventDefault();
+    if (isGuest) return;
     const sports = [...document.querySelectorAll("#profileSportChecks input:checked")].map(input => input.value);
     if (!sports.length) {
       alert("좋아하는 운동을 하나 이상 선택해주세요.");

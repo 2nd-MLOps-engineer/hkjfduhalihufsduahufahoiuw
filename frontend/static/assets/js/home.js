@@ -7,7 +7,9 @@
   const memberNickname = document.body?.dataset.roomOwnerNickname?.trim() || document.body?.dataset.memberNickname?.trim() || "";
   const memberAddress = document.body?.dataset.roomOwnerAddress?.trim() || document.body?.dataset.memberAddress?.trim() || "";
   const memberId = document.body?.dataset.memberId?.trim() || "";
-  const isMember = Boolean(memberId) && document.body?.dataset.isGuest !== "1" && !isRoomVisitor;
+  const isGuest = document.body?.dataset.isGuest === "1";
+  const isMember = Boolean(memberId) && !isRoomVisitor;
+  const canEdit = isMember && !isGuest;
   const csrfToken = document.querySelector("meta[name='csrf-token']")?.content || "";
   const serverLocationLoaded = document.body?.dataset.locationLoaded === "1";
   const pageParams = new URLSearchParams(window.location.search);
@@ -199,7 +201,7 @@
   };
 
   const openCustomizer = () => {
-    if (isRoomVisitor) return;
+    if (!canEdit) return;
     draftState = JSON.parse(JSON.stringify(savedState));
     syncCustomizer();
     const backdrop = $("#customizerBackdrop");
@@ -268,7 +270,7 @@
   });
 
   $("#saveCustomizer")?.addEventListener("click", () => {
-    if (isRoomVisitor) return;
+    if (!canEdit) return;
     savedState = JSON.parse(JSON.stringify(draftState));
     localStorage.setItem(ROOM_STATE_KEY, JSON.stringify(savedState));
     applyRoomState(savedState);
@@ -290,7 +292,7 @@
   });
 
   const setItemPosition = (item, x, y, save = false) => {
-    if (isRoomVisitor) return;
+    if (!canEdit) return;
     const limits = getLimits(item);
     const nx = clamp(Number(x), limits.minX, limits.maxX);
     const ny = clamp(Number(y), limits.minY, limits.maxY);
@@ -302,7 +304,7 @@
   };
 
   const saveLayout = () => {
-    if (isRoomVisitor) return;
+    if (!canEdit) return;
     const state = {};
     draggableItems.forEach(item => {
       state[item.dataset.roomItem] = {
@@ -315,7 +317,7 @@
   };
 
   const persistRoomState = async () => {
-    if (!isMember) return;
+    if (!canEdit) return;
     try {
       await fetch("/api/room-state/", {
         method: "POST",
@@ -365,7 +367,7 @@
 
   draggableItems.forEach(item => {
     item.addEventListener("pointerdown", event => {
-      if (isRoomVisitor) return;
+      if (!canEdit) return;
       if (item.classList.contains("is-room-hidden")) return;
       if (event.button !== undefined && event.button !== 0) return;
       const sceneRect = roomScene.getBoundingClientRect();
@@ -397,7 +399,7 @@
     item.addEventListener("pointercancel", endDrag);
 
     item.addEventListener("keydown", event => {
-      if (isRoomVisitor) return;
+      if (!canEdit) return;
       if (item.classList.contains("is-room-hidden")) return;
       const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
       if (!keys.includes(event.key)) return;
@@ -414,7 +416,7 @@
   });
 
   $("#resetRoomLayout")?.addEventListener("click", () => {
-    if (isRoomVisitor) return;
+    if (!canEdit) return;
     draggableItems.forEach(item => {
       setItemPosition(item, Number(item.dataset.defaultX || 50), Number(item.dataset.defaultY || 50), false);
     });
@@ -450,7 +452,7 @@
 
   $("#workoutLogForm")?.addEventListener("submit", async event => {
     event.preventDefault();
-    if (isRoomVisitor) return;
+    if (!canEdit) return;
     const input = $("#workoutCaloriesInput");
     const numericValue = Number(input?.value || 0);
     const amount = Math.round(numericValue);
@@ -464,7 +466,7 @@
     const before = Math.max(0, Math.floor(Number(getWorkoutProgress().total_calories) || 0));
     const beforeLevel = getRoomLevelInfo(before).level;
     let progress;
-    if (isMember) {
+    if (canEdit) {
       try {
         const response = await fetch("/workout-calories-data/", {
           method: "POST",
@@ -666,11 +668,11 @@
   $("#quickMinutes")?.addEventListener("change", reloadRecommendation);
   $("#homeTalkForm")?.addEventListener("submit", event => {
     event.preventDefault();
-    if (isRoomVisitor) return;
+    if (!canEdit) return;
     const input = $("#homeTalkInput");
     const text = input.value.trim();
     if (!text) return;
-    if (isMember) {
+    if (canEdit) {
       fetch("/api/friend-notes/create/", {
         method: "POST",
         credentials: "same-origin",
