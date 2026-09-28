@@ -82,7 +82,8 @@
       const total = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 1;
       const safeSeconds = Math.max(0, Math.min(total, audio.currentTime || 0));
       const mm = Math.floor(safeSeconds / 60);
-      const ss = String(safeSeconds % 60).padStart(2, "0");
+      // currentTime은 브라우저에서 소수 초로 반환되므로 화면에는 정수 초만 표시한다.
+      const ss = String(Math.floor(safeSeconds % 60)).padStart(2, "0");
       timeEl.textContent = `${mm}:${ss}`;
       progressEl.style.width = `${Math.max(6, Math.min(96, (safeSeconds / total) * 100))}%`;
       musicPlayer.classList.toggle("is-playing", playing);
