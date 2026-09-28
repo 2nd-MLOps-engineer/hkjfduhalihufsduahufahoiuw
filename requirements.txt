@@ -7,3 +7,4 @@ pyproj>=3.7,<4
 gunicorn>=23,<24
 whitenoise>=6.9,<7
 dj-database-url>=2.3,<3
+openai>=1.0,<3

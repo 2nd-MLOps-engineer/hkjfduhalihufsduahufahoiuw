@@ -29,6 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-only-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() in {'1', 'true', 'yes', 'on'}
+CHATBOT_ONLY_MODE = os.getenv('CHATBOT_ONLY_MODE', 'False').lower() in {'1', 'true', 'yes', 'on'}
 
 allowed_hosts = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 render_hostname = os.getenv('RENDER_EXTERNAL_HOSTNAME')
@@ -84,7 +85,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 database_url = os.getenv('DATABASE_URL')
-if database_url:
+if CHATBOT_ONLY_MODE:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'chatbot_test.sqlite3',
+        }
+    }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+elif database_url:
     DATABASES = {
         'default': dj_database_url.parse(
             database_url,

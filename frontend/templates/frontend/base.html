@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="{% static 'assets/css/pages.css' %}?v=20260918-180">
   {% block extra_css %}{% endblock %}
   <link rel="stylesheet" href="{% static 'assets/css/character_theme.css' %}?v=20260923-1600">
+  <link rel="stylesheet" href="{% static 'assets/css/chatbot.css' %}?v=20260923-807">
 </head>
 <body data-page="{{ active_tab|default:'home' }}" data-member-id="{{ member.id|default:'' }}" data-member-nickname="{{ member.nickname|default:''|escape }}" data-member-address="{{ member.address|default:''|escape }}" data-member-friend-code="{{ member.friend_code|default:''|escape }}" data-room-owner-id="{{ room_owner.id|default:member.id|default:'' }}" data-room-owner-nickname="{{ room_owner.nickname|default:member.nickname|default:''|escape }}" data-room-owner-address="{{ room_owner.address|default:member.address|default:''|escape }}" data-room-owner-calories="{{ visitor_total_calories|default:0 }}" data-room-visitor="{% if room_is_visitor %}1{% else %}0{% endif %}" data-location-loaded="{% if location_loaded %}1{% else %}0{% endif %}" data-is-guest="{% if is_guest %}1{% else %}0{% endif %}" data-home-url="{% url 'home' %}">
   <main class="site-stage">
@@ -120,8 +121,66 @@
     </section>
   </main>
 
+  <div class="usim-chat-dock" id="usimChatDock">
+    <div class="usim-chat-teaser" id="usimChatPrompt" role="button" tabindex="0" aria-label="우심이와 대화 열기">
+      <div class="usim-chat-teaser-copy">
+        <span class="usim-chat-bubble-speaker">우심이</span>
+        <span class="usim-chat-bubble-copy">오늘 운동, 나한테 물어볼래?</span>
+      </div>
+      <button type="button" class="usim-chat-teaser-close" id="usimChatPromptClose" aria-label="말풍선 닫기">×</button>
+    </div>
+
+    <section class="usim-chat-panel" id="usimChatPanel" aria-label="우심운까 AI 코치" hidden>
+      <header class="usim-chat-panel-head">
+        <div class="usim-rpg-nameplate"><span class="usim-rpg-name-dot" aria-hidden="true"></span><div><strong>우심이</strong><small>AI MOVE NPC</small></div></div>
+        <div class="usim-chat-head-actions">
+          <button type="button" class="usim-chat-icon-btn" id="usimChatClear" title="대화 새로 시작" aria-label="대화 새로 시작">↻</button>
+          <button type="button" class="usim-chat-icon-btn" id="usimChatClose" title="닫기" aria-label="AI 코치 닫기">×</button>
+        </div>
+      </header>
+      <div class="usim-chat-messages" id="usimChatMessages" aria-live="polite"></div>
+      <details class="usim-chat-quick-wrap">
+        <summary>추천 질문</summary>
+        <div class="usim-chat-quick" aria-label="빠른 질문">
+          <button type="button" class="usim-chat-chip" data-message="오늘 할 운동을 추천해줘">오늘 운동</button>
+          <button type="button" class="usim-chat-chip" data-message="10분 정도 할 수 있는 스트레칭 루틴을 알려줘">10분 스트레칭</button>
+          <button type="button" class="usim-chat-chip" data-message="오늘 러닝해도 괜찮을까?">러닝</button>
+        </div>
+      </details>
+      <div class="usim-chat-compose">
+        <form id="usimChatForm">
+          <textarea class="usim-chat-input" id="usimChatInput" rows="1" maxlength="600" placeholder="우심이에게 말 걸기..." aria-label="AI 코치에게 보낼 메시지"></textarea>
+          <button class="usim-chat-send" id="usimChatSend" type="submit" aria-label="메시지 보내기">▶</button>
+        </form>
+      </div>
+    </section>
+
+    <button type="button" class="usim-chat-launcher" id="usimChatLauncher" aria-label="우심운까 AI 코치에게 말 걸기" aria-controls="usimChatPanel" aria-expanded="false">
+      <div class="usim-chat-launcher-character-wrap">
+        <span class="usim-chat-status-mark" aria-hidden="true">!</span>
+        <div class="usim-chat-launcher-halo" aria-hidden="true"></div>
+        <img id="usimChatMascot"
+          src="{% static 'assets/images/character/player_wave.png' %}"
+          data-default-src="{% static 'assets/images/character/player_wave.png' %}"
+          data-male-src="{% static 'assets/images/character/player_wave.png' %}"
+          data-female-src="{% static 'assets/images/character/female_wave.png' %}"
+          data-male-idle-src="{% static 'assets/images/character/player_main.png' %}"
+          data-male-wave-src="{% static 'assets/images/character/player_wave.png' %}"
+          data-male-run-src="{% static 'assets/images/character/player_run.png' %}"
+          data-male-tie-src="{% static 'assets/images/character/player_tie.png' %}"
+          data-female-idle-src="{% static 'assets/images/character/female_main.png' %}"
+          data-female-wave-src="{% static 'assets/images/character/female_wave.png' %}"
+          data-female-run-src="{% static 'assets/images/character/female_run.png' %}"
+          data-female-tie-src="{% static 'assets/images/character/female_tie.png' %}"
+          alt="">
+      </div>
+      <div class="usim-chat-launcher-meta"><strong>우심이</strong><span>말 걸기</span></div>
+    </button>
+  </div>
+
   <script src="{% static 'assets/js/api.js' %}?v=20260918-180"></script>
   <script src="{% static 'assets/js/app.js' %}?v=20260923-1600"></script>
+  <script src="{% static 'assets/js/chatbot.js' %}?v=20260923-807"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

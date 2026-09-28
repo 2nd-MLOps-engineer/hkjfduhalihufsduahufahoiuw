@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import auth_views
+from . import chatbot_views
 from . import views as legacy_views
 
 
@@ -28,6 +29,10 @@ urlpatterns = [
     # 일부 브라우저 확장 프로그램이 /api/ 경로를 차단할 때 사용하는 별칭
     path("account-state-data/", auth_views.account_state, name="account_state_data"),
     path("workout-calories-data/", auth_views.add_workout_calories, name="workout_calories_data"),
+
+    # AI chatbot (OpenAI API key stays on the Django server)
+    path("api/chatbot/", chatbot_views.chatbot_message, name="chatbot_message"),
+    path("api/chatbot/clear/", chatbot_views.chatbot_clear, name="chatbot_clear"),
 
     # Logged-in app. Existing frontend templates / design are reused as-is.
     path("main/", auth_views.main_page, name="home"),
