@@ -21,6 +21,12 @@
 
 </div>
 
+## 서비스 바로가기
+
+**배포 사이트:** [https://hkjfduhalihufsduahufahoiuw.onrender.com/](https://hkjfduhalihufsduahufahoiuw.onrender.com/)
+
+배포 서비스는 이 저장소의 GitHub Pages가 아니라 별도 Render 환경에서 운영됩니다.
+
 ![우심운까 메인 화면 — 나만의 운동방](docs/images/01-home.png)
 
 ## 프로젝트 소개
@@ -392,12 +398,189 @@ python manage.py enrich_facilities --limit 100 --apply
 
 | 팀원 | 담당 영역 | 맡은 역할 |
 | --- | --- | --- |
-| **신경호** | 프론트엔드 · 발표자료 | 서비스 화면 구현과 사용자 인터페이스 구성, 프로젝트 발표자료 준비 |
-| **류지예** | 프론트엔드 · 발표자료 | 서비스 화면 구현과 사용자 경험 구성, 프로젝트 발표자료 준비 |
-| **백선영** | 데이터 수집 · 데이터베이스 파이프라인 | 데이터베이스 구축을 위한 데이터 수집과 데이터 파이프라인 구축 |
-| **김형준** | 백엔드 · 프로젝트 전반 | 백엔드 개발을 중심으로 기능 연동과 그 외 프로젝트 전반의 작업 담당 |
+| **신경호** | 프론트엔드 · 발표자료 | 서비스 화면 구현과 사용자 인터페이스 구성, 프로젝트 발표자료 준비 · [GitHub](https://github.com/Shinkyeongho) |
+| **류지예** | 프론트엔드 · 발표자료 | 서비스 화면 구현과 사용자 경험 구성, 프로젝트 발표자료 준비 · [GitHub](https://github.com/callijee22-ship-it) |
+| **백선영** | 데이터 수집 · 데이터베이스 파이프라인 | 데이터베이스 구축을 위한 데이터 수집과 데이터 파이프라인 구축 · [GitHub](https://github.com/baikAnalyst) |
+| **김형준** | 백엔드 · 프로젝트 전반 | 백엔드 개발을 중심으로 기능 연동과 그 외 프로젝트 전반의 작업 담당 · [GitHub](https://github.com/kimhyounjun) |
 
 프론트엔드는 사용자가 만나게 될 화면과 흐름을, 데이터 파트는 추천의 바탕이 되는 정보를, 백엔드는 화면과 데이터를 연결하는 동작을 맡았습니다. 각 파트의 결과를 연결해 운동 추천부터 기록과 꾸미기까지 이어지는 경험을 만들었습니다.
+
+## 프로젝트 문서 및 평가 증빙
+
+기존 서비스 설명과 화면 자료는 위 내용을 기준으로 하고, 아래 항목은 이번 단위 프로젝트의 제출 문서로 덧붙였습니다.
+
+### 프로젝트명과 목표
+
+**우심운까: 공공데이터 기반 운동 장소 추천 서비스와 데이터 파이프라인**
+
+지역, 날씨, 대기질, 운동 취향을 연결해 운동 장소를 추천하고, 공공데이터를 반복 수집·전처리·검증해 서비스에서 사용할 수 있는 형태로 관리하는 것을 목표로 합니다.
+
+### 프로젝트 필요성
+
+운동 장소, 운영시간, 날씨, 대기질 정보가 여러 출처에 흩어져 있어 사용자가 직접 비교하기 어렵습니다. 데이터 형식도 출처마다 달라 수작업으로 관리하면 오래된 정보가 남거나 전처리 과정에서 값이 사라지는 문제를 발견하기 어렵습니다. 따라서 원본 데이터를 보존하고 정제·검증 결과를 추적하는 파이프라인이 필요합니다.
+
+### WBS
+
+| 단계 | 작업 | 산출물 | 담당 |
+| --- | --- | --- | --- |
+| 1 | 요구사항과 데이터 출처 확인 | 요구사항 명세서, API 목록 | 전원 |
+| 2 | 체육시설·기상·대기질 수집 | 원본 JSON, 수집 로그 | 백선영 |
+| 3 | 필드 표준화와 전처리 | 정제 JSON·CSV | 백선영 |
+| 4 | 데이터 품질검증 | 행 수·중복·NULL·타입 검증 결과 | 백선영·김형준 |
+| 5 | PostgreSQL 적재 | 적재 테이블, 수집·적재 건수 | 백선영·김형준 |
+| 6 | 추천 API와 화면 연결 | 추천 API, 추천 카드 | 김형준·신경호·류지예 |
+| 7 | 화면·시연·발표자료 정리 | 캡처, 테스트 시나리오, 발표자료 | 전원 |
+
+### 요구사항 명세서
+
+| ID | 요구사항 | 검증 방법 |
+| --- | --- | --- |
+| FR-01 | 지역별 체육시설 데이터를 API로 수집한다 | `python frontend/collector.py` 실행 및 건수 확인 |
+| FR-02 | 기상청·에어코리아 데이터를 수집한다 | `output/raw/` 원본과 수집 시각 확인 |
+| FR-03 | 시설명·유형·주소·좌표를 표준 필드로 변환한다 | `output/facilities.csv` 확인 |
+| FR-04 | 행 수, 필수값, 중복, 좌표 형식, NULL 변화를 확인한다 | 실행 로그와 품질 리포트 확인 |
+| FR-05 | 검증된 데이터를 추천 DB에서 조회할 수 있도록 적재한다 | `facility_processed` 등 대상 테이블 조회 |
+| FR-06 | 추천 결과에 거리·날씨·대기질·운영정보를 반영한다 | 추천 API 응답과 화면 시연 |
+| FR-07 | API 오류·좌표 누락·운영정보 미확인을 별도 상태로 기록한다 | 오류 로그와 보완 리포트 확인 |
+| NFR-01 | API 키와 DB 접속정보를 환경변수로 관리한다 | `.env.example` 및 배포 환경변수 확인 |
+
+### ERD
+
+```mermaid
+erDiagram
+    MEMBER ||--o| WORKOUT_PROGRESS : has
+    MEMBER ||--o{ FRIENDSHIP : creates
+    MEMBER ||--o{ FRIEND_REQUEST : sends
+    MEMBER ||--o{ FRIEND_NOTE : writes
+    MEMBER ||--o{ SITE_VISIT : records
+    MEMBER {
+        int id PK
+        string name
+        string nickname UK
+        string password_hash
+        string address
+        string friend_code UK
+        json room_state
+        json room_layout
+    }
+    WORKOUT_PROGRESS {
+        int id PK
+        int member_id FK
+        int total_calories
+        json entries
+    }
+    FRIENDSHIP {
+        int id PK
+        int member_id FK
+        int friend_id FK
+    }
+    FRIEND_REQUEST {
+        int id PK
+        int requester_id FK
+        int recipient_id FK
+        string status
+    }
+    FRIEND_NOTE {
+        int id PK
+        int author_id FK
+        text note_text
+    }
+    SITE_VISIT {
+        int id PK
+        string visitor_key
+        date visited_on
+    }
+```
+
+### 주요 프로시저
+
+```text
+공공데이터 API 호출
+→ API 원문 보존
+→ 시설·환경 필드 표준화
+→ 필수값·중복·타입·NULL 변화 검증
+→ JSON·CSV 출력 또는 PostgreSQL 적재
+→ Django 추천 서비스에서 DB 우선 조회
+→ 거리·운동 종목·날씨·대기질 점수 계산
+→ 운영정보 확인 후 추천 카드 표시
+```
+
+수집기는 외부 요청 실패 시 재시도하고, 응답이 JSON이 아니면 오류를 기록합니다. 시설 홈페이지를 확인할 때는 `robots.txt` 정책을 먼저 확인하며, 확인할 수 없는 운영정보는 삭제하지 않고 `확인 필요` 상태로 남깁니다.
+
+### 수행 결과와 테스트·시연 페이지
+
+| 시연 단계 | 확인 내용 |
+| --- | --- |
+| 시작 화면 | [배포 사이트](https://hkjfduhalihufsduahufahoiuw.onrender.com/) 접속 |
+| 회원·게스트 진입 | 회원가입·로그인 또는 게스트 체험 |
+| 추천 조건 | 지역·운동 종목·가능 시간·이동 조건 선택 |
+| 추천 결과 | 시설명·거리·추천 이유·환경 정보·지도 링크 확인 |
+| 운동 기록 | 칼로리 입력 후 누적 운동량과 운동방 보상 확인 |
+| 데이터 증빙 | 수집 원본, 정제 CSV, 보완 리포트, 실행 건수 확인 |
+
+### 자동 학습 데이터 파이프라인 평가 증빙
+
+#### 평가 유의사항
+
+- 팀별 주제와 사용한 프레임워크·라이브러리는 서로 다를 수 있으므로, 구현 방식의 차이는 점수에 반영하지 않고 산출물과 실행 결과(로그·캡처·시연)로 평가합니다.
+- 공모전용으로 기존에 구축한 웹 서비스 코드는 평가 대상에서 제외하고, 이번 단위 프로젝트에서 구현한 수집·전처리·적재·스케줄링 부분만 평가합니다.
+- README에 실행 방법, 스케줄 설정, 로그 위치, 적재 결과(수집·적재 건수)를 기재하여 평가 근거로 제출합니다.
+
+#### 데이터 출처와 결과 위치
+
+| 출처 | 주요 필드 | 서비스 활용 | 결과 위치 |
+| --- | --- | --- | --- |
+| 전국체육시설 API | 시설명·유형·주소·좌표 | 시설 후보와 거리 계산 | `output/facilities.csv`, `facility_processed` |
+| 기상청 API | 기온·습도·강수·풍속 | 실외 운동 적합도 | `output/raw/weather.json`, `weather_ultra_ncst` |
+| 에어코리아 API | PM10·PM2.5·측정소 | 실내·실외 우선순위 | `output/raw/air.json`, `air_quality_processed` |
+| 공개 시설 페이지 | 휴무·운영시간 문구 | 운영정보 보완 | `output/facility_enrichment/` |
+
+#### 품질검증 기준
+
+| 검사 | 기준 | 실패 시 처리 |
+| --- | --- | --- |
+| Row count | 원본·정제·적재 건수를 비교 | 차이를 로그에 기록 |
+| Required fields | 시설명·주소·지역 필수 | 누락 행 별도 분리 |
+| Key uniqueness | 시설 식별자 또는 시설명·주소 중복 확인 | 중복 원인 확인 후 적재 제외 |
+| Type validation | 좌표·수치·일시 형식 확인 | 원본 보존 후 오류 기록 |
+| NULL transition | 원본 값이 정제 후 NULL이 되었는지 확인 | 변환 규칙 재검토 |
+| API status | HTTP 상태·응답 구조·요청 시각 기록 | 재시도 후 최종 실패 기록 |
+
+#### 실행·스케줄·로그
+
+현재 저장소에서 확인 가능한 수동 수집 명령은 다음과 같습니다.
+
+```bash
+python frontend/collector.py --region "서울특별시 관악구" --limit 50
+```
+
+시설 보완 리포트는 다음 명령으로 생성합니다.
+
+```bash
+python manage.py enrich_facilities --limit 100
+python manage.py enrich_facilities --limit 100 --apply
+```
+
+수집 결과는 `output/raw/`, `output/latest.json`, `output/facilities.csv`에 저장하고, 시설 보완 결과는 `output/facility_enrichment/report_*.json`과 `report_*.csv`에 저장합니다. 실행 환경에서 스케줄러를 연결할 경우 cron 또는 APScheduler가 위 수집 명령을 호출하도록 설정하고, 실행 시각·수집 건수·적재 건수·오류를 별도 JSONL 로그로 남깁니다.
+
+> 현재 공개 저장소에는 수집기와 파일 출력·보완 명령이 포함되어 있으며, 초기 DB 적재와 스케줄러는 운영 환경 설정에 따라 별도로 연결합니다. 평가 제출 시 실제 실행 로그와 수집·적재 건수를 함께 첨부합니다.
+
+### Repository Description 작성 규칙
+
+Repository 이름에는 프로젝트명을 중복해서 넣지 않고, Repository Description에는 프로젝트 설명을 작성합니다.
+
+권장 설명:
+
+```text
+공공데이터 기반 운동 장소 추천 서비스와 데이터 파이프라인
+```
+
+### 한 줄 회고
+
+- **신경호** — 사용자가 데이터의 출처와 추천 이유를 화면에서 이해하도록 만드는 일이 중요했습니다.
+- **류지예** — 기능을 많이 넣는 것보다 사용자가 다음 행동으로 이어지는 흐름을 다듬는 일이 중요했습니다.
+- **백선영** — 행 수만 맞는 것으로는 데이터 품질을 보장할 수 없어 원본과 변환 전후 값을 함께 추적해야 했습니다.
+- **김형준** — 화면 기능과 데이터 파이프라인을 분리하면서도 하나의 사용자 경험으로 연결하는 과정을 경험했습니다.
 
 ---
 
