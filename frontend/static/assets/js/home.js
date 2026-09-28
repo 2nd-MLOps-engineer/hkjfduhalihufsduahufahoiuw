@@ -292,7 +292,6 @@
   });
 
   const setItemPosition = (item, x, y, save = false) => {
-    if (!canEdit) return;
     const limits = getLimits(item);
     const nx = clamp(Number(x), limits.minX, limits.maxX);
     const ny = clamp(Number(y), limits.minY, limits.maxY);
