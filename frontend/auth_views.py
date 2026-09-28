@@ -17,6 +17,7 @@ from .recommendation_service import make_recommendations
 LOGIN_ERROR_MESSAGE = "아이디 또는 비밀번호 오류입니다."
 GUEST_SESSION_KEY = "guest_mode"
 GUEST_MEMBER_NICKNAME = "우심운까"
+SITE_TOTAL_COUNT = 366
 
 
 def _current_member(request):
@@ -89,6 +90,11 @@ def _app_context(request, active_tab):
         "active_tab": active_tab,
         "member": member,
         "is_guest": is_guest,
+        # The header uses the current local date so it stays meaningful without
+        # pretending that the number is a visitor count. TOTAL is the project's
+        # fixed public milestone requested for the review build.
+        "site_today": timezone.localdate().strftime("%m.%d"),
+        "site_total": SITE_TOTAL_COUNT,
     }
 
 
