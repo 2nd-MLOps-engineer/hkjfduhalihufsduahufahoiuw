@@ -56,8 +56,87 @@
     if (promptTimer) clearTimeout(promptTimer);
     if (duration > 0) promptTimer = window.setTimeout(hidePrompt, duration);
   };
+  const DOCK_POSITION_KEY = "usim_chat_dock_position_v1";
+  let dragState = null;
+  let suppressNextClick = false;
+
+  const clampDockPosition = (left, top) => {
+    const margin = 4;
+    const maxLeft = Math.max(margin, window.innerWidth - dock.offsetWidth - margin);
+    const maxTop = Math.max(margin, window.innerHeight - dock.offsetHeight - margin);
+    return {
+      left: Math.min(Math.max(margin, left), maxLeft),
+      top: Math.min(Math.max(margin, top), maxTop),
+    };
+  };
+  const applyDockPosition = (left, top, persist = true) => {
+    const position = clampDockPosition(left, top);
+    dock.style.left = `${Math.round(position.left)}px`;
+    dock.style.top = `${Math.round(position.top)}px`;
+    dock.style.right = "auto";
+    dock.style.bottom = "auto";
+    dock.dataset.moved = "1";
+    if (persist) {
+      try { localStorage.setItem(DOCK_POSITION_KEY, JSON.stringify(position)); } catch (_) {}
+    }
+  };
+  const restoreDockPosition = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DOCK_POSITION_KEY) || "null");
+      if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
+        applyDockPosition(saved.left, saved.top, false);
+      }
+    } catch (_) {}
+  };
+  const positionPanelFromDock = () => {
+    const rect = launcher.getBoundingClientRect();
+    const width = Math.min(286, Math.max(240, window.innerWidth - 12));
+    const height = Math.min(400, Math.max(300, window.innerHeight * 0.5));
+    const left = Math.min(Math.max(6, rect.left + rect.width - width), window.innerWidth - width - 6);
+    let top = rect.top - height - 12;
+    if (top < 8) top = Math.min(window.innerHeight - height - 8, rect.bottom + 12);
+    top = Math.max(8, top);
+    const actualHeight = Math.max(240, Math.min(height, window.innerHeight - top - 8));
+    panel.style.left = `${Math.round(left)}px`;
+    panel.style.right = "auto";
+    panel.style.top = `${Math.round(top)}px`;
+    panel.style.bottom = "auto";
+    panel.style.width = `${Math.round(width)}px`;
+    panel.style.height = `${Math.round(actualHeight)}px`;
+  };
+  const beginDrag = event => {
+    if (event.button !== undefined && event.button !== 0) return;
+    const rect = dock.getBoundingClientRect();
+    dragState = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, left: rect.left, top: rect.top, moved: false };
+    dock.classList.add("is-dragging");
+    launcher.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+  };
+  const moveDrag = event => {
+    if (!dragState || event.pointerId !== dragState.pointerId) return;
+    const dx = event.clientX - dragState.startX;
+    const dy = event.clientY - dragState.startY;
+    if (!dragState.moved && Math.hypot(dx, dy) < 5) return;
+    dragState.moved = true;
+    applyDockPosition(dragState.left + dx, dragState.top + dy);
+    if (!panel.hidden) positionPanelFromDock();
+    event.preventDefault();
+  };
+  const endDrag = event => {
+    if (!dragState || event.pointerId !== dragState.pointerId) return;
+    suppressNextClick = dragState.moved;
+    launcher.releasePointerCapture?.(event.pointerId);
+    dock.classList.remove("is-dragging");
+    dragState = null;
+  };
+  restoreDockPosition();
   const positionNpcLayout = () => {
-    if (!shell || panel.hidden) return;
+    if (panel.hidden) return;
+    if (dock.dataset.moved === "1") {
+      positionPanelFromDock();
+      return;
+    }
+    if (!shell) return;
 
     // 모바일/좁은 화면에서는 기존 우측 고정 배치를 유지한다.
     if (window.innerWidth <= 900) {
@@ -242,7 +321,14 @@
     }
   };
 
-  launcher.addEventListener("click", () => panel.hidden ? openPanel() : closePanel());
+  launcher.addEventListener("pointerdown", beginDrag);
+  launcher.addEventListener("pointermove", moveDrag);
+  launcher.addEventListener("pointerup", endDrag);
+  launcher.addEventListener("pointercancel", endDrag);
+  launcher.addEventListener("click", () => {
+    if (suppressNextClick) { suppressNextClick = false; return; }
+    panel.hidden ? openPanel() : closePanel();
+  });
   prompt.addEventListener("click", openPanel);
   prompt.addEventListener("keydown", event => {
     if (event.key === "Enter" || event.key === " ") {
@@ -283,6 +369,10 @@
     if (event.key === "Escape" && !panel.hidden) closePanel();
   });
   window.addEventListener("resize", () => {
+    if (dock.dataset.moved === "1") {
+      const rect = dock.getBoundingClientRect();
+      applyDockPosition(rect.left, rect.top, true);
+    }
     if (!panel.hidden) positionNpcLayout();
   });
 
