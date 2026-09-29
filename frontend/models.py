@@ -3,6 +3,8 @@ import string
 
 from django.db import models
 
+from .progression import level_for_calories
+
 
 def generate_friend_code():
     alphabet = string.ascii_uppercase + string.digits
@@ -59,7 +61,7 @@ class WorkoutProgress(models.Model):
 
     @property
     def level(self):
-        return (self.total_calories // 1500) + 1
+        return level_for_calories(self.total_calories)
 
     def __str__(self):
         return f"{self.member.nickname} · LV.{self.level}"

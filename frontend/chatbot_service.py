@@ -15,6 +15,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from .recommendation_service import make_recommendations
+from .progression import clamp_calories
 
 try:
     from openai import OpenAI
@@ -129,7 +130,7 @@ def _member_context(member: Any) -> dict[str, Any]:
     total_calories = 0
     level = 1
     if progress is not None:
-        total_calories = max(0, int(progress.total_calories or 0))
+        total_calories = clamp_calories(progress.total_calories)
         level = progress.level
         if isinstance(progress.entries, list):
             entries = progress.entries[:5]

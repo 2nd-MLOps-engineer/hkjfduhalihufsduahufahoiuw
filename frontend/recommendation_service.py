@@ -556,10 +556,17 @@ def make_recommendations(
         if selected_sports and sport not in selected_sports:
             continue
         db_distance = item.get("db_distance_km")
-        try:
-            distance = float(db_distance) if db_distance is not None else None
-        except (TypeError, ValueError):
-            distance = _distance_km(origin, item) if origin else None
+        # 현재 위치를 보낸 경우 DB에 저장된 거리값보다 원본 좌표로
+        # 다시 계산한 직선거리를 우선한다. 잘못된 좌표/단위로 10,000km
+        # 같은 값이 노출되는 것을 막기 위한 방어 로직이다.
+        distance = _distance_km(origin, item) if origin else None
+        if distance is None:
+            try:
+                distance = float(db_distance) if db_distance is not None else None
+            except (TypeError, ValueError):
+                distance = None
+        if distance is not None and (distance < 0 or distance > 500):
+            continue
         travel_minutes = round(distance * 20) if distance is not None else None
         if travel_minutes is not None and travel_minutes > max_travel:
             continue
@@ -645,7 +652,7 @@ def make_recommendations(
             if distance is not None:
                 reasons.append(f"거리 {distance:.3f}km 반영")
             if travel_minutes is not None and travel_minutes > max_travel:
-                reasons.append(f"설정한 최대 이동시간({max_travel}분)보다 멀 수 있음")
+                continue
             if environment.get("weather"):
                 reasons.append("기온·습도·강수·풍속 반영")
             if environment.get("air"):

@@ -34,8 +34,8 @@
   const transportLabel = app.TRANSPORT_META[profile.transport] || profile.transport;
 
   const accountStorageKey = roomOwnerId || "guest";
-  const ROOM_STATE_KEY = `usimunkka.v1.room.state.${accountStorageKey}.v92`;
-  const LAYOUT_KEY = `usimunkka.v1.room.layout.${accountStorageKey}.v92`;
+  const ROOM_STATE_KEY = `usimunkka.v1.room.state.${accountStorageKey}.v93`;
+  const LAYOUT_KEY = `usimunkka.v1.room.layout.${accountStorageKey}.v93`;
   const defaultVisible = {
     window: true,
     poster: true,
@@ -70,7 +70,17 @@
   };
   const defaultState = { tone: "cream", characterSkin: "default", visible: { ...defaultVisible } };
   const ROOM_REWARDS = [];
-  const ROOM_LEVEL_KCAL = 1500;
+  const MAX_TOTAL_CALORIES = 600000;
+  const MAX_ROOM_LEVEL = 100;
+  const BASE_LEVEL_EXP = 100;
+  const LEVEL_EXPONENT = 1.6;
+  const rawLevelTotal = Array.from({ length: MAX_ROOM_LEVEL - 1 }, (_, index) => BASE_LEVEL_EXP * Math.pow(index + 1, LEVEL_EXPONENT)).reduce((sum, value) => sum + value, 0);
+  const levelCount = MAX_ROOM_LEVEL - 1;
+  const curveScale = (MAX_TOTAL_CALORIES - BASE_LEVEL_EXP * levelCount) / (rawLevelTotal - BASE_LEVEL_EXP * levelCount);
+  const levelCosts = Array.from({ length: MAX_ROOM_LEVEL - 1 }, (_, index) => Math.max(index === 0 ? BASE_LEVEL_EXP : 1, Math.round(BASE_LEVEL_EXP + (BASE_LEVEL_EXP * Math.pow(index + 1, LEVEL_EXPONENT) - BASE_LEVEL_EXP) * curveScale)));
+  levelCosts[levelCosts.length - 1] += MAX_TOTAL_CALORIES - levelCosts.reduce((sum, value) => sum + value, 0);
+  const levelStarts = [0];
+  levelCosts.forEach(cost => levelStarts.push(levelStarts.at(-1) + cost));
   const ROOM_LEVEL_TITLES = ["STARTER", "MOVER", "PACE MAKER", "ATHLETE", "ROOM MAKER", "MOVE MASTER"];
   const SPECIAL_ITEMS = [];
   const CHARACTER_SKINS = {
@@ -91,13 +101,16 @@
   };
 
   const getRoomLevelInfo = rawTotal => {
-    const total = Math.max(0, Math.floor(Number(rawTotal) || 0));
-    const level = Math.floor(total / ROOM_LEVEL_KCAL) + 1;
-    const exp = total % ROOM_LEVEL_KCAL;
-    const percent = Math.max(0, Math.min(100, (exp / ROOM_LEVEL_KCAL) * 100));
-    const remaining = ROOM_LEVEL_KCAL - exp;
+    const total = Math.max(0, Math.min(MAX_TOTAL_CALORIES, Math.floor(Number(rawTotal) || 0)));
+    let level = 1;
+    while (level < MAX_ROOM_LEVEL && total >= levelStarts[level]) level += 1;
+    if (level >= MAX_ROOM_LEVEL) return { total, level: MAX_ROOM_LEVEL, exp: 0, nextExp: 0, percent: 100, remaining: 0, title: ROOM_LEVEL_TITLES.at(-1) };
+    const nextExp = levelCosts[level - 1];
+    const exp = total - levelStarts[level - 1];
+    const percent = Math.max(0, Math.min(100, (exp / nextExp) * 100));
+    const remaining = nextExp - exp;
     const title = ROOM_LEVEL_TITLES[Math.min(level - 1, ROOM_LEVEL_TITLES.length - 1)];
-    return { total, level, exp, percent, remaining, title };
+    return { total, level, exp, nextExp, percent, remaining, title };
   };
 
   const safeJson = (key, fallback) => {
@@ -433,8 +446,12 @@
     set("#roomTotalCalories", `${total.toLocaleString("ko-KR")} kcal TOTAL`);
     set("#roomLevelBadge", `LV. ${levelInfo.level}`);
     set("#roomLevelTitle", levelInfo.title);
-    set("#roomLevelExp", `${levelInfo.exp.toLocaleString("ko-KR")} / ${ROOM_LEVEL_KCAL.toLocaleString("ko-KR")} MOVE EXP`);
-    set("#roomNextLevel", `다음 레벨까지 ${levelInfo.remaining.toLocaleString("ko-KR")} kcal`);
+    set("#roomLevelExp", levelInfo.level >= MAX_ROOM_LEVEL
+      ? "MAX LEVEL · 600,000 kcal"
+      : `${levelInfo.exp.toLocaleString("ko-KR")} / ${levelInfo.nextExp.toLocaleString("ko-KR")} MOVE EXP`);
+    set("#roomNextLevel", levelInfo.level >= MAX_ROOM_LEVEL
+      ? "최대 레벨에 도달했어요"
+      : `다음 레벨까지 ${levelInfo.remaining.toLocaleString("ko-KR")} kcal`);
     set("#roomLevelPercent", `${Math.floor(levelInfo.percent)}%`);
 
     const bar = $("#roomProgressBar");
@@ -523,6 +540,11 @@
   });
 
   const sportBadge = sport => ({ running: "RUN", cycling: "RIDE", crossfit: "CF", fitness: "GYM" }[sport] || "MOVE");
+  const scoreNumber = row => Number.isFinite(Number(row?.score)) ? Number(row.score) : -1;
+  const recommendationOrder = rows => [...(rows || [])].sort((a, b) => (
+    scoreNumber(b) - scoreNumber(a)
+    || (Number(a.distance_km ?? Number.POSITIVE_INFINITY) - Number(b.distance_km ?? Number.POSITIVE_INFINITY))
+  ));
   let locationPromise;
   const requestCurrentLocation = () => {
     if (locationPromise) return locationPromise;
@@ -554,7 +576,8 @@
     const normalized = aliases[parts.join(" ")] || aliases[parts.at(-1)] || [parts[0], parts.at(-1)];
     const selectedSport = profile.preferred_sports?.[0] || "fitness";
     let result;
-    const initialItem = initialRecommendations.find(item => item.sport === (selectedSport === "헬스" ? "fitness" : selectedSport)) || initialRecommendations[0];
+    const orderedInitialRecommendations = recommendationOrder(initialRecommendations);
+    const initialItem = orderedInitialRecommendations.find(item => item.sport === (selectedSport === "헬스" ? "fitness" : selectedSport)) || orderedInitialRecommendations[0];
     if (initialItem) {
       result = {
         ...initialItem,
@@ -580,7 +603,7 @@
       const response = await fetch(`/nearby-facilities-data/?${params}`, { credentials: "same-origin", headers: { Accept: "application/json" } });
       const data = await response.json();
       if (!response.ok || !data.recommendations?.length) throw new Error("지역·운동 조건에 맞는 시설 없음");
-      const item = data.recommendations[0];
+      const item = recommendationOrder(data.recommendations)[0];
       result = {
         ...item,
         sport: item.sport || selectedSport,

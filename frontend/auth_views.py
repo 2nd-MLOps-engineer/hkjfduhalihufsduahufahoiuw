@@ -14,6 +14,7 @@ from .auth_forms import LoginForm, SignupForm
 from .models import FriendNote, FriendRequest, Friendship, Member, SiteVisit, WorkoutProgress, generate_friend_code
 from .recommendation_service import make_recommendations
 from .dragon import DRAGON_DESIGNS, character_payload, dragon_level
+from .progression import MAX_TOTAL_CALORIES, clamp_calories, level_for_calories
 
 LOGIN_ERROR_MESSAGE = "아이디 또는 비밀번호 오류입니다."
 GUEST_SESSION_KEY = "guest_mode"
@@ -214,11 +215,11 @@ def _member_progress_payload(member):
         member.friend_code = generate_friend_code()
         member.save(update_fields=["friend_code", "updated_at"])
     progress, _ = WorkoutProgress.objects.get_or_create(member=member)
-    total = max(0, int(progress.total_calories or 0))
+    total = clamp_calories(progress.total_calories)
     return {
         "friend_code": member.friend_code,
         "total_calories": total,
-        "level": (total // 1500) + 1,
+        "level": level_for_calories(total),
         "entries": progress.entries if isinstance(progress.entries, list) else [],
     }
 
@@ -252,7 +253,7 @@ def add_workout_calories(request):
     progress, _ = WorkoutProgress.objects.get_or_create(member=member)
     entries = progress.entries if isinstance(progress.entries, list) else []
     entries.insert(0, {"calories": amount, "created_at": timezone.now().isoformat()})
-    progress.total_calories = max(0, int(progress.total_calories or 0)) + amount
+    progress.total_calories = min(MAX_TOTAL_CALORIES, clamp_calories(progress.total_calories) + amount)
     progress.entries = entries[:30]
     progress.save(update_fields=["total_calories", "entries", "updated_at"])
     return JsonResponse(_member_progress_payload(member))
@@ -282,7 +283,7 @@ def main_page(request):
     context["room_owner"] = member
     context["room_is_visitor"] = False
     owner_progress = getattr(member, "workout_progress", None) if member is not None else None
-    context["visitor_total_calories"] = max(0, int(owner_progress.total_calories or 0)) if owner_progress else 0
+    context["visitor_total_calories"] = clamp_calories(owner_progress.total_calories) if owner_progress else 0
     address = member.address if member is not None else "서울특별시 관악구"
     try:
         latitude = float(request.GET["latitude"]) if request.GET.get("latitude") else None
@@ -331,13 +332,13 @@ def friend_visitor_page(request, member_id):
         return redirect("friends")
 
     progress = getattr(visitor, "workout_progress", None)
-    total_calories = max(0, int(progress.total_calories or 0)) if progress else 0
+    total_calories = clamp_calories(progress.total_calories) if progress else 0
     context = _app_context(request, "friends")
     context.update({
         "room_owner": visitor,
         "room_is_visitor": True,
         "visitor_total_calories": total_calories,
-        "visitor_level": (total_calories // 1500) + 1,
+        "visitor_level": level_for_calories(total_calories),
     })
     try:
         latitude = float(request.GET["latitude"]) if request.GET.get("latitude") else None
@@ -358,7 +359,7 @@ def friend_visitor_page(request, member_id):
 
 def _friend_progress(member):
     progress = getattr(member, "workout_progress", None)
-    total = max(0, int(progress.total_calories or 0)) if progress else 0
+    total = clamp_calories(progress.total_calories) if progress else 0
     return total
 
 
@@ -417,10 +418,25 @@ def room_state_api(request, member_id=None):
     layout = body.get("layout") if isinstance(body.get("layout"), dict) else {}
     # Character skins and special furniture are level rewards. Validate the
     # saved JSON on the server too, so a client cannot equip a locked asset.
-    skin_levels = {"default": 1, "hanbokFemale": 5, "hanbokMale": 5, "hanbokFemale2": 5, "hanbokMale2": 5, "rockMale": 20, "rockFemale": 20, "highendMale": 50, "highendFemale": 50}
+    skin_levels = {
+        "default": 1,
+        "hanbokFemale": 5,
+        "hanbokMale": 5,
+        "hanbokFemale2": 5,
+        "hanbokMale2": 5,
+        "hanbokRedFemale": 1,
+        "hanbokOrangeMale": 1,
+        "hanbokBlackMale": 1,
+        "hanbokBlackFemale": 1,
+        "hanbokPinkFemale": 1,
+        "rockMale": 20,
+        "rockFemale": 20,
+        "highendMale": 50,
+        "highendFemale": 50,
+    }
     requested_skin = state.get("characterSkin", "default")
     progress = WorkoutProgress.objects.filter(member=owner).first()
-    current_level = ((int(progress.total_calories or 0) // 1500) + 1) if progress else 1
+    current_level = level_for_calories(progress.total_calories) if progress else 1
     if requested_skin not in skin_levels or current_level < skin_levels[requested_skin]:
         requested_skin = "default"
     state["characterSkin"] = requested_skin
