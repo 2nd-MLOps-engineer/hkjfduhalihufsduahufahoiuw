@@ -83,6 +83,11 @@
     hanbokMale: { level: 5, src: "/static/assets/images/room/special/hanbok-male.png", label: "HANBOK MALE" },
     hanbokFemale2: { level: 5, src: "/static/assets/images/room/special/hanbok-female-2.png", label: "HANBOK FEMALE 2" },
     hanbokMale2: { level: 5, src: "/static/assets/images/room/special/hanbok-male-2.png", label: "HANBOK MALE 2" },
+    hanbokRedFemale: { level: 1, src: "/static/assets/images/room/special/hanbok-red-female.png", label: "꽃무늬 한복 여성" },
+    hanbokOrangeMale: { level: 1, src: "/static/assets/images/room/special/hanbok-orange-male.png", label: "주황 한복 남성" },
+    hanbokBlackMale: { level: 1, src: "/static/assets/images/room/special/hanbok-black-male.png", label: "검정 한복 남성" },
+    hanbokBlackFemale: { level: 1, src: "/static/assets/images/room/special/hanbok-black-female.png", label: "검정 한복 여성" },
+    hanbokPinkFemale: { level: 1, src: "/static/assets/images/room/special/hanbok-pink-female.png", label: "분홍 한복 여성" },
   };
 
   const getRoomLevelInfo = rawTotal => {
