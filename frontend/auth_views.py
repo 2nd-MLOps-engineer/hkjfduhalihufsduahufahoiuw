@@ -278,6 +278,30 @@ def reset_workout_progress(request):
 
 
 @never_cache
+@member_required
+@require_POST
+def undo_last_workout_calories(request):
+    """가장 최근에 기록한 운동량 한 건을 되돌린다."""
+    if getattr(request, "usim_guest", False):
+        return JsonResponse({"error": "게스트 모드에서는 기록을 되돌릴 수 없습니다."}, status=403)
+    progress = WorkoutProgress.objects.filter(member=request.usim_member).first()
+    entries = progress.entries if progress and isinstance(progress.entries, list) else []
+    if not progress or not entries:
+        return JsonResponse({"error": "되돌릴 최근 운동 기록이 없습니다."}, status=400)
+    latest = entries[0] if isinstance(entries[0], dict) else {}
+    try:
+        amount = int(latest.get("calories", 0))
+    except (TypeError, ValueError):
+        amount = 0
+    if amount <= 0:
+        return JsonResponse({"error": "최근 운동 기록의 칼로리 값을 확인할 수 없습니다."}, status=400)
+    progress.total_calories = max(0, clamp_calories(progress.total_calories) - amount)
+    progress.entries = entries[1:30]
+    progress.save(update_fields=["total_calories", "entries", "updated_at"])
+    return JsonResponse(_member_progress_payload(request.usim_member))
+
+
+@never_cache
 def main_page(request):
     """회원은 자신의 방, 게스트는 오프닝에서 시작한 체험 방에 접근한다."""
     member = _current_member(request)

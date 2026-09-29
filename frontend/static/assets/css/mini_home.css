@@ -142,10 +142,9 @@
   position:relative;
   overflow:hidden;
 }
-.room-reset-progress-button{
-  position:absolute;
-  top:12px;
-  right:12px;
+.room-progress-actions{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:5px}
+.room-reset-progress-button,.workout-undo-button{
+  position:static;
   border:1px solid #d7c7b1;
   border-radius:7px;
   background:#fffaf1;
@@ -155,7 +154,9 @@
   font-weight:900;
   cursor:pointer;
 }
+.workout-undo-button{color:#5e7666;background:#f5f8f0}
 .room-reset-progress-button:hover{background:#f4e8d8;color:#6f5144}
+.workout-undo-button:hover{background:#e8f0e1;color:#315642}
 .room-level-row{
   display:flex;
   align-items:center;

@@ -562,6 +562,24 @@
     }
   });
 
+  $("#undoWorkoutButton")?.addEventListener("click", async () => {
+    if (!canEdit) return;
+    if (!window.confirm("가장 최근 운동 기록을 되돌릴까요? 해당 칼로리만 차감됩니다.")) return;
+    try {
+      const response = await fetch("/api/workout-calories/undo/", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, Accept: "application/json" },
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "최근 기록을 되돌리지 못했습니다.");
+      serverProgress = payload;
+      renderWorkoutProgress("최근 운동 기록을 되돌렸어요.");
+    } catch (error) {
+      set("#roomUnlockMessage", error.message);
+    }
+  });
+
   const sportBadge = sport => ({ running: "RUN", cycling: "RIDE", crossfit: "CF", fitness: "GYM" }[sport] || "MOVE");
   const scoreNumber = row => Number.isFinite(Number(row?.score)) ? Number(row.score) : -1;
   const recommendationOrder = rows => [...(rows || [])].sort((a, b) => (
