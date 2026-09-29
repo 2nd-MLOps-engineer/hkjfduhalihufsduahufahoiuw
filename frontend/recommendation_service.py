@@ -32,6 +32,13 @@ def _table_exists(schema: str, table: str) -> bool:
     return bool(rows and rows[0].get("exists"))
 
 
+def _first_existing_table(*candidates: tuple[str, str]) -> str | None:
+    for schema, table in candidates:
+        if _table_exists(schema, table):
+            return f'"{schema}"."{table}"'
+    return None
+
+
 def _load_env() -> None:
     env_path = Path(settings.BASE_DIR) / ".env"
     if not env_path.exists():
@@ -77,19 +84,23 @@ def facilities_for_region(
     nearby_only: bool = False,
 ) -> list[dict]:
     """시설 DB에서 시도와 시군구가 모두 일치하는 행만 반환한다."""
-    # 복원한 processed 스키마를 먼저 사용하고, 기존 public 테이블은 호환용으로 유지한다.
-    # Supabase처럼 processed 스키마가 없는 환경에서도 기존 기능이 계속 동작한다.
-    if _table_exists("processed", "facility"):
+    # 팀 Supabase의 m3_processed를 우선 사용하고, 기존 로컬 DB도 호환한다.
+    facility_table = _first_existing_table(
+        ("m3_processed", "facility"),
+        ("processed", "facility"),
+        ("public", "facility_processed"),
+    )
+    if facility_table:
         if origin and nearby_only:
             processed_rows = _rows(
-                """
+                f"""
                 SELECT faci_nm, ftype_nm, fcob_nm, cp_nm, cpb_nm, faci_road_addr,
                        faci_addr, faci_lat, faci_lot, NULL::text AS enriched_fields,
                        ST_Distance(
                          ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography,
                          ST_SetSRID(ST_MakePoint(faci_lot, faci_lat), 4326)::geography
                        ) / 1000.0 AS db_distance_km
-                FROM processed.facility
+                FROM {facility_table}
                 WHERE faci_lat BETWEEN -90 AND 90
                   AND faci_lot BETWEEN -180 AND 180
                 ORDER BY db_distance_km, faci_nm
@@ -99,14 +110,14 @@ def facilities_for_region(
             )
         elif origin:
             processed_rows = _rows(
-                """
+                f"""
                 SELECT faci_nm, ftype_nm, fcob_nm, cp_nm, cpb_nm, faci_road_addr,
                        faci_addr, faci_lat, faci_lot, NULL::text AS enriched_fields,
                        ST_Distance(
                          ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography,
                          ST_SetSRID(ST_MakePoint(faci_lot, faci_lat), 4326)::geography
                        ) / 1000.0 AS db_distance_km
-                FROM processed.facility
+                FROM {facility_table}
                 WHERE trim(cp_nm) = trim(%s)
                   AND trim(cpb_nm) = trim(%s)
                   AND faci_lat BETWEEN -90 AND 90
@@ -118,10 +129,10 @@ def facilities_for_region(
             )
         else:
             processed_rows = _rows(
-                """
+                f"""
                 SELECT faci_nm, ftype_nm, fcob_nm, cp_nm, cpb_nm, faci_road_addr,
                        faci_addr, faci_lat, faci_lot, NULL::text AS enriched_fields
-                FROM processed.facility
+                FROM {facility_table}
                 WHERE trim(cp_nm) = trim(%s)
                   AND trim(cpb_nm) = trim(%s)
                 ORDER BY faci_nm
@@ -130,7 +141,7 @@ def facilities_for_region(
                 (sido, district, limit),
             )
         if processed_rows:
-            return [_facility_row(row, "DB:processed.facility") for row in processed_rows]
+            return [_facility_row(row, f"DB:{facility_table.replace(chr(34), '')}") for row in processed_rows]
 
     if origin and nearby_only:
         # 실제 GPS 위치를 받은 경우에는 로그인 지역에 한정하지 않고
@@ -210,11 +221,11 @@ def environment_for_region(sido: str, district: str) -> dict:
     _load_env()
     nx = int(os.getenv("KMA_NX", "60"))
     ny = int(os.getenv("KMA_NY", "127"))
-    weather_table = (
-        "processed.weather_ultra_ncst"
-        if _table_exists("processed", "weather_ultra_ncst")
-        else "weather_ultra_ncst"
-    )
+    weather_table = _first_existing_table(
+        ("m3_processed", "weather_ultra_ncst"),
+        ("processed", "weather_ultra_ncst"),
+        ("public", "weather_ultra_ncst"),
+    ) or '"public"."weather_ultra_ncst"'
     weather_rows = _rows(
         f"""
         SELECT DISTINCT ON (category) category, "obsrValue", nx, ny, collected_at
@@ -239,9 +250,12 @@ def environment_for_region(sido: str, district: str) -> dict:
     sido_short = sido_alias.get(sido, sido_short)
     district_token = district.replace("시", "").replace("군", "").replace("구", "")
     air_table = (
-        "processed.air_quality"
-        if _table_exists("processed", "air_quality")
-        else "air_quality_processed"
+        _first_existing_table(
+            ("m3_processed", "air_quality"),
+            ("processed", "air_quality"),
+            ("public", "air_quality_processed"),
+        )
+        or '"public"."air_quality_processed"'
     )
     air_rows = _rows(
         f"""
@@ -523,6 +537,89 @@ def _safety_data_unavailable() -> dict:
     }
 
 
+def _normalise_text(value: object) -> str:
+    return "".join(str(value or "").lower().split())
+
+
+def _attach_safety_data(rows: list[dict], district: str) -> None:
+    """추천 후보에 Supabase m3_processed의 AED·안전점검 정보를 연결한다."""
+    if not rows:
+        return
+    aed_table = _first_existing_table(
+        ("m3_processed", "aed"),
+        ("processed", "aed"),
+    )
+    inspection_table = _first_existing_table(
+        ("m3_processed", "culture_sports_facility_safety_inspections"),
+        ("processed", "culture_sports_facility_safety_inspections"),
+    )
+    aed_rows = []
+    if aed_table:
+        aed_rows = _rows(
+            f'''
+            SELECT "buildPlace" AS name, "buildAddress" AS address,
+                   "gugun" AS district, "wgs84Lat" AS latitude, "wgs84Lon" AS longitude
+            FROM {aed_table}
+            WHERE "gugun" ILIKE %s
+            ''',
+            (f"%{district.replace('구', '')}%",),
+        )
+    inspection_rows = []
+    if inspection_table:
+        inspection_rows = _rows(
+            f'''
+            SELECT "FCLTY_NM" AS name, "FCLTY_ROAD_NM_ADDR" AS address,
+                   "CMPTNC_SIGNGU_NM" AS district, "SAFECHK_GNRLZ_GRAD_NM" AS grade,
+                   "SAFECHK_DE" AS checked_at, "OPER_STATE_NM" AS operation_state
+            FROM {inspection_table}
+            WHERE "CMPTNC_SIGNGU_NM" ILIKE %s
+            ''',
+            (f"%{district.replace('구', '')}%",),
+        )
+
+    for row in rows:
+        safety = _safety_data_unavailable()
+        facility_name = _normalise_text(row.get("name"))
+        facility_address = _normalise_text(row.get("address"))
+        facility_point = (row.get("latitude"), row.get("longitude"))
+        if aed_rows:
+            nearest = None
+            nearest_distance = None
+            for aed in aed_rows:
+                distance = _distance_km(facility_point, {"latitude": aed.get("latitude"), "longitude": aed.get("longitude")}) if all(facility_point) else None
+                same_address = facility_address and _normalise_text(aed.get("address")) in facility_address
+                if same_address or (distance is not None and (nearest_distance is None or distance < nearest_distance)):
+                    nearest, nearest_distance = aed, distance
+            if nearest:
+                location = nearest.get("name") or nearest.get("address") or "시설 인근"
+                safety["aed"] = {
+                    "status": "available",
+                    "label": f"AED 확인: {location}" + (f" ({nearest_distance:.2f}km)" if nearest_distance is not None else ""),
+                    "name": nearest.get("name") or "",
+                    "address": nearest.get("address") or "",
+                    "distance_km": round(nearest_distance, 3) if nearest_distance is not None else None,
+                }
+        if inspection_rows:
+            matched = next(
+                (inspection for inspection in inspection_rows
+                 if _normalise_text(inspection.get("name")) == facility_name
+                 or (_normalise_text(inspection.get("name")) and _normalise_text(inspection.get("name")) in facility_name)
+                 or (_normalise_text(inspection.get("address")) and _normalise_text(inspection.get("address")) in facility_address)),
+                None,
+            )
+            if matched:
+                grade = matched.get("grade") or "등급 확인 필요"
+                checked_at = str(matched.get("checked_at") or "점검일 확인 필요")
+                safety["inspection"] = {
+                    "status": "available",
+                    "label": f"안전점검 {grade} · {checked_at[:10]}",
+                    "grade": grade,
+                    "checked_at": checked_at,
+                    "operation_state": matched.get("operation_state") or "",
+                }
+        row["safety"] = safety
+
+
 def make_recommendations(
     region: str,
     sports: set[str],
@@ -732,6 +829,7 @@ def make_recommendations(
         row["distance_km"] if row["distance_km"] is not None else 999999,
     ))
     rows = rows[:20]
+    _attach_safety_data(rows, district)
     _attach_live_operation_evidence(rows, limit=10)
     rows.sort(key=lambda row: (
         -row["score"],
