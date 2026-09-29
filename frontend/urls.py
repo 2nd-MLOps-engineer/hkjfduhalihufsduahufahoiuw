@@ -15,6 +15,7 @@ urlpatterns = [
     path("guest/start/", auth_views.guest_start, name="guest_start"),
     path("logout/", auth_views.logout_page, name="logout"),
     path("api/check-member-nickname/", auth_views.check_member_nickname, name="check_member_nickname"),
+    path("api/selected-recommendation/", auth_views.select_recommendation_api, name="select_recommendation"),
     path("api/account-state/", auth_views.account_state, name="account_state"),
     path("api/workout-calories/", auth_views.add_workout_calories, name="add_workout_calories"),
     path("api/workout-calories/reset/", auth_views.reset_workout_progress, name="reset_workout_progress"),

@@ -139,3 +139,23 @@ class SiteVisit(models.Model):
             ),
         ]
         ordering = ["-created_at"]
+
+
+class SelectedRecommendation(models.Model):
+    """회원이 추천 결과에서 운동 장소로 선택한 시설의 스냅샷."""
+
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="selected_recommendations")
+    facility_name = models.CharField(max_length=200)
+    sport = models.CharField(max_length=40, blank=True)
+    address = models.CharField(max_length=300, blank=True)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    score = models.PositiveSmallIntegerField(default=0)
+    recommendation_snapshot = models.JSONField(default=dict, blank=True)
+    selected_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-selected_at"]
+
+    def __str__(self):
+        return f"{self.member.nickname} · {self.facility_name}"

@@ -503,6 +503,24 @@ def _attach_live_operation_evidence(rows: list[dict], limit: int = 10) -> None:
                 row["operation_notice"] = " / ".join(hits)[:300]
                 row["reasons"].append("추천 시점 운영·휴무 공지 확인")
                 row["score"] = max(0, row["score"] - (25 if any(word in row["operation_notice"] for word in ("오늘 휴무", "금일 휴무", "오늘 휴관", "임시 휴관")) else 0))
+            if "score_breakdown" in row:
+                row["score_breakdown"]["operation"] = row["score"] - row["score_breakdown"].get("before_operation", row["score"])
+                row["score_breakdown"]["final"] = row["score"]
+                row["score_breakdown"].pop("before_operation", None)
+
+
+def _safety_data_unavailable() -> dict:
+    """현재 연결된 DB에 AED·안전점검 원천 테이블이 없음을 명시한다."""
+    return {
+        "aed": {
+            "status": "unavailable",
+            "label": "확인 가능한 AED 데이터 없음",
+        },
+        "inspection": {
+            "status": "unavailable",
+            "label": "확인 가능한 안전점검 데이터 없음",
+        },
+    }
 
 
 def make_recommendations(
@@ -573,6 +591,8 @@ def make_recommendations(
         # 거리 40점 + 실내외·날씨·대기질 60점의 규칙 기반 점수다.
         distance_score = max(0.0, 40.0 - ((distance or (max_travel / 20)) * 18.0))
         score = 45.0 + distance_score
+        weather_adjustment = 0.0
+        air_quality_adjustment = 0.0
         reasons = [
             "현재 위치 주변 시설" if location_origin else f"{district} 시설 DB 일치",
             "시설 기본정보 확인",
@@ -583,32 +603,41 @@ def make_recommendations(
         raining = precipitation_type not in ("", "0", "강수없음") or rain_amount > 0
         if raining and outdoor:
             score -= 24
+            weather_adjustment -= 24
             reasons.append("강수 가능성으로 실내 시설 우선")
         elif raining and not outdoor:
             score += 8
+            weather_adjustment += 8
             reasons.append("비가 와서 실내 시설 우선")
         if temperature is not None:
             if outdoor and (temperature < 5 or temperature > 30):
                 score -= 10
+                weather_adjustment -= 10
                 reasons.append("기온이 실외 운동에 불리함")
             elif outdoor and 10 <= temperature <= 25:
                 score += 6
+                weather_adjustment += 6
                 reasons.append("기온이 실외 운동에 적합")
         if humidity is not None:
             if outdoor and humidity >= 80:
                 score -= 8
+                weather_adjustment -= 8
                 reasons.append("습도가 높아 실내 운동 우선")
             elif outdoor and 40 <= humidity <= 70:
                 score += 4
+                weather_adjustment += 4
                 reasons.append("습도가 실외 운동에 적합")
         if wind_speed is not None and outdoor and wind_speed >= 8:
             score -= 8
+            weather_adjustment -= 8
             reasons.append("풍속이 높아 실내 운동 우선")
         if bad_air and not outdoor:
             score += 14
+            air_quality_adjustment += 14
             reasons.append("미세먼지가 높아 실내 시설 우선")
         elif not bad_air and outdoor:
             score += 5
+            air_quality_adjustment += 5
             reasons.append("미세먼지가 양호해 실외 운동 가능")
         if environment.get("weather"):
             reasons.append("기온·습도·강수·풍속 반영")
@@ -632,9 +661,19 @@ def make_recommendations(
             "longitude": item.get("longitude"),
             "available_exercise_minutes": max(10, available),
             "score": max(0, min(99, round(score))),
+            "score_breakdown": {
+                "base": 45,
+                "distance": round(distance_score, 2),
+                "weather": weather_adjustment,
+                "air_quality": air_quality_adjustment,
+                "operation": 0,
+                "final": max(0, min(99, round(score))),
+                "before_operation": max(0, min(99, round(score))),
+            },
             "reasons": reasons,
             "source": item["source"],
             "operation_notice": operation_notice,
+            "safety": _safety_data_unavailable(),
         })
     fallback_used = False
     if not rows:
@@ -672,10 +711,20 @@ def make_recommendations(
                 "longitude": item.get("longitude"),
                 "available_exercise_minutes": max(10, available),
                 "score": max(0, min(99, round(score))),
+                "score_breakdown": {
+                    "base": 70,
+                    "distance": round(-((distance or (max_travel / 20)) * 12.0), 2),
+                    "weather": 0,
+                    "air_quality": 0,
+                    "operation": 0,
+                    "final": max(0, min(99, round(score))),
+                    "before_operation": max(0, min(99, round(score))),
+                },
                 "reasons": reasons,
                 "source": item["source"],
                 "homepage": item.get("homepage", ""),
                 "operation_notice": "",
+                "safety": _safety_data_unavailable(),
             })
     # 거리·환경 점수를 합산한 최종 점수순으로 정렬하고, 동점이면 가까운 시설을 우선한다.
     rows.sort(key=lambda row: (

@@ -11,7 +11,16 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from .auth_forms import LoginForm, SignupForm
-from .models import FriendNote, FriendRequest, Friendship, Member, SiteVisit, WorkoutProgress, generate_friend_code
+from .models import (
+    FriendNote,
+    FriendRequest,
+    Friendship,
+    Member,
+    SelectedRecommendation,
+    SiteVisit,
+    WorkoutProgress,
+    generate_friend_code,
+)
 from .recommendation_service import make_recommendations
 from .dragon import DRAGON_DESIGNS, character_payload, dragon_level
 from .progression import clamp_calories, level_for_calories
@@ -208,6 +217,65 @@ def check_member_nickname(request):
     nickname = request.GET.get("nickname", "").strip()
     available = bool(nickname) and not Member.objects.filter(nickname=nickname).exists()
     return JsonResponse({"available": available})
+
+
+@never_cache
+@member_required
+@require_POST
+def select_recommendation_api(request):
+    """추천 시설을 오늘 운동 장소로 저장하고 지도 이동에 필요한 값을 반환한다."""
+    try:
+        payload = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "추천 시설 정보 형식이 올바르지 않습니다."}, status=400)
+
+    name = str(payload.get("name") or "").strip()
+    if not name:
+        return JsonResponse({"error": "선택할 운동 시설이 없습니다."}, status=400)
+
+    def optional_float(value):
+        if value in (None, ""):
+            return None
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return None
+        return number if number == number else None
+
+    try:
+        score = max(0, min(99, int(payload.get("score", 0))))
+    except (TypeError, ValueError):
+        score = 0
+    snapshot = {
+        "facility_type": str(payload.get("facility_type") or ""),
+        "province": str(payload.get("province") or ""),
+        "district": str(payload.get("district") or ""),
+        "indoor": bool(payload.get("indoor")),
+        "distance_km": payload.get("distance_km"),
+        "travel_time": payload.get("travel_time"),
+        "score_breakdown": payload.get("score_breakdown") or {},
+        "reasons": payload.get("reasons") or [],
+        "operation_notice": str(payload.get("operation_notice") or ""),
+        "safety": payload.get("safety") or {},
+        "source": str(payload.get("source") or ""),
+    }
+    selected = SelectedRecommendation.objects.create(
+        member=request.usim_member,
+        facility_name=name[:200],
+        sport=str(payload.get("sport") or "")[:40],
+        address=str(payload.get("address") or "")[:300],
+        latitude=optional_float(payload.get("latitude")),
+        longitude=optional_float(payload.get("longitude")),
+        score=score,
+        recommendation_snapshot=snapshot,
+    )
+    return JsonResponse({
+        "selected": True,
+        "id": selected.id,
+        "facility_name": selected.facility_name,
+        "latitude": selected.latitude,
+        "longitude": selected.longitude,
+    })
 
 
 def _member_progress_payload(member):
