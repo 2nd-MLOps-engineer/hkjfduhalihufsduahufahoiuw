@@ -34,8 +34,8 @@
   const transportLabel = app.TRANSPORT_META[profile.transport] || profile.transport;
 
   const accountStorageKey = roomOwnerId || "guest";
-  const ROOM_STATE_KEY = `usimunkka.v1.room.state.${accountStorageKey}.v91`;
-  const LAYOUT_KEY = `usimunkka.v1.room.layout.${accountStorageKey}.v91`;
+  const ROOM_STATE_KEY = `usimunkka.v1.room.state.${accountStorageKey}.v92`;
+  const LAYOUT_KEY = `usimunkka.v1.room.layout.${accountStorageKey}.v92`;
   const defaultVisible = {
     window: true,
     poster: true,
@@ -58,26 +58,21 @@
     specialSofa: false,
     specialRug: false,
     specialLamp: false,
+    finalLamp: true,
+    finalAmp: true,
+    finalBookshelf: true,
+    finalCabinet: true,
+    finalScroll: true,
+    finalSideTable: true,
+    finalSofa: true,
+    finalRecord: true,
+    finalRug: true,
   };
   const defaultState = { tone: "cream", characterSkin: "default", visible: { ...defaultVisible } };
-  const ROOM_REWARDS = [
-    { key: "bottle", calories: 100, label: "운동 물병" },
-    { key: "towel", calories: 250, label: "스포츠 타월" },
-    { key: "dumbbell", calories: 450, label: "덤벨" },
-    { key: "gymbag", calories: 700, label: "운동 가방" },
-    { key: "shoes", calories: 1000, label: "러닝화" },
-    { key: "medal", calories: 1500, label: "기념 메달" },
-  ];
+  const ROOM_REWARDS = [];
   const ROOM_LEVEL_KCAL = 1500;
   const ROOM_LEVEL_TITLES = ["STARTER", "MOVER", "PACE MAKER", "ATHLETE", "ROOM MAKER", "MOVE MASTER"];
-  const SPECIAL_ITEMS = [
-    { key: "specialShelf", label: "빈티지 책장", level: 20 },
-    { key: "specialTurntable", label: "턴테이블", level: 20 },
-    { key: "specialAmp", label: "기타 앰프", level: 20 },
-    { key: "specialSofa", label: "소파", level: 20 },
-    { key: "specialRug", label: "패턴 러그", level: 20 },
-    { key: "specialLamp", label: "빈티지 조명", level: 20 },
-  ];
+  const SPECIAL_ITEMS = [];
   const CHARACTER_SKINS = {
     default: { level: 1, src: null, label: "기본 캐릭터" },
     rockMale: { level: 20, src: "/static/assets/images/room/special/rock-male.png", label: "ROCK MALE" },
@@ -443,7 +438,7 @@
     } else if (nextReward) {
       set("#roomUnlockMessage", `다음 소품 · ${nextReward.label} — ${Math.max(0, nextReward.calories - total).toLocaleString("ko-KR")} kcal 남았어요.`);
     } else {
-      set("#roomUnlockMessage", `MOVE REWARD 전부 해금 완료 · ROOM LV.${levelInfo.level} 성장 중!`);
+      set("#roomUnlockMessage", `새 방 소품은 모두 자유롭게 배치할 수 있어요 · ROOM LV.${levelInfo.level} 성장 중!`);
     }
 
     syncCustomizer();
