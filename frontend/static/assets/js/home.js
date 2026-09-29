@@ -15,7 +15,7 @@
   const pageParams = new URLSearchParams(window.location.search);
   const pageLatitude = Number(pageParams.get("latitude"));
   const pageLongitude = Number(pageParams.get("longitude"));
-  if (Number.isFinite(pageLatitude) && Number.isFinite(pageLongitude)) {
+  if (Number.isFinite(pageLatitude) && Number.isFinite(pageLongitude) && !(pageLatitude === 0 && pageLongitude === 0)) {
     window.__usimunkkaCurrentLocation = { latitude: pageLatitude, longitude: pageLongitude };
   }
   let initialRecommendations = [];
@@ -568,26 +568,14 @@
     }
     // 위치 확인을 기다리지 않고 로그인 지역 추천을 먼저 표시한다.
     // GPS가 확인되면 아래 백그라운드 요청이 현재 위치 기준 결과로 교체한다.
-    const locationTask = serverLocationLoaded ? Promise.resolve(null) : requestCurrentLocation();
-    const currentLocation = window.__usimunkkaCurrentLocation || null;
+    const currentLocation = null;
     const region = memberAddress || `${profile.province || ""} ${profile.district || ""}`.trim();
     const parts = region.split(/\s+/).filter(Boolean);
     const aliases = { 수원: ["경기도", "수원시"], 수원시: ["경기도", "수원시"] };
     const normalized = aliases[parts.join(" ")] || aliases[parts.at(-1)] || [parts[0], parts.at(-1)];
     const selectedSport = profile.preferred_sports?.[0] || "fitness";
     let result;
-    const orderedInitialRecommendations = recommendationOrder(initialRecommendations);
-    const initialItem = orderedInitialRecommendations.find(item => item.sport === (selectedSport === "헬스" ? "fitness" : selectedSport)) || orderedInitialRecommendations[0];
-    if (initialItem) {
-      result = {
-        ...initialItem,
-        sport: initialItem.sport || selectedSport,
-        name: initialItem.name || initialItem.facility_name,
-        travel_minutes: initialItem.travel_time,
-        indoor: initialItem.indoor,
-        reasons: initialItem.reasons || [],
-      };
-    } else try {
+    try {
       const params = new URLSearchParams({
         province: normalized[0] || "",
         district: normalized[1] || "",
@@ -621,12 +609,6 @@
       set("#spotlightMeta", `${sportLabel(selectedSport)} · ${profile.transport || "도보"} · 지역 일치 시설만 표시`);
       const tags = $("#spotlightTags");
       if (tags) tags.innerHTML = "<span>다시 추천을 눌러 재시도하세요</span>";
-      if (!currentLocation) {
-        locationTask.then(location => {
-          if (!location || window.__usimunkkaCurrentLocation) return;
-          window.location.href = `${document.body.dataset.homeUrl || "/main/"}?latitude=${encodeURIComponent(location.latitude)}&longitude=${encodeURIComponent(location.longitude)}`;
-        });
-      }
       return;
     }
     set("#spotlightIcon", sportBadge(result.sport));
@@ -640,12 +622,6 @@
       tags.innerHTML = visibleReasons.map(reason => `<span>${reason}</span>`).join("");
     }
 
-    if (!currentLocation) {
-      locationTask.then(location => {
-        if (!location || window.__usimunkkaCurrentLocation) return;
-        window.location.href = `${document.body.dataset.homeUrl || "/main/"}?latitude=${encodeURIComponent(location.latitude)}&longitude=${encodeURIComponent(location.longitude)}`;
-      });
-    }
   };
 
   const renderTalks = rows => {
@@ -674,17 +650,11 @@
 
   const reloadRecommendation = async () => {
     const minutes = Number($("#quickMinutes")?.value || 60);
-    let location = window.__usimunkkaCurrentLocation || null;
-    if (!location) location = await requestCurrentLocation();
     const params = new URLSearchParams({
       available_minutes: String(minutes),
       max_travel_minutes: String(profile.max_travel_minutes || 20),
       refresh: String(Date.now()),
     });
-    if (location) {
-      params.set("latitude", String(location.latitude));
-      params.set("longitude", String(location.longitude));
-    }
     window.location.href = `${document.body.dataset.homeUrl || "/main/"}?${params}`;
   };
 

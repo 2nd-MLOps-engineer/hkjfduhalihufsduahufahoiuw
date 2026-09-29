@@ -292,6 +292,8 @@ def main_page(request):
             latitude = longitude = None
         if longitude is not None and not -180 <= longitude <= 180:
             latitude = longitude = None
+        if latitude == 0 and longitude == 0:
+            latitude = longitude = None
         origin = (latitude, longitude) if latitude is not None and longitude is not None else None
         available = max(1, int(request.GET.get("available_minutes", "60")))
         max_travel = max(0, int(request.GET.get("max_travel_minutes", "20")))
@@ -346,6 +348,8 @@ def friend_visitor_page(request, member_id):
         if latitude is not None and not -90 <= latitude <= 90:
             latitude = longitude = None
         if longitude is not None and not -180 <= longitude <= 180:
+            latitude = longitude = None
+        if latitude == 0 and longitude == 0:
             latitude = longitude = None
         origin = (latitude, longitude) if latitude is not None and longitude is not None else None
         payload = make_recommendations(visitor.address, set(), 60, 20, origin)
