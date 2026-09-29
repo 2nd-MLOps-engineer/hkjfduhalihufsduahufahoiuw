@@ -211,7 +211,9 @@
     button.disabled = true;
     button.textContent = "저장 중…";
     // 클릭 직후 빈 탭을 열어 비동기 저장 이후에도 브라우저 팝업 차단을 피한다.
-    const mapWindow = window.open("about:blank", "_blank", "noopener,noreferrer");
+    // noopener를 사용하면 일부 브라우저에서 반환 핸들이 null이 되어
+    // 현재 페이지로 이동하는 fallback이 실행될 수 있으므로, 새 탭 핸들을 유지한다.
+    const mapWindow = window.open("about:blank", "_blank");
     try {
       const response = await fetch("/api/selected-recommendation/", {
         method: "POST",
@@ -224,7 +226,7 @@
       selectedRecommendationId = payload.id;
       button.textContent = "선택 완료";
       if (mapWindow && !mapWindow.closed) mapWindow.location.href = mapUrlFor(row);
-      else window.location.href = mapUrlFor(row);
+      else alert("지도를 열 수 없습니다. 브라우저의 팝업 차단을 해제한 뒤 다시 시도해주세요.");
     } catch (error) {
       if (mapWindow && !mapWindow.closed) mapWindow.close();
       button.disabled = false;
