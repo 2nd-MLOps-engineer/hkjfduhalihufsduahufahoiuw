@@ -46,6 +46,17 @@
     if (!text) return "";
     return text.length > max ? `${text.slice(0, max - 1)}…` : text;
   };
+  const formatAssistantText = value => {
+    const escaped = String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+    return escaped
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\n/g, "<br>");
+  };
   const hidePrompt = () => {
     if (promptTimer) clearTimeout(promptTimer);
     promptTimer = null;
@@ -230,7 +241,8 @@
     row.className = `usim-chat-row ${role}`;
     const bubble = document.createElement("div");
     bubble.className = "usim-chat-bubble";
-    bubble.textContent = String(text ?? "");
+    if (role === "assistant") bubble.innerHTML = formatAssistantText(text);
+    else bubble.textContent = String(text ?? "");
     const list = recommendationList(recommendations);
     if (list) bubble.appendChild(list);
     row.appendChild(bubble);
