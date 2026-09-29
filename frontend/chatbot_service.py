@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -205,7 +206,7 @@ def _prescription_rows(table: str, message: str, client_context: dict[str, Any])
             WHERE {clauses}
               AND COALESCE("needs_review", false) = false
             ORDER BY "MESURE_DE" DESC NULLS LAST
-            LIMIT 5
+            LIMIT 50
         '''
     else:
         query = f'''
@@ -216,7 +217,7 @@ def _prescription_rows(table: str, message: str, client_context: dict[str, Any])
             WHERE {clauses}
               AND COALESCE("needs_review", false) = false
             ORDER BY "MESURE_DE" DESC NULLS LAST
-            LIMIT 5
+            LIMIT 50
         '''
     from django.db import connection
     with connection.cursor() as cursor:
@@ -247,17 +248,49 @@ def _build_exercise_prescription_context(message: str, client_context: dict[str,
         return {
             "status": "no_matching_prescription",
             "message": "질문 조건과 일치하는 운동처방 데이터가 없어 일반적인 저강도 안내만 가능함",
+            "matched_count": 0,
+            "confidence": "none",
+            "common_exercises": [],
             "records": [],
         }
+
+    # 여러 행에 반복해서 등장하는 운동명을 집계해 특정 한 행에만 의존하지 않는다.
+    exercise_counts: dict[str, int] = {}
+    for record in records:
+        prescription = str(record.get("prescription") or "")
+        for token in re.split(r"[,/]|루틴프로그램", prescription):
+            token = re.sub(r"^(준비운동|본운동|정리운동)\s*[:：]?", "", token.strip()).strip()
+            if len(token) >= 2:
+                exercise_counts[token] = exercise_counts.get(token, 0) + 1
+    common_exercises = [
+        exercise for exercise, count in sorted(exercise_counts.items(), key=lambda item: (-item[1], item[0]))
+        if count >= 2
+    ][:10]
+
+    unique_records: list[dict[str, Any]] = []
+    seen_prescriptions: set[str] = set()
+    for record in records:
+        prescription = str(record.get("prescription") or "").strip()
+        if not prescription or prescription in seen_prescriptions:
+            continue
+        seen_prescriptions.add(prescription)
+        unique_records.append(record)
     compact_records = []
-    for record in records[:6]:
+    for record in unique_records[:8]:
         compact_records.append({
             key: (str(value)[:500] if key == "prescription" else value)
             for key, value in record.items()
         })
+    matched_count = len(records)
+    confidence = "high" if matched_count >= 10 else "medium" if matched_count >= 3 else "low"
     return {
         "status": "matched",
         "source": "m3_processed 운동처방 데이터",
+        "matched_count": matched_count,
+        "unique_prescription_count": len(unique_records),
+        "confidence": confidence,
+        "common_exercises": common_exercises,
+        "selection_method": "조건 일치 후보를 전체 데이터에서 검색한 뒤 반복 처방과 공통 운동을 집계",
         "records": compact_records,
     }
 
