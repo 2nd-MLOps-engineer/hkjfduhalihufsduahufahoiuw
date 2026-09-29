@@ -108,7 +108,7 @@
 .workout-log-form button{height:44px;padding:0 14px;border:1.5px solid #274638;border-radius:11px;background:#315642;color:#fff8eb;font-size:9px;font-weight:950;white-space:nowrap;box-shadow:inset 0 -3px rgba(0,0,0,.08)}
 .workout-log-form button:hover{transform:translateY(-1px);background:#274a39}
 .room-progress-card{padding:12px;border:1px solid #c6baa7;border-radius:12px;background:#fffaf1}
-.room-progress-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.room-progress-head span{color:#8b604e;font-size:7px;font-weight:950;letter-spacing:.12em}.room-progress-head strong{color:#315642;font-size:12px}
+.room-progress-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-right:76px}.room-progress-head span{color:#8b604e;font-size:7px;font-weight:950;letter-spacing:.12em}.room-progress-head strong{color:#315642;font-size:12px;white-space:nowrap}
 .room-progress-track{height:7px;margin:9px 0 8px;border-radius:99px;background:#e2d9ca;overflow:hidden}.room-progress-track i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#315642,#d3a957);transition:width .35s ease}
 .room-progress-card p{margin:0;color:#756c61;font-size:8px;line-height:1.5}
 
