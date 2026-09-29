@@ -594,10 +594,9 @@ def _attach_safety_data(rows: list[dict], district: str) -> None:
                 location = nearest.get("name") or nearest.get("address") or "시설 인근"
                 safety["aed"] = {
                     "status": "available",
-                    "label": f"AED 확인: {location}" + (f" ({nearest_distance:.2f}km)" if nearest_distance is not None else ""),
+                    "label": f"AED 확인: {location}",
                     "name": nearest.get("name") or "",
                     "address": nearest.get("address") or "",
-                    "distance_km": round(nearest_distance, 3) if nearest_distance is not None else None,
                 }
         if inspection_rows:
             matched = next(
