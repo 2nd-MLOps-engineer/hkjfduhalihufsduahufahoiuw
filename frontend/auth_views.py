@@ -453,8 +453,6 @@ def dragon_character_api(request):
         return JsonResponse({"error": "선택할 수 없는 우심이입니다."}, status=400)
     if level < 40:
         return JsonResponse({"error": "레벨 40부터 우심이 디자인을 선택할 수 있습니다."}, status=403)
-    if not DRAGON_DESIGNS[design]["free"]:
-        return JsonResponse({"error": "해당 디자인은 3,000원 잠금 상품입니다."}, status=403)
     member.selected_dragon_design = design
     member.save(update_fields=["selected_dragon_design", "updated_at"])
     return JsonResponse({"saved": True, **character_payload(member)})

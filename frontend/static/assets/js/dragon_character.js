@@ -43,7 +43,7 @@
     }).join("");
     if (help) help.textContent = payload.level < 40
       ? `현재 Lv.${payload.level} · Lv.40부터 최종 우심이 디자인을 선택할 수 있어요.`
-      : "기본 우심이는 무료로 선택할 수 있어요. 핑크 용과 파란 용은 3,000원 잠금 상품입니다.";
+      : "최종 우심이 디자인을 모두 무료로 선택할 수 있어요.";
     designGrid.querySelectorAll("[data-dragon-design]").forEach(button => button.addEventListener("click", () => save(button.dataset.dragonDesign)));
   };
 

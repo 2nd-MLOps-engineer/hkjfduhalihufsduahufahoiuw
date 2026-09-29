@@ -154,7 +154,9 @@
     document.querySelectorAll("[data-room-item]").forEach(item => {
       const key = item.dataset.roomItem;
       const unlocked = isUnlocked(key);
-      const visible = unlocked && state.visible[key] !== false;
+      // 캐릭터는 방의 기본 구성 요소이므로 예전 계정 상태에 false가
+      // 저장되어 있어도 항상 표시한다. (구버전 커스터마이저 복구 대응)
+      const visible = key === "character" ? true : unlocked && state.visible[key] !== false;
       item.classList.toggle("is-room-hidden", !visible);
       item.classList.toggle("is-room-locked", !unlocked);
     });

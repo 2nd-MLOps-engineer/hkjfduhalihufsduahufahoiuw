@@ -9,8 +9,8 @@ DRAGON_STAGES = {
 
 DRAGON_DESIGNS = {
     "usim": {"label": "우심운까", "image": "usim.png", "price": 0, "free": True},
-    "pink": {"label": "핑크 용", "image": "pink.png", "price": 3000, "free": False},
-    "blue": {"label": "파란 용", "image": "blue.png", "price": 3000, "free": False},
+    "pink": {"label": "핑크 용", "image": "pink.png", "price": 0, "free": True},
+    "blue": {"label": "파란 용", "image": "blue.png", "price": 0, "free": True},
 }
 
 
