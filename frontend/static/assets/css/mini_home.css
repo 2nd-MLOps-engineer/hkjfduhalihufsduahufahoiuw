@@ -142,6 +142,20 @@
   position:relative;
   overflow:hidden;
 }
+.room-reset-progress-button{
+  position:absolute;
+  top:12px;
+  right:12px;
+  border:1px solid #d7c7b1;
+  border-radius:7px;
+  background:#fffaf1;
+  color:#967565;
+  padding:5px 8px;
+  font-size:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.room-reset-progress-button:hover{background:#f4e8d8;color:#6f5144}
 .room-level-row{
   display:flex;
   align-items:center;

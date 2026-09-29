@@ -14,7 +14,7 @@ from .auth_forms import LoginForm, SignupForm
 from .models import FriendNote, FriendRequest, Friendship, Member, SiteVisit, WorkoutProgress, generate_friend_code
 from .recommendation_service import make_recommendations
 from .dragon import DRAGON_DESIGNS, character_payload, dragon_level
-from .progression import MAX_TOTAL_CALORIES, clamp_calories, level_for_calories
+from .progression import clamp_calories, level_for_calories
 
 LOGIN_ERROR_MESSAGE = "아이디 또는 비밀번호 오류입니다."
 GUEST_SESSION_KEY = "guest_mode"
@@ -253,10 +253,28 @@ def add_workout_calories(request):
     progress, _ = WorkoutProgress.objects.get_or_create(member=member)
     entries = progress.entries if isinstance(progress.entries, list) else []
     entries.insert(0, {"calories": amount, "created_at": timezone.now().isoformat()})
-    progress.total_calories = min(MAX_TOTAL_CALORIES, clamp_calories(progress.total_calories) + amount)
+    progress.total_calories = clamp_calories(progress.total_calories) + amount
     progress.entries = entries[:30]
     progress.save(update_fields=["total_calories", "entries", "updated_at"])
     return JsonResponse(_member_progress_payload(member))
+
+
+@never_cache
+@member_required
+@require_POST
+def reset_workout_progress(request):
+    """회원이 확인 후 운동량과 레벨을 LV.1 상태로 초기화한다."""
+    if getattr(request, "usim_guest", False):
+        return JsonResponse({"error": "게스트 모드에서는 초기화할 수 없습니다."}, status=403)
+    progress, _ = WorkoutProgress.objects.get_or_create(member=request.usim_member)
+    progress.total_calories = 0
+    progress.entries = []
+    progress.save(update_fields=["total_calories", "entries", "updated_at"])
+    room_state = request.usim_member.room_state if isinstance(request.usim_member.room_state, dict) else {}
+    room_state["characterSkin"] = "default"
+    request.usim_member.room_state = room_state
+    request.usim_member.save(update_fields=["room_state", "updated_at"])
+    return JsonResponse(_member_progress_payload(request.usim_member))
 
 
 @never_cache

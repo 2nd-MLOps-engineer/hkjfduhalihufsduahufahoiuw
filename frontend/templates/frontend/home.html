@@ -222,6 +222,7 @@
         <span>MY ROOM GROWTH</span>
         <strong id="roomTotalCalories">0 kcal</strong>
       </div>
+      <button type="button" class="room-reset-progress-button" id="resetProgressButton">레벨 초기화</button>
       <div class="room-level-row">
         <span class="room-level-badge" id="roomLevelBadge">LV. 1</span>
         <div class="room-level-copy">
@@ -351,5 +352,5 @@
 {% endblock %}
 {% block extra_js %}
 {{ initial_recommendations|json_script:"initialRecommendations" }}
-<script src="{% static 'assets/js/home.js' %}?v=20260929-1645"></script>
+<script src="{% static 'assets/js/home.js' %}?v=20260929-1710"></script>
 {% endblock %}

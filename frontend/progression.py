@@ -10,9 +10,9 @@ LEVEL_EXPONENT = 1.6
 
 
 def clamp_calories(value: int | float | None) -> int:
-    """저장된 누적 칼로리를 서비스 상한 안으로 제한한다."""
+    """저장된 누적 칼로리를 음수가 아닌 정수로 정규화한다."""
     try:
-        return max(0, min(MAX_TOTAL_CALORIES, int(value or 0)))
+        return max(0, int(value or 0))
     except (TypeError, ValueError):
         return 0
 
@@ -39,7 +39,7 @@ def level_start(level: int) -> int:
 
 
 def level_for_calories(total_calories: int | float | None) -> int:
-    total = clamp_calories(total_calories)
+    total = min(MAX_TOTAL_CALORIES, clamp_calories(total_calories))
     for level in range(1, MAX_ROOM_LEVEL):
         if total < level_start(level + 1):
             return level
@@ -53,7 +53,7 @@ def progress_for_calories(total_calories: int | float | None) -> dict[str, int |
         return {
             "total": total,
             "level": MAX_ROOM_LEVEL,
-            "current_exp": 0,
+            "current_exp": total - MAX_TOTAL_CALORIES,
             "next_exp": 0,
             "remaining": 0,
             "percent": 100,

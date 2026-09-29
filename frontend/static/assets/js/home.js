@@ -101,10 +101,11 @@
   };
 
   const getRoomLevelInfo = rawTotal => {
-    const total = Math.max(0, Math.min(MAX_TOTAL_CALORIES, Math.floor(Number(rawTotal) || 0)));
+    const total = Math.max(0, Math.floor(Number(rawTotal) || 0));
+    const levelTotal = Math.min(MAX_TOTAL_CALORIES, total);
     let level = 1;
-    while (level < MAX_ROOM_LEVEL && total >= levelStarts[level]) level += 1;
-    if (level >= MAX_ROOM_LEVEL) return { total, level: MAX_ROOM_LEVEL, exp: 0, nextExp: 0, percent: 100, remaining: 0, title: ROOM_LEVEL_TITLES.at(-1) };
+    while (level < MAX_ROOM_LEVEL && levelTotal >= levelStarts[level]) level += 1;
+    if (level >= MAX_ROOM_LEVEL) return { total, level: MAX_ROOM_LEVEL, exp: total - MAX_TOTAL_CALORIES, nextExp: 0, percent: 100, remaining: 0, title: ROOM_LEVEL_TITLES.at(-1) };
     const nextExp = levelCosts[level - 1];
     const exp = total - levelStarts[level - 1];
     const percent = Math.max(0, Math.min(100, (exp / nextExp) * 100));
@@ -447,7 +448,7 @@
     set("#roomLevelBadge", `LV. ${levelInfo.level}`);
     set("#roomLevelTitle", levelInfo.title);
     set("#roomLevelExp", levelInfo.level >= MAX_ROOM_LEVEL
-      ? "MAX LEVEL · 600,000 kcal"
+      ? `MAX LEVEL · +${levelInfo.exp.toLocaleString("ko-KR")} MOVE EXP`
       : `${levelInfo.exp.toLocaleString("ko-KR")} / ${levelInfo.nextExp.toLocaleString("ko-KR")} MOVE EXP`);
     set("#roomNextLevel", levelInfo.level >= MAX_ROOM_LEVEL
       ? "최대 레벨에 도달했어요"
@@ -537,6 +538,28 @@
     }
 
     if (input) input.value = "";
+  });
+
+  $("#resetProgressButton")?.addEventListener("click", async () => {
+    if (!canEdit) return;
+    if (!window.confirm("누적 칼로리와 운동 기록을 모두 지우고 LV.1로 초기화할까요?")) return;
+    try {
+      const response = await fetch("/api/workout-calories/reset/", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken, Accept: "application/json" },
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "레벨 초기화에 실패했습니다.");
+      serverProgress = payload;
+      savedState.characterSkin = "default";
+      draftState.characterSkin = "default";
+      localStorage.removeItem(ROOM_STATE_KEY);
+      renderWorkoutProgress("운동량을 초기화했어요 · LV.1부터 다시 시작합니다.");
+      set("#workoutCaloriesInput", "");
+    } catch (error) {
+      set("#roomUnlockMessage", error.message);
+    }
   });
 
   const sportBadge = sport => ({ running: "RUN", cycling: "RIDE", crossfit: "CF", fitness: "GYM" }[sport] || "MOVE");
