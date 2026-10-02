@@ -84,28 +84,6 @@
               <span>친구의 한마디가 도착했어요.</span>
             </div>
 
-            <section class="mini-music-player is-playing" id="miniMusicPlayer" aria-label="배경음악 데모 플레이어">
-              <div class="music-player-top">
-                <span class="music-badge">BGM</span>
-                <small>MY ROOM TAPE</small>
-                <div class="music-equalizer" aria-hidden="true"><i></i><i></i><i></i></div>
-              </div>
-              <div class="music-track-row">
-                <div class="music-cover" aria-hidden="true"><span>U</span><i>07</i></div>
-                <div class="music-track-copy">
-                  <strong id="musicTrackTitle">Morning Lap</strong>
-                  <span id="musicTrackArtist">USIM ROOM MIX</span>
-                </div>
-              </div>
-              <div class="music-control-row">
-                <button type="button" class="music-skip" id="musicPrev" aria-label="이전 곡">‹</button>
-                <button type="button" class="music-play" id="musicToggle" aria-label="재생 상태 전환"><span aria-hidden="true">Ⅱ</span></button>
-                <button type="button" class="music-skip" id="musicNext" aria-label="다음 곡">›</button>
-                <div class="music-progress" aria-hidden="true"><i id="musicProgress"></i></div>
-                <time id="musicTime">0:37</time>
-              </div>
-              <p>MY BGM · 직접 만든 음원이에요.</p>
-            </section>
           </aside>
 
           <section class="page-paper">{% block content %}{% endblock %}</section>
@@ -192,7 +170,7 @@
   </div>
 
   <script src="{% static 'assets/js/api.js' %}?v=20260918-180"></script>
-  <script src="{% static 'assets/js/app.js' %}?v=20261002-1200"></script>
+  <script src="{% static 'assets/js/app.js' %}?v=20261002-1215"></script>
   <script src="{% static 'assets/js/chatbot.js' %}?v=20260930-0845"></script>
   <script src="{% static 'assets/js/dragon_character.js' %}?v=20260929-1500"></script>
   {% block extra_js %}{% endblock %}
